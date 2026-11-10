@@ -1,38 +1,54 @@
-# Architecture
+# ROAD — Architecture
 
 ## Current release
 
-Static, phone-first PWA. No backend, account service, broker bridge or database.
+ROAD is a static, phone-first Progressive Web App. There is no backend service, broker bridge, cloud terminal or database.
 
-- `index.html`: responsive dashboard, Solana screens, Gold monitor, local paper trades and UI state.
-- `js/paper-engine.js`: Solana paper-account simulation.
-- `js/gold-engine.js`: XAU/USD reference-series validation, EMA/RSI/momentum analysis and Gold paper-trade accounting.
-- `manifest.webmanifest`, `service-worker.js`, `assets/app-icon.svg`: installable app shell and offline static asset cache.
+- `index.html`: Arabic/English responsive dashboard, Gold module, Solana market discovery, local MT5 profile metadata and paper-trading UI.
+- `js/paper-engine.js`: local Solana paper-account simulation.
+- `js/gold-engine.js`: XAU/USD reference-data validation, EMA/RSI/momentum analysis and local Gold paper-trade accounting.
+- `manifest.webmanifest`: Android-installable PWA identity for ROAD.
+- `service-worker.js`: same-origin app-shell cache; external market data is never cached.
+- `assets/app-icon.svg`: ROAD application icon.
 - `tests/*.test.cjs`: unit tests for both paper engines.
-- `scripts/smoke-check.cjs`: static UI/security boundary checks.
+- `scripts/smoke-check.cjs`: static app structure and safety-boundary checks.
+
+## Application identity and local data
+
+The product-facing name is ROAD. The repository slug is `road-1`. On first load after the brand refresh, the app copies known `road-to-cash.*` localStorage values to their `road.*` equivalents and removes the previous key only after a successful copy. This preserves existing virtual balances, market snapshots, language preference and saved MT5 profile metadata on the same browser origin.
 
 ## Gold data flow
 
-1. User presses the Gold monitor toggle.
-2. While the PWA is visible, the page requests `https://xaus.com/api/v1/spot?compact=1` and `/api/v1/intraday?symbol=xau&hours=24` once per minute.
-3. The engine requires fresh-state metadata, a valid quote timestamp, at least 60 samples, and a recent final sample. It rejects stale/unavailable feeds.
-4. EMA 20, EMA 50, RSI 14, 20-sample range and short-term momentum are calculated from the provider's 2-minute sampled reference series.
-5. BUY BIAS / SELL BIAS / WAIT is a rule-based direction alignment only. It is not a prediction probability.
-6. Manual paper-trade actions use the latest indicative spot reference and local fee/slippage assumptions. Simulated stops/targets are checked only at fetched snapshots.
-7. Position state and history are saved to browser local storage on the phone.
+1. The user activates the Gold monitoring toggle.
+2. While the PWA is visible and online, the page requests XAUS spot and intraday reference data.
+3. The engine validates explicit fresh-state metadata, quote timestamps, a sufficient sample count and the age of the latest sample.
+4. EMA 20, EMA 50, RSI 14, short-term momentum and recent range are calculated from the provider's two-minute sampled series.
+5. BUY BIAS / SELL BIAS / WAIT is a rule-based directional alignment, not a probability forecast.
+6. Local paper-trade actions use the latest indicative reference quote and local assumptions for costs, stop and target.
+7. Positions and history are stored in browser localStorage.
 
-## Local phone behavior
+XAUS data is not a broker quote, not MT5 Bid/Ask and not a tick-level execution feed.
 
-The PWA service worker caches only same-origin app-shell assets. It never caches external market data. The page pauses polling when it becomes hidden and refreshes after it returns to the foreground. Android can suspend a background tab/PWA; this architecture does not promise continuous execution with the screen off or app closed.
+## Offline and PWA behavior
 
-## Risk and execution boundary
+The app shell remains available from the service-worker cache when offline. The app reports offline status and stops data refreshes when the browser reports loss of connectivity. On reconnect, eligible modules resume fetching current data.
 
-- There is no xChief connection, MT5 integration, MT5 EA runtime or broker order route.
-- Gold paper notional is 1% of virtual equity, up to three positions.
-- Gold simulation applies assumed entry/exit fees, a fixed illustrative stop distance and target distance, and local 2% daily-loss / 5% drawdown locks.
-- These are simulator rules, not a guaranteed maximum-loss limit in live trading.
-- The data feed is indicative spot, not broker Bid/Ask, and 2-minute samples cannot reproduce tick-level stop fills.
+The service worker caches same-origin app files only. It does not cache external market prices or imply that those prices are current while offline.
+
+## MT5 profiles and future bridge
+
+The current MT5 screen stores only account type, login and server metadata in localStorage. It does not request or retain passwords and does not create a broker session.
+
+A future MT5 integration requires a separately deployed backend and a verified broker/cloud-terminal bridge. Credentials must be entered through a trusted provider-hosted flow or handled through an approved secure secret store, never placed in the PWA, browser storage, Git history or logs.
+
+## Paper-trading risk semantics
+
+- Solana paper positions use the isolated local paper engine.
+- Gold paper positions use a separate virtual account.
+- The Gold notional allocation, position cap and local loss locks apply only to the simulator.
+- Local browser state is editable and is not an authoritative or tamper-proof financial ledger.
+- Simulated stops are checked against sampled reference prices, not broker-side orders.
 
 ## Production direction
 
-To add true broker trading, obtain and verify an official xChief API/bridge and approved permissions. A native Android foreground service would need to be designed and tested for user-visible ongoing operation, battery optimization, connectivity loss, lifecycle restart and secure credentials. MT5 Android does not run Expert Advisors. A static PWA cannot safely substitute for a broker execution service.
+A future production architecture should isolate frontend, identity, account ownership, broker connector, execution supervisor, risk service, durable database and audit trail. All trading permissions and risk policies must be enforced server-side. Any future live execution must be separately authorized, idempotent, reconciled against broker state and independently reviewed.
