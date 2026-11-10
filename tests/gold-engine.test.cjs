@@ -41,8 +41,17 @@ test("paper trade uses explicit simulated stop and target",()=>{
 });
 test("manual close books net simulated result after fee assumptions",()=>{
  const now=new Date(),s=Gold.createPaperState(now),r=Gold.openPaperTrade(s,"SELL",4000,now);
- const close=Gold.closePaperTrade(s,r.position.id,3990,"MANUAL",now);
+ const close=Gold.closePaperTrade(s,r.position.id,3980,"MANUAL",now);
  assert.equal(close.ok,true);assert.ok(close.trade.pnl>0);assert.equal(s.history.length,1);
+});
+test("identifies bearish alignment from a falling reference series",()=>{
+ const now=Date.now(),points=Array.from({length:120},(_,i)=>({t:now-(120-i)*120000,p:4200-i*.1+1.5*Math.sin(i*.7)}));
+ const result=Gold.analyze(points);assert.equal(result.ok,true);assert.equal(result.signal,"SELL_BIAS");
+});
+test("requires explicit fresh-state metadata from both providers",()=>{
+ const now=Date.now(),points=series().map(x=>({t:x.t/1000,p:x.p}));
+ const spot={spot_usd_oz:4000,price_as_of:new Date(now).toISOString(),data_state:{status:"fresh"}};
+ assert.equal(Gold.validateFeed(spot,{points},now).reason,"INTRADAY_NOT_FRESH");
 });
 test("unknown schema resets paper account instead of trusting bad storage",()=>{
  const s=Gold.normalizePaperState({version:44,cash:999999});
