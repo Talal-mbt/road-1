@@ -1,6 +1,6 @@
 "use strict";
-const CACHE="road-shell-v5";
-const SHELL=["./","./index.html","./manifest.webmanifest","./js/paper-engine.js","./js/gold-engine.js","./assets/app-icon.svg"];
+const CACHE="road-shell-v6";
+const SHELL=["./","./index.html","./manifest.webmanifest","./js/trading-policy.js","./js/paper-engine.js","./js/gold-engine.js","./assets/app-icon.svg"];
 self.addEventListener("install",event=>{
   event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(SHELL)).then(()=>self.skipWaiting()));
 });
