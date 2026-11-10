@@ -1,8 +1,8 @@
 {
   "id": "./",
-  "name": "ROAD TO CASH — Gold & Market Analysis",
-  "short_name": "Road to Cash",
-  "description": "Phone-first market analysis and local paper-trading simulator.",
+  "name": "ROAD — Gold & Market Analysis",
+  "short_name": "ROAD",
+  "description": "Personal market analysis and local paper-trading simulator.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
