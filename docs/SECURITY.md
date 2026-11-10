@@ -2,7 +2,7 @@
 
 ## Current release boundary
 
-ROAD TO CASH is a static browser/PWA research dashboard and paper simulator. It has no wallet adapter, private-key or seed-phrase handling, transaction signer, xChief credentials, MT5 account session, broker API, live order route, backend service or database. No real trade can be submitted through this repository.
+ROAD is a static browser/PWA research dashboard and paper simulator. It has no wallet adapter, private-key or seed-phrase handling, transaction signer, xChief credentials, MT5 account session, broker API, live order route, backend service or database. No real trade can be submitted through this repository.
 
 ## Implemented controls
 
