@@ -631,7 +631,13 @@ function price(symbol){const found=assets.find(a=>a.symbol===symbol);return foun
 function addEvent(message,type){state.events.unshift({at:new Date().toISOString(),type:String(type||"INFO"),message:String(message||"").slice(0,240)});state.events=state.events.slice(0,Engine.CONFIG.maxEvents);saveState();}
 function log(message,type){addEvent(message,type);renderLogs();}
 function toast(message){const node=$("toast");node.textContent=String(message);node.classList.remove("hide");clearTimeout(toast.timer);toast.timer=setTimeout(()=>node.classList.add("hide"),2600);}
-function syncRiskLock(previouslyLocked){const snapshot=Engine.refreshRisk(state,priceMap(),new Date());saveState();if(!previouslyLocked&&state.riskLocked)addEvent("Risk circuit breaker locked new entries: "+state.riskLockReason,"RISK");return snapshot;}
+function syncRiskLock(previouslyLocked){
+ const oldDay=state.dayKey,oldHigh=state.highWaterEquity;
+ const snapshot=Engine.refreshRisk(state,priceMap(),new Date());
+ if(!previouslyLocked&&state.riskLocked)addEvent("Risk circuit breaker locked new entries: "+state.riskLockReason,"RISK");
+ else if(oldDay!==state.dayKey||oldHigh!==state.highWaterEquity)saveState();
+ return snapshot;
+}
 function renderLogs(){
 const rows=state.events.slice(0,8).map(e=>'<div class="logrow"><time>'+esc(e.at?e.at.slice(11,19)+" UTC":"--:--")+'</time><span class="msg"><b>'+esc(e.type)+'</b> '+esc(e.message)+'</span></div>').join("");
 const all=state.events.map(e=>'<div class="logrow"><time>'+esc(e.at?e.at.slice(11,19)+" UTC":"--:--")+'</time><span class="msg"><b>'+esc(e.type)+'</b> '+esc(e.message)+'</span></div>').join("");
@@ -708,6 +714,7 @@ function navigate(page){
  $("title").innerHTML=esc(titles[page]||"مساحة العمل")+"<span class='cyan'>.</span>";
  $("subtitle").textContent=subtitles[page]||"إدارة ومتابعة المنصة.";
  setDrawer(false);
+ applyLanguage();
 }
 async function loadDexScreener(){
 if(fetchInProgress)return;
@@ -1001,8 +1008,8 @@ function saveGoldPaper(){try{localStorage.setItem(GOLD_PAPER_KEY,JSON.stringify(
 function setGoldStatus(title,detail,pill,usable=false){
  $("goldMonitorStatus").textContent=localizeGoldText(title);$("goldMonitorDetail").textContent=localizeGoldText(detail);
  $("goldMonitorPill").textContent=appLanguage==="ar"?pill:({ON:"ON",OFF:"OFF",STALE:"STALE",ERROR:"ERROR",PAUSED:"PAUSED",CONNECTING:"CONNECTING"}[pill]||pill);$("goldMonitorToggle").classList.toggle("on",goldMonitoring);
- $("goldMonitorToggle").textContent=goldMonitoring?"■ إيقاف المراقبة":"▶ تفعيل مراقبة الذهب";
- $("goldFeedStatus").textContent=usable?"بيانات حديثة":(goldLastFetchedAt?"بيانات قديمة / غير متاحة":"غير متصل");
+ $("goldMonitorToggle").textContent=goldMonitoring?localized("■ إيقاف المراقبة","■ Stop monitoring"):localized("▶ تفعيل مراقبة الذهب","▶ Start monitoring");
+ $("goldFeedStatus").textContent=usable?localized("بيانات حديثة","Fresh data"):(goldLastFetchedAt?localized("بيانات قديمة / غير متاحة","Stale / unavailable") :localized("غير متصل","Offline"));
  $("goldFeedStatus").className=usable?"gold-badge":"tag warn";
 }
 function renderGoldChart(points){
@@ -1078,14 +1085,14 @@ async function fetchGoldSnapshot(){
   const closed=GoldEngine.checkStops(goldPaperState,goldCurrentQuote,new Date());
   closed.forEach(t=>log("Gold paper position closed by "+t.reason+" · "+goldMoney(t.pnl),"GOLD PAPER"));
   saveGoldPaper();
-  setGoldStatus("المراقبة تعمل","تحديث مرجعي كل 60 ثانية أثناء بقاء التطبيق في الواجهة.","ON",goldFeedUsable);
+  setGoldStatus("المراقبة تعمل",localized("تحديث مرجعي كل 60 ثانية أثناء بقاء التطبيق في الواجهة.","Reference data refreshes every 60 seconds while the app is visible."),"ON",goldFeedUsable);
   log("Gold reference snapshot updated · indicative spot only","GOLD DATA");
   renderGold();
  }catch(error){
   goldFeedUsable=false;goldAnalysis={ok:false,reason:"FEED_ERROR"};
-  const message=error&&error.name==="AbortError"?"انتهت مهلة الاتصال":String(error&&error.message||"تعذر الاتصال");
-  setGoldStatus("تعذر تحديث البيانات",message+" · لا نستخدم بيانات قديمة لإنشاء مراكز تجريبية.","ERROR",false);
-  log("Gold feed error: "+message,"ERROR");renderGold();
+  const message=!navigator.onLine?localized("انقطع اتصال الإنترنت.","Internet connection lost."):error&&error.name==="AbortError"?localized("انتهت مهلة الاتصال","Request timed out"):String(error&&error.message||localized("تعذر الاتصال","Connection failed"));
+  setGoldStatus("تعذر تحديث البيانات",message+" · "+localized("لا نستخدم بيانات قديمة لإنشاء مراكز تجريبية.","Stale data cannot be used to open paper trades."),navigator.onLine?"ERROR":"OFFLINE",false);
+  if(navigator.onLine)log("Gold feed error: "+message,"ERROR");renderGold();
  }finally{clearTimeout(timeout);if(goldController===controller)goldController=null;goldFetchBusy=false;}
 }
 function toggleGoldMonitoring(){
@@ -1096,7 +1103,7 @@ function toggleGoldMonitoring(){
   log("Gold monitoring stopped by user","GOLD");renderGold();return;
  }
  goldMonitoring=true;
- setGoldStatus("جارٍ الاتصال","يتم جلب السعر المرجعي وسلسلة العينات الآن…","CONNECTING",false);
+ setGoldStatus("جارٍ الاتصال",localized("يتم جلب السعر المرجعي وسلسلة العينات الآن…","Fetching the reference quote and price series…"),"CONNECTING",false);
  log("Gold monitoring started by user","GOLD");
  fetchGoldSnapshot();
  goldTimer=setInterval(()=>{
@@ -1158,7 +1165,7 @@ function handleOnline(){
  setNetworkState();
  log(localized("عاد اتصال الشبكة.","Network connection restored."),"NETWORK");
  if(goldMonitoring&&document.visibilityState==="visible"){
-  setGoldStatus("استؤنفت المراقبة","التطبيق متصل؛ جارٍ جلب بيانات حديثة.","CONNECTING",false);
+  setGoldStatus("استؤنفت المراقبة",localized("التطبيق متصل؛ جارٍ جلب بيانات حديثة.","App is online; fetching fresh data."),"CONNECTING",false);
   fetchGoldSnapshot();
   if(!goldTimer)goldTimer=setInterval(()=>{if(navigator.onLine&&document.visibilityState==="visible")fetchGoldSnapshot();},60000);
  }
