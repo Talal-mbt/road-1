@@ -378,6 +378,23 @@ html[dir="ltr"] .drawer-close{margin-left:auto;margin-right:0}
  .language-toggle{min-width:39px}
 }
 
+
+/* Final mobile overrides: five destinations and a genuinely readable drawer */
+@media(max-width:650px){
+ .mobile-bottom{grid-template-columns:repeat(5,minmax(0,1fr))!important}
+ .sidebar{width:min(86vw,330px)!important;z-index:61!important}
+ .sidebar.open{display:flex!important;transform:translateX(0)!important}
+ .sidebar.open .brand-copy,.sidebar.open .workspace-copy,.sidebar.open .navlabel,.sidebar.open .sidebottom{display:block!important}
+ .sidebar.open .nav button{display:flex!important;justify-content:flex-start!important;align-items:center!important;gap:11px!important;min-height:48px!important;padding:10px 12px!important}
+ .sidebar.open .nav button .label{display:block!important;visibility:visible!important;opacity:1!important;width:auto!important;max-width:none!important;flex:1 1 auto!important;overflow:visible!important;white-space:normal!important;font-size:13px!important;line-height:1.5!important;color:#c4d6e4!important}
+ .sidebar.open .nav button .navicon{display:inline-flex!important;flex:0 0 27px!important}
+ .sidebar.open .navlabel{display:block!important;font-size:11px!important}
+ .mobile-bottom .bottom-label{font-size:9px;line-height:1.25;white-space:nowrap}
+}
+html[lang="en"] body,html[lang="en"] button,html[lang="en"] input,html[lang="en"] select{font-family:"Times New Roman",Times,serif}
+html[lang="ar"] body,html[lang="ar"] button,html[lang="ar"] input,html[lang="ar"] select{font-family:"Noto Sans Arabic","Noto Naskh Arabic",Tahoma,Arial,sans-serif}
+#networkBanner{z-index:25}
+
 </style></head>
 <body><div class="shell">
 <aside class="sidebar" id="sidebar" aria-label="القائمة الرئيسية">
