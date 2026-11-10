@@ -279,6 +279,54 @@ button.danger{color:var(--red);border-color:#653b4c;background:#2a1824}
  .drawer-scrim{display:none!important}
 }
 
+
+/* Accessible icons, readable mobile drawer, typography, language and offline states */
+.navicon{display:inline-flex;align-items:center;justify-content:center;flex:0 0 26px;width:26px;height:26px;color:currentColor}
+.navicon svg{width:21px;height:21px;display:block;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.mobile-bottom .navicon{width:23px;height:23px}
+.mobile-bottom .navicon svg{width:22px;height:22px}
+.sidebar.open .brand-copy,.sidebar.open .workspace-copy,.sidebar.open .navlabel,.sidebar.open .sidebottom{display:block!important}
+.sidebar.open .brand{justify-content:flex-start}
+.sidebar.open .workspace{justify-content:flex-start}
+.sidebar.open .nav{gap:6px}
+.sidebar.open .nav button{justify-content:flex-start;text-align:right;min-height:48px;padding:10px 12px;gap:12px}
+.sidebar.open .nav button .label{display:inline!important;visibility:visible!important;opacity:1!important;white-space:normal;flex:1;font-size:13px}
+.sidebar.open .nav button .navicon{display:inline-flex!important;flex:0 0 27px}
+.sidebar.open .navlabel{font-size:11px;color:#78a3b9;margin:10px 0 0;padding:0 9px}
+.sidebar.open .sidebottom{display:block!important}
+html[lang="ar"] body{font-family:"Noto Naskh Arabic","Noto Sans Arabic","Tahoma","Arial",serif}
+html[lang="en"] body{font-family:"Times New Roman",Times,serif}
+html[lang="en"] .main,html[lang="en"] .content{text-align:left;direction:ltr}
+html[lang="en"] .heading,html[lang="en"] .home-hero,html[lang="en"] .feature-card,html[lang="en"] .cardhead{direction:ltr;text-align:left}
+html[lang="en"] .nav button{text-align:left}
+html[lang="en"] .sidebar{border-left:0;border-right:1px solid #1a3449}
+html[dir="ltr"] .sidebar{right:auto;left:0;transform:translateX(-110%)}
+html[dir="ltr"] .sidebar.open{transform:translateX(0)}
+html[dir="ltr"] .drawer-close{margin-left:auto;margin-right:0}
+html[dir="ltr"] .drawer-scrim{direction:ltr}
+.language-toggle{min-width:43px;min-height:38px;padding:6px 10px;border-radius:11px;background:#14384d;border:1px solid #35748b;color:#9ceaf0;font-weight:800;font-family:"Times New Roman",Times,serif}
+.connection-pill.offline{border-color:#814653;background:#341d2a;color:#ff9aa6}
+.connection-pill.offline .led{background:#ff6f7d;box-shadow:0 0 9px #ff6f7d66}
+.network-banner{position:sticky;top:73px;z-index:18;padding:11px 18px;background:#3b2229;border-bottom:1px solid #8a4556;color:#ffd4da;font-size:12px;text-align:center}
+.network-banner[hidden]{display:none!important}
+.mt5-account-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:17px}
+.mt5-account-grid label{display:grid;gap:7px;color:var(--muted);font-size:11px}
+.mt5-account-grid input,.mt5-account-grid select{width:100%;min-height:44px;padding:10px 12px;border-radius:11px;border:1px solid #31536a;background:#081c2d;color:var(--text);font:14px "Times New Roman",serif}
+.mt5-account-grid button{grid-column:1/-1;min-height:46px}
+.mt5-profiles-list{display:grid;gap:8px}
+.mt5-profile-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:13px;border:1px solid #294b61;background:#0b2032;border-radius:13px}
+.mt5-profile-row b{display:block;font-size:12px}
+.mt5-profile-row small{display:block;color:var(--muted);font-size:10px;margin-top:3px}
+.mt5-profile-row button{padding:6px 9px;font-size:10px}
+[hidden]{display:none!important}
+@media(max-width:760px){
+ .sidebar.open .nav button .label{display:block!important}
+ .sidebar.open .nav button{min-height:50px}
+ .network-banner{top:63px;font-size:11px;padding:9px 11px}
+ .mt5-account-grid{grid-template-columns:1fr}
+ .mt5-account-grid button{grid-column:auto}
+}
+
 </style></head>
 <body><div class="shell">
 <aside class="sidebar" id="sidebar" aria-label="القائمة الرئيسية">
@@ -289,6 +337,7 @@ button.danger{color:var(--red);border-color:#653b4c;background:#2a1824}
   <button class="active" data-page="overview"><span class="navicon">⌂</span><span class="label">الرئيسية</span></button>
   <button data-page="gold"><span class="navicon">◆</span><span class="label">تحليل الذهب XAUUSD</span></button>
   <button data-page="goldTrades"><span class="navicon">▤</span><span class="label">صفقات الذهب</span></button>
+  <button data-page="accounts"><span class="navicon">▣</span><span class="label">حسابات MT5</span></button>
   <button data-page="scout"><span class="navicon">⌕</span><span class="label">استكشاف الأسواق</span></button>
  </nav>
  <div class="navlabel">الأدوات المتقدمة</div>
@@ -309,13 +358,14 @@ button.danger{color:var(--red);border-color:#653b4c;background:#2a1824}
   <div class="brand-mini"><span class="brand-mini-icon">R</span><div><b>ROAD TO <em>CASH</em></b><small>منصة تحليل الأسواق</small></div></div>
  </div>
  <div class="top-actions">
-  <span class="connection-pill"><i class="led"></i><span id="provider">DEMO SNAPSHOT</span></span>
-  <span class="pill">وضع تجريبي</span>
+  <span class="connection-pill"><i class="led"></i><span id="networkStatus">متصل</span></span><span class="connection-pill provider-pill"><span id="provider">DEMO SNAPSHOT</span></span>
+  <span class="pill">وضع تجريبي</span><button id="languageToggle" class="language-toggle" type="button" aria-label="Switch language">EN</button>
   <button id="installApp" class="install-button">تثبيت التطبيق</button>
   <span id="clock" class="clock">--:-- UTC</span>
  </div>
 </header>
-<div class="content"><div class="heading" dir="rtl">
+<div id="networkBanner" class="network-banner" role="status" aria-live="polite" hidden>انقطع اتصال الإنترنت. سيبقى التطبيق مفتوحاً، لكن تحديث الأسعار والبيانات سيتوقف حتى عودة الشبكة.</div>
+<div class="content><div class="heading" dir="rtl">
  <div class="heading-copy"><div class="eyebrow">مركز متابعة الأسواق · MARKET INTELLIGENCE</div><h1 id="title">لوحة التحكم<span class="cyan">.</span></h1><p id="subtitle">كل ما تحتاجه لمتابعة الذهب والأسواق وإدارة المحاكاة من مكان واحد.</p></div>
  <div class="heading-actions"><span class="warning" id="data-label">بيانات تجريبية · ليست مباشرة</span><button id="refresh" class="secondary-button">↻ تحديث السوق</button><button class="primary" id="pause">Ⅱ إيقاف المحاكاة</button></div>
 </div>
@@ -458,12 +508,47 @@ button.danger{color:var(--red);border-color:#653b4c;background:#2a1824}
  </div>
  <div class="gold-disclaimer">كل الأرقام في هذه الصفحة افتراضية ومخزنة على هذا الجهاز في المتصفح. مسح بيانات الموقع أو إعادة ضبط المحاكاة يحذف السجل المحلي.</div>
 </section>
+<section id="accounts" class="page" dir="rtl" lang="ar">
+ <div class="card">
+  <div class="cardhead"><div><span class="section-kicker">ربط الوسيط · MT5</span><strong>حسابات التداول</strong></div><span class="tag warn" id="mt5ConnectionState">غير متصل</span></div>
+  <div class="gold-disclaimer">رقم الحساب وحده لا يكفي للاتصال. يلزم رقم Login وكلمة مرور الحساب واسم خادم الوسيط. لا تضع كلمة مرور MT5 في هذه الصفحة حالياً؛ لا يوجد خادم آمن للربط في النسخة المنشورة.</div>
+  <div class="mt5-account-grid">
+   <label>نوع الحساب
+    <select id="mt5AccountType"><option value="DEMO">Demo تجريبي</option><option value="REAL">Real حقيقي</option></select>
+   </label>
+   <label>رقم حساب MT5 (Login)
+    <input id="mt5Login" inputmode="numeric" autocomplete="off" maxlength="20" placeholder="مثال: 12345678"/>
+   </label>
+   <label>اسم خادم الوسيط (Server)
+    <input id="mt5Server" autocomplete="off" maxlength="80" placeholder="اكتب الاسم كما يظهر في MT5"/>
+   </label>
+   <button id="saveMt5Profile" class="primary">حفظ بيانات التعريف محلياً</button>
+  </div>
+  <p class="sub" id="mt5ProfileMessage">الحفظ هنا لا ينشئ اتصالاً ولا يرسل أوامر. ستظهر حالة الاتصال فقط بعد بناء خادم موثوق وربطه بالوسيط.</p>
+ </div>
+ <div class="card">
+  <div class="cardhead"><strong>ملفات الحساب المحفوظة على هذا الجهاز</strong><small>LOCAL PROFILE · NO PASSWORD</small></div>
+  <div id="mt5ProfilesList" class="mt5-profiles-list"><div class="gold-muted">لا توجد ملفات حساب محفوظة.</div></div>
+ </div>
+ <div class="card">
+  <div class="cardhead"><strong>متطلبات الاتصال الحقيقي</strong><small>SECURITY CHECKLIST</small></div>
+  <div class="system-list">
+   <div><i class="status-dot"></i><span><b>رقم الحساب + الخادم</b><small>لتحديد الحساب الصحيح لدى الوسيط</small></span><em>مطلوب</em></div>
+   <div><i class="status-dot"></i><span><b>كلمة مرور Master</b><small>تُدخل فقط في صفحة ربط آمنة مستضافة لدى مزود الربط</small></span><em>سري</em></div>
+   <div><i class="status-dot"></i><span><b>خادم Backend</b><small>لتخزين أسرار الاتصال خارج التطبيق العام</small></span><em>غير موجود</em></div>
+   <div><i class="status-dot"></i><span><b>اختبار Demo</b><small>مزامنة الرصيد والأسعار وفتح/إغلاق صفقة تحقق</small></span><em>لم يبدأ</em></div>
+  </div>
+  <p class="gold-muted">وفق MetaQuotes، تسجيل الدخول يتطلب Login وPassword وServer. كلمة مرور المستثمر تسمح بالمشاهدة فقط ولا تمنح صلاحية تنفيذ التداول.</p>
+  <a class="text-link" href="https://www.metatrader5.com/en/mobile-trading/android/help/settings_accounts/account_connect" target="_blank" rel="noopener noreferrer">تعليمات MetaTrader الرسمية لربط الحساب ←</a>
+ </div>
+</section>
 <nav class="mobile-bottom" aria-label="التنقل السفلي" dir="rtl">
- <button class="active" data-page="overview"><span class="navicon">⌂</span><span>الرئيسية</span></button>
- <button data-page="gold"><span class="navicon">◆</span><span>الذهب</span></button>
- <button data-page="goldTrades"><span class="navicon">▤</span><span>الصفقات</span></button>
- <button data-page="scout"><span class="navicon">⌕</span><span>الأسواق</span></button>
- <button data-page="health"><span class="navicon">⚙</span><span>المزيد</span></button>
+ <button class="active" data-page="overview"><span class="navicon">⌂</span><span class="bottom-label">الرئيسية</span></button>
+ <button data-page="gold"><span class="navicon">◆</span><span class="bottom-label">الذهب</span></button>
+ <button data-page="goldTrades"><span class="navicon">▤</span><span class="bottom-label">الصفقات</span></button>
+ <button data-page="accounts"><span class="navicon">▣</span><span class="bottom-label">الحساب</span></button>
+ <button data-page="scout"><span class="navicon">⌕</span><span class="bottom-label">الأسواق</span></button>
+ <button data-page="health"><span class="navicon">⚙</span><span class="bottom-label">المزيد</span></button>
 </nav>
 <footer class="footer"><span>ROAD TO CASH · الإصدار 0.2</span><span>NOT FINANCIAL ADVICE · محاكاة فقط</span><span>جلسة محلية</span></footer></div></main></div><div id="toast" class="toast hide"></div>
 <script src="js/paper-engine.js"></script><script src="js/gold-engine.js"></script><script>
