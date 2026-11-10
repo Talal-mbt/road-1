@@ -6,7 +6,7 @@
 @media(max-width:650px){.shell{display:block}.sidebar{display:none;position:fixed;z-index:5;top:0;bottom:0;width:220px}.sidebar.open{display:flex}.top{padding:0 12px}.content{padding:15px}.heading{display:block}.actions{margin-top:15px}.metrics{gap:8px}.metric{font-size:20px}.units{grid-template-columns:1fr 1fr}.riskgrid{grid-template-columns:1fr 1fr}.top .status .provider{display:none}}
 
 .gold-page{display:grid;gap:13px}.gold-head{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap}.gold-quote{font:clamp(28px,6vw,42px) var(--mono);font-weight:700;color:#f4bd62;margin:8px 0}.gold-ref{color:var(--muted);font-size:10px;line-height:1.7}.gold-chart{height:205px;border:1px solid #243849;border-radius:9px;background:linear-gradient(180deg,#0a1520,#0b1119);overflow:hidden}.gold-chart svg{width:100%;height:100%}.gold-toolbar{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.gold-toggle{width:100%;min-height:62px;border-radius:13px;font-size:19px;font-weight:800;letter-spacing:.2px;background:linear-gradient(120deg,#263244,#101b2a);border:1px solid #6b7483;color:#e3eaf5;box-shadow:0 7px 25px #0005}.gold-toggle.on{background:linear-gradient(120deg,#174d3e,#102b24);border-color:#55d6a3;color:#70e7b8;box-shadow:0 0 24px #55d6a322}.gold-state{display:flex;justify-content:space-between;gap:10px;align-items:center;border:1px solid var(--line);border-radius:9px;padding:13px;background:#0b141e}.gold-state strong{font-size:18px}.gold-state small{color:var(--muted);display:block;margin-top:5px}.gold-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}.gold-kpi{background:#0a131d;border:1px solid var(--line);border-radius:8px;padding:12px;min-width:0}.gold-kpi label{display:block;color:var(--muted);font:10px var(--mono);letter-spacing:.5px}.gold-kpi strong{display:block;margin-top:9px;font:17px var(--mono);overflow-wrap:anywhere}.gold-signal{border:1px solid #4b3b25;background:linear-gradient(120deg,#201a11,#0c141d);border-radius:10px;padding:15px}.gold-signal .signal-value{font-size:22px;font-weight:800;margin-top:8px}.gold-disclaimer{border:1px solid #25463e;background:#10221f;color:#7fe4bd;border-radius:8px;padding:11px;font-size:11px;line-height:1.7}.gold-actions{display:flex;gap:8px;flex-wrap:wrap}.gold-actions button{flex:1;min-width:130px}.gold-table{width:100%;border-collapse:collapse;white-space:nowrap}.gold-table th,.gold-table td{padding:11px 9px;text-align:left;border-bottom:1px solid #203141;font:11px var(--mono)}.gold-table th{color:var(--muted)}.gold-badge{border-radius:5px;padding:4px 7px;background:#172a24;color:var(--green);font:10px var(--mono)}.gold-muted{color:var(--muted);font-size:11px;line-height:1.7}.mobile-bottom{display:none}
-#installApp{display:none}
+#installApp{display:inline-block}
 @media(max-width:650px){
  .gold-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
  .gold-chart{height:170px}
@@ -45,7 +45,7 @@
 <div class="gold-page">
  <div class="card">
   <div class="gold-head">
-   <div><div class="eyebrow">GOLD MARKET / XAUUSD</div><h2 style="margin:7px 0 0;font-size:22px">تحليل الذهب</h2><div class="gold-ref">سعر مرجعي بالدولار للأونصة الترويسية · مصدر مستقل وليس سعر xChief القابل للتنفيذ</div></div>
+   <div><div class="eyebrow">GOLD MARKET / XAUUSD</div><h2 style="margin:7px 0 0;font-size:22px">تحليل الذهب</h2><div class="gold-ref">سعر مرجعي بالدولار للأونصة الترويسية · <a href="https://xaus.com/api/" target="_blank" rel="noopener noreferrer">مصدر البيانات XAUS</a> · ليس سعر xChief القابل للتنفيذ</div></div>
    <div style="text-align:left"><span class="gold-badge" id="goldFeedStatus">غير متصل</span><div class="gold-quote" id="goldPrice">—</div><div class="gold-ref" id="goldUpdatedAt">لم يتم جلب البيانات</div></div>
   </div>
   <div class="gold-chart" style="margin-top:12px">
@@ -60,8 +60,8 @@
  <button id="goldMonitorToggle" class="gold-toggle">▶ تفعيل مراقبة الذهب</button>
  <div class="gold-state"><div><strong id="goldMonitorStatus">متوقف</strong><small id="goldMonitorDetail">اضغط زر التفعيل لبدء جلب السعر وتحليل البيانات المرجعية.</small></div><span class="gold-badge" id="goldMonitorPill">OFF</span></div>
  <div class="gold-grid">
-  <div class="gold-kpi"><label>EMA 20</label><strong id="goldEma20">—</strong></div>
-  <div class="gold-kpi"><label>EMA 50</label><strong id="goldEma50">—</strong></div>
+  <div class="gold-kpi"><label>EMA 20 · 2M</label><strong id="goldEma20">—</strong></div>
+  <div class="gold-kpi"><label>EMA 50 · 2M</label><strong id="goldEma50">—</strong></div>
   <div class="gold-kpi"><label>RSI 14</label><strong id="goldRsi">—</strong></div>
   <div class="gold-kpi"><label>MOMENTUM</label><strong id="goldMomentum">—</strong></div>
   <div class="gold-kpi"><label>RANGE 20 SAMPLES</label><strong id="goldRange">—</strong></div>
@@ -194,6 +194,7 @@ if(!window.confirm("Reset the local paper account, positions, trade history and 
 state=Engine.createState();saveState();log("Local paper account reset by user","SYSTEM");render();toast("Paper account reset");
 }
 function navigate(page){
+document.querySelectorAll(".mobile-bottom button").forEach(x=>x.classList.toggle("active",x.dataset.page===page));
 document.querySelectorAll(".page").forEach(x=>x.classList.toggle("active",x.id===page));
 document.querySelectorAll(".nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===page));
 $("crumb").textContent=page.toUpperCase();
@@ -394,7 +395,7 @@ document.addEventListener("visibilitychange",()=>{
  if(!goldMonitoring)return;
  if(document.visibilityState==="visible"){
   setGoldStatus("استؤنفت المراقبة","التطبيق في الواجهة؛ جارٍ تحديث البيانات.","CONNECTING",false);fetchGoldSnapshot();
- }else setGoldStatus("معلّق بالخلفية","قد يوقف Android تحديثات الصفحة في الخلفية. افتح التطبيق لاستئناف المراقبة.","PAUSED",false);
+ }else{goldFeedUsable=false;setGoldStatus("معلّق بالخلفية","قد يوقف Android تحديثات الصفحة في الخلفية. افتح التطبيق لاستئناف المراقبة.","PAUSED",false);renderGold();}
 });
 window.addEventListener("beforeinstallprompt",event=>{
  event.preventDefault();goldDeferredInstall=event;$("installApp").style.display="inline-block";
