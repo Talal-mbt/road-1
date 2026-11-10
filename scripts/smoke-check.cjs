@@ -5,6 +5,7 @@ const paperEngine = fs.readFileSync("js/paper-engine.js", "utf8");
 const goldEngine = fs.readFileSync("js/gold-engine.js", "utf8");
 const manifest = JSON.parse(fs.readFileSync("manifest.webmanifest", "utf8"));
 const sw = fs.readFileSync("service-worker.js", "utf8");
+const scripts = [...html.matchAll(/<script>([\\s\\S]*?)<\\/script>/g)].map(match => match[1]);
 
 for (const id of ["equity","realized","unrealized","positions","dailyLossValue","drawdownValue","riskReason","storageStatus","assetselect","resetpaper","livefetch","liveDataAge"]) {
   assert.match(html, new RegExp('id="' + id + '"'), "missing Solana UI element: " + id);
@@ -12,6 +13,22 @@ for (const id of ["equity","realized","unrealized","positions","dailyLossValue",
 for (const id of ["gold","goldTrades","goldPrice","goldMonitorToggle","goldMonitorStatus","goldSignal","goldPaperBuy","goldPaperSell","goldOpenPositions","goldTradeHistory","goldResetPaper"]) {
   assert.match(html, new RegExp('id="' + id + '"'), "missing Gold UI element: " + id);
 }
+
+assert.match(html, /<html lang="ar" dir="rtl">/, "app shell should be Arabic-first and RTL");
+for (const id of ["sidebar","drawerScrim","closeMenu","menu","crumb","subtitle","marketSearch"]) {
+  assert.match(html, new RegExp('id="' + id + '"'), "missing redesigned navigation/search element: " + id);
+}
+assert.match(html, /class="home-hero"/, "home hero is missing");
+assert.match(html, /class="feature-grid"/, "quick navigation cards are missing");
+assert.match(html, /class="mobile-bottom"/, "mobile bottom navigation is missing");
+assert.match(html, /transform:translateX\(110%\)/, "mobile drawer must be off-canvas when closed");
+assert.match(html, /class="drawer-scrim"/, "mobile drawer must have a scrim");
+assert.match(html, /function setDrawer\(open\)/, "drawer controller is missing");
+assert.match(html, /function applyMarketSearch\(\)/, "market search controller is missing");
+assert.equal((html.match(/class="mobile-bottom"[^>]*>[\\s\\S]*?<button data-page=/g) || []).length, 1, "mobile nav should render once");
+assert.ok(scripts.length >= 1, "application script is missing");
+for (const script of scripts) new Function(script);
+
 assert.match(html, /src="js\/paper-engine\.js"/, "paper engine must load from same origin");
 assert.match(html, /src="js\/gold-engine\.js"/, "gold engine must load from same origin");
 assert.match(html, /manifest\.webmanifest/, "PWA manifest must be linked");
