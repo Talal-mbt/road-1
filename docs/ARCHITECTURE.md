@@ -2,35 +2,37 @@
 
 ## Current release
 
-This repository is a static browser app hosted by GitHub Pages. It has no backend or database.
+Static, phone-first PWA. No backend, account service, broker bridge or database.
 
-- `index.html`: responsive dashboard and UI wiring.
-- `js/paper-engine.js`: isolated, deterministic paper portfolio accounting and local risk rules.
-- `tests/paper-engine.test.cjs`: unit tests for simulation state, entry/exit accounting, and circuit breakers.
-- `scripts/smoke-check.cjs`: static integrity checks for required UI wiring and the no-live-wallet boundary.
-- `.github/workflows/quality.yml`: Node test and smoke-check workflow.
-- `.github/workflows/pages.yml`: packages the static page and its JavaScript dependency for GitHub Pages.
+- `index.html`: responsive dashboard, Solana screens, Gold monitor, local paper trades and UI state.
+- `js/paper-engine.js`: Solana paper-account simulation.
+- `js/gold-engine.js`: XAU/USD reference-series validation, EMA/RSI/momentum analysis and Gold paper-trade accounting.
+- `manifest.webmanifest`, `service-worker.js`, `assets/app-icon.svg`: installable app shell and offline static asset cache.
+- `tests/*.test.cjs`: unit tests for both paper engines.
+- `scripts/smoke-check.cjs`: static UI/security boundary checks.
 
-## Data flow
+## Gold data flow
 
-1. The app loads bounded local paper state from browser storage, or creates a fresh virtual account.
-2. Synthetic fixtures populate the first view. Optional SCOUT requests public DexScreener token profiles and Solana pair snapshots.
-3. Provider fields are validated before display. Names, symbols, ids and event strings are HTML-escaped. External data is not treated as security evidence.
-4. Public data snapshots older than five minutes cannot be used to open new paper positions.
-5. The paper engine models notional sizing, entry/exit slippage and fees, realized/unrealized PnL, and local circuit breakers.
-6. The event log and positions persist best-effort in local storage. This persistence is user-editable, device-local, and not an audited ledger.
+1. User presses the Gold monitor toggle.
+2. While the PWA is visible, the page requests `https://xaus.com/api/v1/spot?compact=1` and `/api/v1/intraday?symbol=xau&hours=24` once per minute.
+3. The engine requires fresh-state metadata, a valid quote timestamp, at least 60 samples, and a recent final sample. It rejects stale/unavailable feeds.
+4. EMA 20, EMA 50, RSI 14, 20-sample range and short-term momentum are calculated from the provider's 2-minute sampled reference series.
+5. BUY BIAS / SELL BIAS / WAIT is a rule-based direction alignment only. It is not a prediction probability.
+6. Manual paper-trade actions use the latest indicative spot reference and local fee/slippage assumptions. Simulated stops/targets are checked only at fetched snapshots.
+7. Position state and history are saved to browser local storage on the phone.
 
-## Current risk semantics
+## Local phone behavior
 
-- One simulated entry is limited to 1% of marked virtual equity by **notional**, not by worst-case loss.
-- At most three virtual positions may be open.
-- A 2% daily loss or 5% drawdown from the local high-water mark locks new entries.
-- Manual pause also blocks new entries.
-- Risk locks remain sticky until the local paper account is reset. Reset is destructive and requires browser confirmation.
-- Closing positions remains available after a pause. No forced liquidation is simulated.
+The PWA service worker caches only same-origin app-shell assets. It never caches external market data. The page pauses polling when it becomes hidden and refreshes after it returns to the foreground. Android can suspend a background tab/PWA; this architecture does not promise continuous execution with the screen off or app closed.
 
-## Production architecture direction
+## Risk and execution boundary
 
-Use a separately deployed API, worker, durable relational database, queue, authenticated admin surface, and append-only audit events. Provider adapters need schema validation, source timestamps, retries/backoff, circuit breakers, rate limits, and data-quality metrics.
+- There is no xChief connection, MT5 integration, MT5 EA runtime or broker order route.
+- Gold paper notional is 1% of virtual equity, up to three positions.
+- Gold simulation applies assumed entry/exit fees, a fixed illustrative stop distance and target distance, and local 2% daily-loss / 5% drawdown locks.
+- These are simulator rules, not a guaranteed maximum-loss limit in live trading.
+- The data feed is indicative spot, not broker Bid/Ask, and 2-minute samples cannot reproduce tick-level stop fills.
 
-Keep research, policy evaluation, and any future signing/execution services isolated. The frontend must never hold private keys or have permission to sign transactions. All live actions, if ever implemented, require server-side authorization, transaction simulation, policy checks, explicit opt-in and independent security review.
+## Production direction
+
+To add true broker trading, obtain and verify an official xChief API/bridge and approved permissions. A native Android foreground service would need to be designed and tested for user-visible ongoing operation, battery optimization, connectivity loss, lifecycle restart and secure credentials. MT5 Android does not run Expert Advisors. A static PWA cannot safely substitute for a broker execution service.
