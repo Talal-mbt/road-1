@@ -70,7 +70,7 @@ assert.match(html, /Times New Roman/, "English font fallback must use Times New 
 assert.match(html, /Noto Sans Arabic/, "Arabic font fallback must use a readable Arabic sans font");
 assert.match(html, /id="mt5ProfilesList"/, "local MT5 profile list is missing");
 assert.match(html, /function saveMt5Profile\(\)/, "local MT5 profile save handler is missing");
-assert.match(html, /road-to-cash\.mt5\.profiles\.v1/, "MT5 profile storage key is missing");
+assert.match(html, /road\.mt5\.profiles\.v1/, "MT5 profile storage key is missing");
 assert.doesNotMatch(html, /location\.reload\s*\(/, "ordinary updates must never reload the whole page");
 assert.doesNotMatch(html, /setInterval\([^;]*render\(\)[^;]*,\s*5000\)/, "full app rendering must not run on a short polling timer");
 assert.match(html, /if\(!navigator\.onLine\)/, "market data requests must fail closed while offline");
