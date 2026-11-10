@@ -1,10 +1,10 @@
 {
-  "id": "./",
+  "id": "/road-1/",
   "name": "ROAD — Gold & Market Intelligence",
   "short_name": "ROAD",
   "description": "Mobile-first market intelligence for XAUUSD, digital assets, risk monitoring and paper trading.",
-  "start_url": "./",
-  "scope": "./",
+  "start_url": "/road-1/",
+  "scope": "/road-1/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#061321",
