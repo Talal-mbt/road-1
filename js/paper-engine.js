@@ -2,7 +2,8 @@
  * No wallet, broker session, private key, order signer or live transaction capability.
  */
 (function(root,factory){
-  const api=factory(root&&root.RoadTradingPolicy);
+  let policy=root&&root.RoadTradingPolicy;if(!policy&&typeof module==="object"&&module.exports)policy=require("./trading-policy.js");
+  const api=factory(policy);
   if(typeof module==="object"&&module.exports)module.exports=api;
   if(root)root.PaperEngine=api;
 })(typeof globalThis!=="undefined"?globalThis:this,function(Policy){
