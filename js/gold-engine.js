@@ -145,7 +145,13 @@
     const risk=updateRisk(state,price,now);
     if(risk.locked)return {ok:false,reason:risk.reason||"RISK_LOCKED"};
     if(state.positions.length>=POLICY.maxPositions)return {ok:false,reason:"MAX_POSITIONS"};
-    if(state.positions.length)return {ok:false,reason:"DUPLICATE_OR_AVERAGING_BLOCKED"};
+    if(state.positions.some(p=>p.side!==side))return {ok:false,reason:"OPPOSITE_POSITION_BLOCKED"};
+    const sameSide=state.positions.filter(p=>p.side===side);
+    if(sameSide.length){
+      const bestEntry=side==="BUY"?Math.max(...sameSide.map(p=>p.entry)):Math.min(...sameSide.map(p=>p.entry));
+      if((side==="BUY"&&price<=bestEntry)||(side==="SELL"&&price>=bestEntry))
+        return {ok:false,reason:"AVERAGING_DOWN_BLOCKED"};
+    }
     const equityNow=equity(state,price),riskBasis=POLICY.autoReinvest?equityNow:Math.min(equityNow,state.initialCapital);
     const sign=side==="BUY"?1:-1,entry=Number(price)*(1+sign*POLICY.slippagePctPerSide/100);
     const stop=entry*(1-sign*POLICY.stopLossPct/100),target=entry+(entry-stop)*POLICY.minimumRiskReward;
