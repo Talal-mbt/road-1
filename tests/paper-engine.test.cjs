@@ -45,10 +45,12 @@ test("maximum concurrent risk blocks entries beyond the configured cap",()=>{
  assert.deepEqual(Engine.openPosition(s,"B",100,{B:100},fixedDate()),{ok:false,reason:"MAX_CONCURRENT_RISK"});
 });
 test("daily loss limit suspends new entries while drawdown high-water is retained",()=>{
- Engine.configure({...Policy.DEFAULTS,initialCapital:1000,stopLossPct:1,maxAccountDrawdownPct:10});
- const s=Engine.createState(fixedDate()); assert.equal(Engine.openPosition(s,"A",100,{A:100},fixedDate()).ok,true);
- const risk=Engine.refreshRisk(s,{A:94},fixedDate());
- assert.equal(s.dailyLocked,true); assert.equal(risk.paused,true); assert.equal(risk.pauseReason,"DAILY_LOSS_LIMIT");
+ Engine.configure({...Policy.DEFAULTS,initialCapital:1000,maxAccountDrawdownPct:10,weeklyLossLimitPct:5});
+ const s=Engine.createState(fixedDate());s.cash=979;
+ const risk=Engine.refreshRisk(s,{},fixedDate());
+ assert.equal(s.dailyLocked,true);
+ assert.equal(risk.paused,true);
+ assert.equal(risk.pauseReason,"DAILY_LOSS_LIMIT");
  assert.equal(Engine.openPosition(s,"B",100,{B:100},fixedDate()).ok,false);
 });
 test("weekly loss lock remains until explicit strategy validation",()=>{
