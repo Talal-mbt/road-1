@@ -174,7 +174,7 @@ $("data-label").textContent=stale?"STALE PUBLIC DATA · ENTRIES BLOCKED":(source
 $("tokens").innerHTML=assets.map(a=>'<tr><td class="token">'+esc(a.name)+'<span class="symbol">'+esc(a.symbol)+'</span></td><td>'+fmt(a.price)+'</td><td>'+money(a.liq)+'</td><td>'+money(a.vol)+'</td><td class="cyan">'+(Number.isFinite(Number(a.score))?esc(a.score)+"/100":"NOT SCORED")+'</td><td><span class="tag warn">UNVERIFIED</span></td><td><button class="smallbtn" data-buy="'+esc(a.symbol)+'">Paper buy</button></td></tr>').join("")||'<tr><td colspan="7" class="muted">No valid market candidates.</td></tr>';
 $("scouttable").innerHTML=assets.map(a=>'<tr><td class="token">'+esc(a.name)+'<span class="symbol">'+esc(a.symbol)+'</span></td><td>'+fmt(a.price)+'</td><td>'+money(a.liq)+'</td><td>'+money(a.vol)+'</td><td>'+esc(a.age||"—")+'</td><td><span class="tag warn">UNVERIFIED</span></td></tr>').join("")||'<tr><td colspan="6" class="muted">No valid market candidates.</td></tr>';
 $("openpositions").innerHTML=state.positions.map(p=>{const mark=price(p.symbol)||p.entryPrice,pnl=p.qty*mark-p.notional-p.entryFee;return '<tr><td>'+esc(p.symbol)+'</td><td>'+money(p.notional)+'</td><td>'+fmt(mark)+'</td><td class="'+(pnl>=0?"green":"red")+'">'+money(pnl)+'</td><td><button class="smallbtn" data-sell="'+esc(p.id)+'">Close</button></td></tr>';}).join("")||'<tr><td colspan="5" class="muted">No open paper positions.</td></tr>';
-$("clock").textContent=new Date().toISOString().slice(11,19)+" UTC";renderLogs();
+$("clock").textContent=new Date().toISOString().slice(11,19)+" UTC";renderLogs();renderGold();
 }
 function buy(symbol){
 if(sourceMode==="PUBLIC"&&(!lastRefresh||Date.now()-Date.parse(lastRefresh)>300000)){log("Entry blocked: public market snapshot is older than 5 minutes","RISK");return toast("Stale market data — refresh first");}
@@ -254,6 +254,159 @@ const buyButton=event.target.closest("[data-buy]");if(buyButton)buy(buyButton.ge
 const sellButton=event.target.closest("[data-sell]");if(sellButton)sell(sellButton.getAttribute("data-sell"));
 });
 window.addEventListener("storage",event=>{if(event.key===STORAGE_KEY){state=Engine.normalizeState(readJson(STORAGE_KEY));render();}});
+
+const GOLD_PAPER_KEY="road-to-cash.gold-paper.v1";
+let goldPaperState=GoldEngine.normalizePaperState(readJson(GOLD_PAPER_KEY));
+let goldMonitoring=false,goldTimer=null,goldFetchBusy=false,goldCurrentQuote=null,goldQuoteTime=null,goldSeries=[],goldAnalysis=null,goldFeedUsable=false,goldLastFetchedAt=null,goldDeferredInstall=null;
+const goldMoney=n=>"$"+Number(n||0).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+const goldPriceText=n=>Number(n).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+function saveGoldPaper(){try{localStorage.setItem(GOLD_PAPER_KEY,JSON.stringify(goldPaperState));}catch(_){$("goldRiskState").textContent="SESSION ONLY";}}
+function setGoldStatus(title,detail,pill,usable=false){
+ $("goldMonitorStatus").textContent=title;$("goldMonitorDetail").textContent=detail;
+ $("goldMonitorPill").textContent=pill;$("goldMonitorToggle").classList.toggle("on",goldMonitoring);
+ $("goldMonitorToggle").textContent=goldMonitoring?"■ إيقاف المراقبة":"▶ تفعيل مراقبة الذهب";
+ $("goldFeedStatus").textContent=usable?"بيانات حديثة":(goldLastFetchedAt?"بيانات قديمة / غير متاحة":"غير متصل");
+ $("goldFeedStatus").className=usable?"gold-badge":"tag warn";
+}
+function renderGoldChart(points){
+ const path=$("goldChartLine"),area=$("goldChartArea");if(!points||points.length<2){path.setAttribute("d","");area.setAttribute("d","");return;}
+ const data=points.slice(-120),prices=data.map(p=>p.price),min=Math.min(...prices),max=Math.max(...prices),span=Math.max(max-min,Math.abs(max)*0.00005);
+ const coords=prices.map((p,i)=>({x:12+i*(736/(prices.length-1)),y:188-((p-min)/span)*160}));
+ const d=coords.map((p,i)=>(i?"L":"M")+p.x.toFixed(1)+" "+p.y.toFixed(1)).join(" ");
+ path.setAttribute("d",d);area.setAttribute("d",d+" L 748 198 L 12 198 Z");
+}
+function renderGoldTrades(){
+ const s=GoldEngine.summary(goldPaperState,goldCurrentQuote||undefined);
+ $("goldEquity").textContent=goldMoney(s.equity);$("goldRealized").textContent=goldMoney(s.realizedPnl);
+ $("goldOpenCount").textContent=s.openCount+" / "+GoldEngine.CONFIG.maxPositions;
+ $("goldRiskState").textContent=s.risk.locked?"LOCKED":"READY";$("goldRiskState").className=s.risk.locked?"red":"green";
+ $("goldTradesCash").textContent=goldMoney(s.cash);$("goldTradesEquity").textContent=goldMoney(s.equity);
+ $("goldTradesOpenPnl").textContent=goldMoney(s.openPnl);$("goldTradesRealized").textContent=goldMoney(s.realizedPnl);
+ $("goldOpenPositions").innerHTML=goldPaperState.positions.map(p=>{
+  const mark=goldCurrentQuote||p.entry,move=(mark-p.entry)*p.qty*(p.side==="BUY"?1:-1)-p.entryFee;
+  return '<tr><td>'+esc(p.side==="BUY"?"شراء":"بيع")+'</td><td>'+goldMoney(p.entry)+'</td><td>'+goldMoney(p.stop)+'</td><td>'+goldMoney(p.target)+'</td><td class="'+(move>=0?"green":"red")+'">'+goldMoney(move)+'</td><td><button class="smallbtn" data-gold-close="'+esc(p.id)+'">إغلاق تجريبي</button></td></tr>';
+ }).join("")||'<tr><td colspan="6" class="gold-muted">لا توجد مراكز مفتوحة</td></tr>';
+ $("goldTradeHistory").innerHTML=goldPaperState.history.map(t=>
+  '<tr><td>'+esc(t.side==="BUY"?"شراء":"بيع")+'</td><td>'+goldMoney(t.entry)+'</td><td>'+goldMoney(t.exit)+'</td><td class="'+(Number(t.pnl)>=0?"green":"red")+'">'+goldMoney(t.pnl)+'</td><td>'+esc(t.reason)+'</td><td>'+esc((t.closedAt||"").replace("T"," ").slice(0,16))+'</td></tr>'
+ ).join("")||'<tr><td colspan="6" class="gold-muted">لا يوجد سجل صفقات بعد</td></tr>';
+}
+function renderGold(){
+ if(goldCurrentQuote!==null)$("goldPrice").textContent=goldPriceText(goldCurrentQuote);
+ else $("goldPrice").textContent="—";
+ if(goldQuoteTime)$("goldUpdatedAt").textContent="وقت الملاحظة: "+new Date(goldQuoteTime).toLocaleString()+" · UTC/جهازك";
+ $("goldFeedAge").textContent=goldLastFetchedAt?"آخر فحص: "+new Date(goldLastFetchedAt).toLocaleTimeString():"لم يتم الفحص";
+ $("goldFreshness").textContent=goldFeedUsable?"FRESH":"UNAVAILABLE";
+ const a=goldAnalysis;
+ if(a&&a.ok){
+  $("goldEma20").textContent=goldPriceText(a.ema20);$("goldEma50").textContent=goldPriceText(a.ema50);
+  $("goldRsi").textContent=a.rsi14.toFixed(1);$("goldMomentum").textContent=(a.momentumPct>=0?"+":"")+a.momentumPct.toFixed(3)+"%";
+  $("goldRange").textContent=a.rangePct.toFixed(3)+"%";$("goldSamples").textContent=a.samples;
+  $("goldScore").textContent=a.alignmentScore+"/100";
+  $("goldSignal").textContent=a.signal==="BUY_BIAS"?"ميل صعودي":a.signal==="SELL_BIAS"?"ميل هبوطي":"انتظار";
+  $("goldSignal").style.color=a.signal==="BUY_BIAS"?"var(--green)":a.signal==="SELL_BIAS"?"var(--red)":"var(--amber)";
+  $("goldSignalText").textContent=a.interpretation+" · درجة توافق المؤشرات وليست احتمال ربح أو نسبة نجاح.";
+  renderGoldChart(goldSeries);
+ }else{
+  ["goldEma20","goldEma50","goldRsi","goldMomentum","goldRange","goldSamples","goldScore"].forEach(id=>$(id).textContent="—");
+  $("goldSignal").textContent="لا توجد إشارة";$("goldSignal").style.color="var(--amber)";
+  $("goldSignalText").textContent=a&&a.reason==="INSUFFICIENT_HISTORY"?"البيانات التاريخية غير كافية حالياً.":"أوقفنا إصدار الإشارات لأن البيانات غير متاحة أو قديمة.";
+  renderGoldChart([]);
+ }
+ $("goldPaperBuy").disabled=!goldFeedUsable||!goldCurrentQuote||goldPaperState.riskLocked;
+ $("goldPaperSell").disabled=!goldFeedUsable||!goldCurrentQuote||goldPaperState.riskLocked;
+ renderGoldTrades();
+}
+async function fetchGoldSnapshot(){
+ if(goldFetchBusy)return;goldFetchBusy=true;
+ const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),12000);
+ try{
+  const stamp=Date.now();
+  const urls=[
+   "https://xaus.com/api/v1/spot?compact=1&fresh="+stamp,
+   "https://xaus.com/api/v1/intraday?symbol=xau&hours=24&fresh="+stamp
+  ];
+  const responses=await Promise.all(urls.map(url=>fetch(url,{signal:controller.signal,headers:{Accept:"application/json"}})));
+  if(!responses[0].ok||!responses[1].ok)throw new Error("Gold data provider returned HTTP "+responses.find(r=>!r.ok).status);
+  const [spot,intraday]=await Promise.all(responses.map(r=>r.json()));
+  const check=GoldEngine.validateFeed(spot,intraday,Date.now());
+  goldLastFetchedAt=new Date().toISOString();
+  if(!check.ok){
+   goldFeedUsable=false;goldAnalysis={ok:false,reason:check.reason};
+   setGoldStatus("البيانات مرفوضة", "لن نصدر تحليلاً أو نفتح محاكاة من بيانات غير مكتملة أو قديمة: "+check.reason,"STALE",false);
+   log("Gold analysis blocked: "+check.reason,"GOLD");renderGold();return;
+  }
+  goldCurrentQuote=check.quote;goldQuoteTime=check.quoteTime;goldSeries=check.points;
+  goldAnalysis=GoldEngine.analyze(check.points);goldFeedUsable=goldAnalysis.ok;
+  const closed=GoldEngine.checkStops(goldPaperState,goldCurrentQuote,new Date());
+  closed.forEach(t=>log("Gold paper position closed by "+t.reason+" · "+goldMoney(t.pnl),"GOLD PAPER"));
+  saveGoldPaper();
+  setGoldStatus("المراقبة تعمل","تحديث مرجعي كل 60 ثانية أثناء بقاء التطبيق في الواجهة.","ON",goldFeedUsable);
+  log("Gold reference snapshot updated · indicative spot only","GOLD DATA");
+  renderGold();
+ }catch(error){
+  goldFeedUsable=false;goldAnalysis={ok:false,reason:"FEED_ERROR"};
+  const message=error&&error.name==="AbortError"?"انتهت مهلة الاتصال":String(error&&error.message||"تعذر الاتصال");
+  setGoldStatus("تعذر تحديث البيانات",message+" · لا نستخدم بيانات قديمة لإنشاء مراكز تجريبية.","ERROR",false);
+  log("Gold feed error: "+message,"ERROR");renderGold();
+ }finally{clearTimeout(timeout);goldFetchBusy=false;}
+}
+function toggleGoldMonitoring(){
+ if(goldMonitoring){
+  goldMonitoring=false;if(goldTimer){clearInterval(goldTimer);goldTimer=null;}
+  setGoldStatus("متوقف","تم إيقاف الفحص الدوري. لا توجد مراقبة حالية.","OFF",goldFeedUsable);
+  log("Gold monitoring stopped by user","GOLD");renderGold();return;
+ }
+ goldMonitoring=true;
+ setGoldStatus("جارٍ الاتصال","يتم جلب السعر المرجعي وسلسلة العينات الآن…","CONNECTING",false);
+ log("Gold monitoring started by user","GOLD");
+ fetchGoldSnapshot();
+ goldTimer=setInterval(()=>{
+  if(document.visibilityState==="visible")fetchGoldSnapshot();
+  else setGoldStatus("معلّق بالخلفية","قد يوقف Android تحديثات الصفحة في الخلفية. افتح التطبيق لاستئناف المراقبة.","PAUSED",false);
+ },60000);
+}
+function openGoldPaper(side){
+ if(!goldMonitoring)return toast("فعّل المراقبة أولاً للحصول على بيانات حديثة");
+ if(!goldFeedUsable||!goldCurrentQuote)return toast("لا يمكن فتح محاكاة من بيانات قديمة أو غير مكتملة");
+ const result=GoldEngine.openPaperTrade(goldPaperState,side,goldCurrentQuote,new Date());
+ if(!result.ok){log("Gold paper entry blocked: "+result.reason,"RISK");toast("تم رفض الصفقة التجريبية: "+result.reason);renderGold();return;}
+ saveGoldPaper();log("Gold paper "+side+" opened · "+goldMoney(result.position.notional)+" virtual notional","GOLD PAPER");
+ renderGold();toast("تم فتح صفقة تجريبية فقط");
+}
+function closeGoldPaper(id){
+ const p=goldPaperState.positions.find(x=>x.id===id);if(!p)return;
+ if(!goldFeedUsable||!goldCurrentQuote)return toast("لا يمكن الإغلاق بسعر غير حديث");
+ const result=GoldEngine.closePaperTrade(goldPaperState,id,goldCurrentQuote,"MANUAL",new Date());
+ if(result.ok){saveGoldPaper();log("Gold paper position closed · "+goldMoney(result.trade.pnl),"GOLD PAPER");renderGold();}
+}
+function resetGoldPaper(){
+ if(!window.confirm("هل تريد حذف رصيد المحاكاة والصفقات المفتوحة والسجل المحلي نهائياً؟"))return;
+ goldPaperState=GoldEngine.createPaperState();saveGoldPaper();renderGold();log("Gold paper account reset locally","SYSTEM");
+}
+$("goldMonitorToggle").addEventListener("click",toggleGoldMonitoring);
+$("goldPaperBuy").addEventListener("click",()=>openGoldPaper("BUY"));
+$("goldPaperSell").addEventListener("click",()=>openGoldPaper("SELL"));
+$("goldResetPaper").addEventListener("click",resetGoldPaper);
+document.addEventListener("click",event=>{
+ const b=event.target.closest("[data-gold-close]");if(b)closeGoldPaper(b.getAttribute("data-gold-close"));
+});
+document.addEventListener("visibilitychange",()=>{
+ if(!goldMonitoring)return;
+ if(document.visibilityState==="visible"){
+  setGoldStatus("استؤنفت المراقبة","التطبيق في الواجهة؛ جارٍ تحديث البيانات.","CONNECTING",false);fetchGoldSnapshot();
+ }else setGoldStatus("معلّق بالخلفية","قد يوقف Android تحديثات الصفحة في الخلفية. افتح التطبيق لاستئناف المراقبة.","PAUSED",false);
+});
+window.addEventListener("beforeinstallprompt",event=>{
+ event.preventDefault();goldDeferredInstall=event;$("installApp").style.display="inline-block";
+});
+$("installApp").addEventListener("click",async()=>{
+ if(!goldDeferredInstall){toast("في Chrome: القائمة ⋮ ثم Add to Home screen / Install app");return;}
+ goldDeferredInstall.prompt();await goldDeferredInstall.userChoice;goldDeferredInstall=null;$("installApp").style.display="none";
+});
+if("serviceWorker" in navigator&&location.protocol==="https:"){
+ navigator.serviceWorker.register("./service-worker.js",{scope:"./"}).catch(error=>log("Offline app-shell setup failed: "+String(error.message||error),"WARN"));
+}
+
 log("Terminal initialized. Paper-only mode; no wallet or live execution.","SYSTEM");
 render();
 setInterval(()=>$("clock").textContent=new Date().toISOString().slice(11,19)+" UTC",1000);
