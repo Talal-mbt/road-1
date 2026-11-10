@@ -91,6 +91,7 @@
     out.martingaleEnabled=false;
     out.lossRecoveryEnabled=false;
     out.averagingDownEnabled=false;
+    out.automaticEmergencyStop=true;
     return Object.freeze(out);
   }
   function theoreticalCompound(initialCapital,cycleCount,settings){
