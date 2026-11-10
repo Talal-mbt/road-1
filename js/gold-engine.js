@@ -18,7 +18,7 @@
   const CONFIG_BASE={minSamples:60,maxQuoteAgeMs:120000,maxSeriesAgeMs:300000,maxHistory:300,maxEvents:100};
   const finite=n=>Number.isFinite(Number(n)),positive=n=>finite(n)&&Number(n)>0;
   const round=n=>Math.round((Number(n)+Number.EPSILON)*1e8)/1e8;
-  const timestampMs(v){
+  function timestampMs(v){
     if(typeof v==="number"&&Number.isFinite(v))return v<1e12?v*1000:v;
     if(typeof v==="string"){const n=Number(v);if(Number.isFinite(n)&&n>0)return n<1e12?n*1000:n;const d=Date.parse(v);return Number.isFinite(d)?d:NaN;}
     return NaN;
