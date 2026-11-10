@@ -1,6 +1,7 @@
 const fs = require("node:fs");
 const assert = require("node:assert/strict");
 const html = fs.readFileSync("index.html", "utf8");
+const tradingPolicy = fs.readFileSync("js/trading-policy.js", "utf8");
 const paperEngine = fs.readFileSync("js/paper-engine.js", "utf8");
 const goldEngine = fs.readFileSync("js/gold-engine.js", "utf8");
 const manifest = JSON.parse(fs.readFileSync("manifest.webmanifest", "utf8"));
@@ -30,6 +31,7 @@ assert.equal((bottomNav.match(/data-page=/g) || []).length, 5, "mobile nav shoul
 assert.ok(scripts.length >= 1, "application script is missing");
 for (const script of scripts) new Function(script);
 
+assert.match(html, /src="js\/trading-policy\.js"/, "shared trading policy must load before paper engines");
 assert.match(html, /src="js\/paper-engine\.js"/, "paper engine must load from same origin");
 assert.match(html, /src="js\/gold-engine\.js"/, "gold engine must load from same origin");
 assert.match(html, /manifest\.webmanifest/, "PWA manifest must be linked");
@@ -37,6 +39,8 @@ assert.match(html, /serviceWorker\.register/, "PWA service worker registration m
 assert.match(html, /Content-Security-Policy/, "CSP must be present");
 assert.match(html, /api\.dexscreener\.com/, "Solana public provider must be explicit");
 assert.match(html, /xaus\.com/, "Gold reference provider must be explicit");
+assert.match(tradingPolicy, /initialCapital:3/, "initial capital default is missing");
+assert.match(tradingPolicy, /targetCycleGrowthPct:3/, "cycle growth target default is missing");
 assert.match(paperEngine, /function openPosition/, "Solana paper entry function missing");
 assert.match(paperEngine, /function closePosition/, "Solana paper close function missing");
 assert.match(goldEngine, /function analyze/, "gold analysis function missing");
@@ -46,6 +50,8 @@ assert.match(goldEngine, /dailyLossPct/, "gold daily loss limit missing");
 assert.match(goldEngine, /maxDrawdownPct/, "gold drawdown limit missing");
 assert.match(goldEngine, /INTRADAY_STALE/, "gold stale feed check missing");
 assert.match(manifest.display, /standalone/, "PWA must support standalone display");
+assert.match(sw, /road-shell-v6/, "PWA cache namespace must include new trading policy module");
+assert.match(sw, /js\/trading-policy\.js/, "PWA shell must cache the shared trading policy");
 assert.equal(manifest.short_name, "ROAD", "PWA short name must be ROAD");
 assert.match(manifest.name, /^ROAD —/, "PWA display name must start with ROAD");
 assert.ok(html.includes("<title>ROAD — Gold &amp; Market Intelligence</title>"), "browser title must use ROAD identity");
@@ -58,6 +64,11 @@ assert.ok(html.includes('const GOLD_PAPER_KEY="road.gold-paper.v1"'), "Gold pape
 assert.match(sw, /if\(url\.origin!==self\.location\.origin\)return/, "service worker must not cache external market data");
 assert.doesNotMatch(paperEngine + goldEngine, /sendTransaction|signTransaction|wallet\.adapter|OrderSend/i, "live transaction capability must not be added");
 
+assert.match(html, /id="policyInitialCapital"/, "capital must be editable inside the app");
+assert.match(html, /id="currentPaperEquity"/, "current paper equity must be visible");
+assert.match(html, /id="resetAllPaper"/, "app must provide explicit capital reinitialization control");
+assert.match(html, /function savePolicy\(\)/, "trading policy settings must be savable");
+assert.match(html, /function validateRiskRecovery\(\)/, "risk recovery review must be available");
 assert.match(html, /id="languageToggle"/, "Arabic/English toggle is missing");
 assert.match(html, /function applyLanguage\(\)/, "language controller is missing");
 assert.match(html, /function setDrawer\(open\)/, "drawer controller is missing");
