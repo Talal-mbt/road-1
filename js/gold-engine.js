@@ -146,7 +146,7 @@
     if(state.positions.length>=POLICY.maxPositions)return {ok:false,reason:"MAX_POSITIONS"};
     if(state.positions.length)return {ok:false,reason:"DUPLICATE_OR_AVERAGING_BLOCKED"};
     const equityNow=equity(state,price),riskBasis=POLICY.autoReinvest?equityNow:Math.min(equityNow,state.initialCapital);
-    const sign=side==="BUY"?1:-1,entry=Number(price)*(1+POLICY.slippagePctPerSide/100);
+    const sign=side==="BUY"?1:-1,entry=Number(price)*(1+sign*POLICY.slippagePctPerSide/100);
     const stop=entry*(1-sign*POLICY.stopLossPct/100),target=entry+(entry-stop)*POLICY.minimumRiskReward;
     const sizing=Policy?Policy.positionSizing({equity:riskBasis,availableCash:state.cash,entryPrice:entry,stopPrice:stop,
       riskPct:Math.min(POLICY.maxRiskPerTradePct,risk.effectiveRiskPct),maxExposurePct:POLICY.maxPositionExposurePct,
@@ -165,7 +165,7 @@
   function closePaperTrade(state,id,price,reason="MANUAL",now=new Date()){
     const i=state.positions.findIndex(p=>p.id===id);
     if(i<0||!positive(price))return {ok:false,reason:"POSITION_NOT_FOUND_OR_INVALID_PRICE"};
-    const p=state.positions[i],exitPrice=Number(price)*(1-(POLICY.slippagePctPerSide/100)*(p.side==="BUY"?1:-1));
+    const p=state.positions[i],exitPrice=Number(price)*(1-(p.side==="BUY"?1:-1)*POLICY.slippagePctPerSide/100);
     const gross=(exitPrice-p.entry)*p.qty*(p.side==="BUY"?1:-1),exitFee=round(p.notional*POLICY.commissionPctPerSide/100);
     const net=round(gross-p.entryFee-exitFee);
     state.cash=round(state.cash+p.notional+gross-exitFee);state.positions.splice(i,1);
@@ -187,11 +187,13 @@
     }
     updateRisk(state,price,now);return closed;
   }
-  function validateRecovery(state,price,now=new Date()){
+  function validateRecovery(state,price,now=new Date(),strategyValidated=false){
     const risk=updateRisk(state,price,now);
     if(risk.dailyLossPct>=POLICY.dailyLossLimitPct||risk.weeklyLossPct>=POLICY.weeklyLossLimitPct||
-       risk.drawdownPct>=POLICY.maxAccountDrawdownPct||state.currentConsecutiveLosses>=POLICY.maxConsecutiveLossesPause)
+       risk.drawdownPct>=POLICY.maxAccountDrawdownPct||(state.currentConsecutiveLosses>=POLICY.maxConsecutiveLossesPause&&strategyValidated!==true))
       return {ok:false,reason:"RISK_CONDITIONS_NOT_RECOVERED"};
+    if((state.weeklyRiskLocked||state.hardDrawdownLocked||state.strategyLocked||state.consecutiveLossPause)&&strategyValidated!==true)
+      return {ok:false,reason:"EXPLICIT_STRATEGY_VALIDATION_REQUIRED"};
     state.dailyLocked=false;state.weeklyRiskLocked=false;state.hardDrawdownLocked=false;state.strategyLocked=false;
     state.consecutiveLossPause=false;state.currentConsecutiveLosses=0;state.riskLocked=false;state.riskLockReason="";
     return {ok:true};
