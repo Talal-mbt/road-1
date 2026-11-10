@@ -47,7 +47,7 @@ test("maximum concurrent risk blocks entries beyond the configured cap",()=>{
 test("daily loss limit suspends new entries while drawdown high-water is retained",()=>{
  Engine.configure({...Policy.DEFAULTS,initialCapital:1000,stopLossPct:1,maxAccountDrawdownPct:10});
  const s=Engine.createState(fixedDate()); assert.equal(Engine.openPosition(s,"A",100,{A:100},fixedDate()).ok,true);
- const risk=Engine.refreshRisk(s,{A:97},fixedDate());
+ const risk=Engine.refreshRisk(s,{A:95},fixedDate());
  assert.equal(s.dailyLocked,true); assert.equal(risk.paused,true); assert.equal(risk.pauseReason,"DAILY_LOSS_LIMIT");
  assert.equal(Engine.openPosition(s,"B",100,{B:100},fixedDate()).ok,false);
 });
@@ -57,7 +57,7 @@ test("weekly loss lock remains until explicit strategy validation",()=>{
  const risk=Engine.refreshRisk(s,{},fixedDate());
  assert.equal(s.weeklyRiskLocked,true); assert.equal(risk.pauseReason,"WEEKLY_LOSS_LIMIT");
  assert.equal(Engine.validateRecovery(s,{},fixedDate(),false).ok,false);
- assert.equal(Engine.validateRecovery(s,{},fixedDate(),true).ok,true);
+ assert.equal(Engine.validateRecovery(s,{},fixedDate(16),true).ok,true);
 });
 test("5% drawdown reduces risk to 0.25% without hard locking before 10%",()=>{
  Engine.configure({...Policy.DEFAULTS,initialCapital:1000,dailyLossLimitPct:10,weeklyLossLimitPct:20,drawdownReduceRiskAtPct:5,reducedRiskPerTradePct:.25,maxAccountDrawdownPct:10});
@@ -75,6 +75,7 @@ test("three consecutive losses pause entries and five lock the strategy",()=>{
  const s=Engine.createState(fixedDate(1));
  for(let i=0;i<3;i++){const day=fixedDate(i+1),symbol="LOSS"+i;const e=Engine.openPosition(s,symbol,100,{[symbol]:100},day);assert.equal(e.ok,true);assert.equal(Engine.closePosition(s,e.position.id,99,day).ok,true);}
  assert.equal(s.currentConsecutiveLosses,3); assert.equal(Engine.openPosition(s,"BLOCKED",100,{BLOCKED:100},fixedDate(4)).ok,false);
+ assert.equal(Engine.validateRecovery(s,{},fixedDate(4),true).ok,true);
  for(let i=3;i<5;i++){const day=fixedDate(i+1),symbol="LOSS"+i;const e=Engine.openPosition(s,symbol,100,{[symbol]:100},day);assert.equal(e.ok,true);Engine.closePosition(s,e.position.id,99,day);}
  assert.equal(s.strategyLocked,true); assert.equal(Engine.openPosition(s,"LOCKED",100,{LOCKED:100},fixedDate(6)).ok,false);
 });
