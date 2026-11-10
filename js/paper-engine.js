@@ -127,11 +127,13 @@
     state.manualPaused=paused===true;state.updatedAt=now.toISOString();
     return getRiskSnapshot(state).paused;
   }
-  function validateRecovery(state,prices={},now=new Date()){
+  function validateRecovery(state,prices={},now=new Date(),strategyValidated=false){
     const snap=refreshRisk(state,prices,now);
     const safe=snap.dailyLossPct<POLICY.dailyLossLimitPct&&snap.weeklyLossPct<POLICY.weeklyLossLimitPct&&
-      snap.drawdownPct<POLICY.maxAccountDrawdownPct&&state.currentConsecutiveLosses<POLICY.maxConsecutiveLossesPause;
+      snap.drawdownPct<POLICY.maxAccountDrawdownPct&&(state.currentConsecutiveLosses<POLICY.maxConsecutiveLossesPause||strategyValidated===true);
     if(!safe)return {ok:false,reason:"RISK_CONDITIONS_NOT_RECOVERED"};
+    if((state.weeklyRiskLocked||state.hardDrawdownLocked||state.strategyLocked||state.consecutiveLossPause)&&strategyValidated!==true)
+      return {ok:false,reason:"EXPLICIT_STRATEGY_VALIDATION_REQUIRED"};
     state.dailyLocked=false;state.weeklyRiskLocked=false;state.hardDrawdownLocked=false;state.strategyLocked=false;
     state.consecutiveLossPause=false;state.currentConsecutiveLosses=0;state.riskLocked=false;state.riskLockReason="";
     return {ok:true};
