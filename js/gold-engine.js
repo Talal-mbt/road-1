@@ -196,7 +196,7 @@
     if((state.weeklyRiskLocked||state.hardDrawdownLocked||state.strategyLocked||state.consecutiveLossPause)&&strategyValidated!==true)
       return {ok:false,reason:"EXPLICIT_STRATEGY_VALIDATION_REQUIRED"};
     state.dailyLocked=false;state.weeklyRiskLocked=false;state.hardDrawdownLocked=false;state.strategyLocked=false;
-    state.consecutiveLossPause=false;state.currentConsecutiveLosses=0;state.riskLocked=false;state.riskLockReason="";
+    state.consecutiveLossPause=false;if(state.strategyLocked)state.currentConsecutiveLosses=0;state.riskLocked=false;state.riskLockReason="";
     return {ok:true};
   }
   function summary(state,price){
