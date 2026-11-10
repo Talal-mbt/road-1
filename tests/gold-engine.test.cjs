@@ -1,9 +1,11 @@
 const test=require("node:test");
 const assert=require("node:assert/strict");
 const Gold=require("../js/gold-engine.js");
+const Policy=require("../js/trading-policy.js");
 function series(n=120,base=4000,step=.1){
  const now=Date.now();return Array.from({length:n},(_,i)=>({t:now-(n-i)*120000,p:base+i*step+1.5*Math.sin(i*.7)}));
 }
+test.beforeEach(()=>Gold.configure(Policy.DEFAULTS));
 test("normalizes epoch timestamps and removes duplicate timestamps",()=>{
  const now=Date.now(),p=Gold.normalizePoints([{t:Math.floor(now/1000),p:4000},{t:Math.floor(now/1000),p:4001},{t:Math.floor(now/1000)-120,p:3999}]);
  assert.equal(p.length,2);assert.equal(p.at(-1).price,4001);
@@ -28,19 +30,23 @@ test("feed validator rejects stale intraday samples",()=>{
  {points,data_state:{status:"fresh"}},now);
  assert.equal(result.ok,false);assert.equal(result.reason,"INTRADAY_STALE");
 });
-test("paper positions are capped and remain local",()=>{
+test("Gold paper allows favorable pyramiding but blocks averaging down and caps risk",()=>{
+ Gold.configure({...Policy.DEFAULTS,initialCapital:1000,stopLossPct:2,maxConcurrentRiskPct:2,maxPositions:3});
  const now=new Date(),s=Gold.createPaperState(now);
- for(let i=0;i<3;i++)assert.equal(Gold.openPaperTrade(s,"BUY",4000,now).ok,true);
- assert.deepEqual(Gold.openPaperTrade(s,"BUY",4000,now),{ok:false,reason:"MAX_POSITIONS"});
+ for(const price of [4000,4100,4200])assert.equal(Gold.openPaperTrade(s,"BUY",price,now).ok,true);
+ assert.deepEqual(Gold.openPaperTrade(s,"BUY",4150,now),{ok:false,reason:"AVERAGING_DOWN_BLOCKED"});
+ assert.deepEqual(Gold.openPaperTrade(s,"BUY",4300,now),{ok:false,reason:"MAX_POSITIONS"});
+ assert.ok(s.positions.reduce((sum,p)=>sum+p.riskAmount,0)<=Gold.equity(s,4200)*.02+1e-7);
 });
 test("paper trade uses explicit simulated stop and target",()=>{
  const now=new Date(),s=Gold.createPaperState(now),r=Gold.openPaperTrade(s,"BUY",4000,now);
- assert.equal(r.ok,true);assert.ok(r.position.stop<4000);assert.ok(r.position.target>4000);
+ assert.equal(r.ok,true);assert.ok(r.position.stop<r.position.entry);assert.ok(r.position.target>r.position.entry);
  const result=Gold.checkStops(s,r.position.target,now);
  assert.equal(result.length,1);assert.equal(result[0].reason,"SIMULATED_TARGET");assert.equal(s.positions.length,0);
 });
 test("manual close books net simulated result after fee assumptions",()=>{
  const now=new Date(),s=Gold.createPaperState(now),r=Gold.openPaperTrade(s,"SELL",4000,now);
+ assert.equal(r.ok,true);
  const close=Gold.closePaperTrade(s,r.position.id,3980,"MANUAL",now);
  assert.equal(close.ok,true);assert.ok(close.trade.pnl>0);assert.equal(s.history.length,1);
 });
@@ -53,14 +59,14 @@ test("requires explicit fresh-state metadata from both providers",()=>{
  const spot={spot_usd_oz:4000,price_as_of:new Date(now).toISOString(),data_state:{status:"fresh"}};
  assert.equal(Gold.validateFeed(spot,{points},now).reason,"INTRADAY_NOT_FRESH");
 });
-test("unknown schema resets paper account instead of trusting bad storage",()=>{
+test("unknown schema resets paper account to configured initial capital",()=>{
  const s=Gold.normalizePaperState({version:44,cash:999999});
- assert.equal(s.cash,Gold.CONFIG.virtualStartingCash);assert.equal(s.positions.length,0);
+ assert.equal(s.cash,3);assert.equal(s.positions.length,0);
 });
 test("daily loss or drawdown lock blocks new paper positions",()=>{
- const now=new Date(),s=Gold.createPaperState(now);
- s.cash=900; s.highWaterEquity=1000;
+ Gold.configure({...Policy.DEFAULTS,initialCapital:1000,dailyLossLimitPct:2,maxAccountDrawdownPct:10});
+ const now=new Date(),s=Gold.createPaperState(now);s.cash=970;s.highWaterEquity=1000;
  const risk=Gold.updateRisk(s,4000,now);
  assert.equal(risk.locked,true);
- assert.deepEqual(Gold.openPaperTrade(s,"BUY",4000,now),{ok:false,reason:"RISK_LOCKED"});
+ assert.deepEqual(Gold.openPaperTrade(s,"BUY",4000,now),{ok:false,reason:"DAILY_LOSS_LIMIT"});
 });
