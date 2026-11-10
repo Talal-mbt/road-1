@@ -1,86 +1,103 @@
-# ROAD — Mobile Market Intelligence Terminal
+# ROAD — Market Intelligence
 
-A phone-first market research dashboard for Solana token discovery and XAU/USD (gold) reference analysis, with local paper-trading simulations. It is designed as an installable Progressive Web App (PWA) for a personal phone.
+**ROAD** is a mobile-first market intelligence workspace for XAU/USD gold analysis, Solana market discovery, risk visibility and local paper-trading simulations. The interface is Arabic-first, supports Arabic/English switching, and can be installed on an Android home screen as a Progressive Web App (PWA).
 
-## Mobile-first interface
+> **Execution boundary:** this release is an analysis and paper-simulation app. It is not connected to an MT5 broker account and cannot submit real orders.
 
-The Arabic-first layout uses a navy/cyan visual system, RTL navigation, a home hero panel, compact portfolio cards, quick-access module cards, a five-item mobile bottom bar, and an off-canvas drawer with a backdrop. Desktop retains a persistent section navigation rail. The mobile drawer overlays the page rather than shrinking or pushing the content.
+## Product modules
 
-## Gold / XAUUSD module
+### Dashboard
+- Portfolio snapshot for the local virtual account.
+- Quick access to Gold, Trades, Markets and Risk.
+- Market candidate list, activity feed and system status.
+- Responsive layout for phone and desktop.
 
-- Optional local monitoring toggle: one button starts periodic reference-data checks and the same button stops them.
-- Public XAUS spot and intraday reference feed, polled once per minute while the app is visible.
-- 2-minute sampled reference series (up to 24 hours), analyzed with EMA 20, EMA 50, RSI 14, recent range and momentum.
-- BUY BIAS / SELL BIAS / WAIT are directional indicator alignments, not trade orders, win probabilities or profit forecasts.
-- Data-state validation rejects unavailable, stale, incomplete or insufficient data.
-- Local paper Gold trades with a virtual balance, assumed entry/exit fee, simulated stop and target, and simple local daily-loss/drawdown locks.
-- Positions and history are stored in this browser's local storage on this device.
-- PWA manifest, app icon and service worker cache the app shell for home-screen installation and offline loading.
+### Gold intelligence — XAUUSD
+- Indicative XAU/USD reference feed from XAUS.
+- EMA 20, EMA 50, RSI 14, short-term momentum and recent range.
+- Directional states: BUY BIAS, SELL BIAS or WAIT.
+- Freshness checks that reject stale or incomplete reference data.
+- User-controlled monitoring toggle; polling runs while the page is visible.
 
-### Critical distinction: spot reference is not a broker quote
+**Gold quotes are indicative spot references, not xChief MT5 Bid/Ask prices or executable CFD prices.** Intraday samples are not an MT5 tick feed. Gold signals are indicator alignment, not a win probability or a trade instruction.
 
-The Gold feed is an independent indicative XAU/USD mid-market reference price. It is not the xChief MT5 XAUUSD Bid/Ask quote, not an executable CFD price, and not settlement-grade. The 2-minute samples do not provide MT5 ticks or full OHLC candles. Therefore the Gold module is for reference analysis and local paper simulation only. Paper stops are checked at each fetched sample; they are not guaranteed broker stop orders or exact fills.
+### Paper trading
+- Separate local simulation for Gold and Solana candidates.
+- Virtual balance, positions, simulated fees/slippage and trade history.
+- Paper risk limits and circuit breakers.
+- Best-effort local browser persistence on the current device.
 
-## Phone-only behavior
+Paper accounting is illustrative. It is not an audited ledger, a broker fill simulator, a guarantee of maximum loss, or evidence of profitability.
 
-- No VPS, desktop terminal, API server or database is required for this local reference-analysis mode.
-- Install the PWA from a secure HTTPS host such as GitHub Pages, then add it to the Android home screen.
-- Monitoring runs only while the page is in the foreground. When Android backgrounds or suspends the app, polling is paused and resumes when the app becomes visible. A service worker caches the app shell only; it does not run a continuous trading loop.
-- Paper state is local to this browser/device and can be cleared by browser storage settings or the in-app reset.
-- This is a PWA, not a signed Android APK.
+### Markets — Solana discovery
+- Synthetic starter fixtures and optional public DexScreener pair snapshots.
+- Candidate display for price, liquidity and volume.
+- Unverified token-security facts remain explicitly unverified.
+- No wallet adapter, private-key handling, transaction signing or live Solana execution.
 
-## Solana module
+### MT5 account profiles
+- Local profile metadata for Demo or Real: account login and server name.
+- Profile selection and removal on the current device.
+- No MT5 password is collected or stored.
+- Saving a profile does **not** connect to a broker. No MT5 bridge or real order endpoint is enabled.
 
-- SCOUT discovery from synthetic fixtures or optional public DexScreener pair snapshots.
-- FILTER surface treats contract/holder/sellability evidence as unverified.
-- ANALYST score placeholders are not a trained AI model.
-- EXECUTOR supports local paper buy/close only.
-- No wallet adapter, key storage, transaction signing or live Solana orders.
+## Brand and install identity
 
-## Run locally
+- Product name: **ROAD**
+- Repository: [Talal-mbt/road-1](https://github.com/Talal-mbt/road-1)
+- GitHub Pages app: https://talal-mbt.github.io/road-1/
+- PWA display name: ROAD
+- App icon: `assets/app-icon.svg`
 
-Requires Node.js 22 for tests and a modern browser.
+The app migrates locally stored settings and paper data from the previous internal storage-key namespace to the current `road.*` namespace on first launch. This is a local browser migration; it does not transmit stored data.
+
+## Phone installation
+
+1. Open https://talal-mbt.github.io/road-1/ in Chrome on Android.
+2. Choose **Install app** or Chrome menu → **Add to Home screen**.
+3. Reopen the installed app. The service worker caches the app shell only.
+4. Online market data is fetched when a module requests it. When offline, the app remains open and shows that live data is unavailable.
+
+The PWA does not provide guaranteed continuous background execution. Android may suspend background tabs or installed web apps; Gold polling pauses when the app is hidden and resumes when it returns to the foreground.
+
+## Development and quality checks
+
+Requires Node.js 22 for automated checks.
+
+Run the local static app:
 
 ```bash
 python3 -m http.server 4173
 ```
 
-Open `http://localhost:4173`. Service-worker installation requires HTTPS or localhost.
+Open http://localhost:4173. Service-worker installation requires HTTPS or localhost.
 
-Run quality checks:
+Run all unit tests and smoke checks:
 
 ```bash
 node --test tests/*.test.cjs
 node scripts/smoke-check.cjs
 ```
 
-Market-data fetch requires internet. The XAUS service documents freshness metadata, attribution, and its price as indicative rather than tradable.
+GitHub Actions runs the same test and smoke-check commands. GitHub Pages deployment packages the HTML, PWA manifest, service worker, JavaScript modules and app icon.
 
-## Deploy / install
+## Current architecture
 
-1. In GitHub, open **Settings → Pages** and choose **GitHub Actions** as the build source.
-2. The Pages workflow packages `index.html`, `manifest.webmanifest`, `service-worker.js`, `js/`, and `assets/`.
-3. After deployment, open the Pages URL in Chrome on the phone and choose **Install app** or **Add to Home screen**.
-4. If the private repository's plan/settings do not permit Pages, host the same static files on another HTTPS static host. No secrets are required.
+ROAD is currently a static PWA. It has no application backend, durable database, broker connection service, cloud MT5 terminal, native Android foreground service or server-side account authorization.
 
-## MT5 / xChief integration plan
+See:
+- [Architecture](docs/ARCHITECTURE.md)
+- [Deployment](docs/DEPLOYMENT.md)
+- [Security boundaries](docs/SECURITY.md)
+- [MT5 cloud integration plan](docs/MT5-CLOUD-INTEGRATION.md)
 
-A phone-controlled cloud MT5 connector has been technically evaluated. The secure account-onboarding flow, managed-cloud option, 3% activation-session target, broker-side leverage policy, Android runtime caveats and mandatory live-safety gates are documented in [docs/MT5-CLOUD-INTEGRATION.md](docs/MT5-CLOUD-INTEGRATION.md). This is a design/verification document only; no xChief account is connected and no live trade endpoint is enabled.
+## Roadmap — not yet implemented
 
-## Not implemented
+1. A secure backend for user accounts, account-profile ownership and audit logs.
+2. A verified, official broker integration or an approved managed MT5 cloud bridge.
+3. Separate Demo and Real account isolation and server-side risk authorization.
+4. Reconciliation of broker positions, orders, commissions, swaps and fills.
+5. Native Android service design if persistent user-visible monitoring is required.
+6. Independent security review, demo forward testing and broker compatibility validation.
 
-- No xChief broker API or MT5 account connection.
-- No real order placement, live stop-loss/TP, automatic broker trade management, or copy trading.
-- No continuous background worker while Android has suspended the PWA.
-- No tick-level/MT5 OHLC data, independent strategy backtest, trained predictive model or verified profitability.
-- No native Android APK.
-
-Any future broker execution requires a separately reviewed official broker integration, native Android foreground-service design, explicit authorization, independent risk controls and demo testing. Never put trading passwords, API secrets, private keys or seed phrases in this repository or browser storage.
-
-## Sources
-
-- Gold reference data: https://xaus.com/api/
-- MetaTrader 5 Android does not run Expert Advisors; see https://www.metatrader5.com/en/terminal/help/algotrading/trade_robots_indicators
-- Android background execution limits: https://developer.android.com/about/versions/oreo/background
-
-Private repository: https://github.com/Talal-mbt/road-to-cash
+Any future live-trading capability must be disabled by default, require explicit user arming, use server-side risk controls, and pass Demo testing first. Never commit MT5 passwords, broker tokens, API credentials, private keys or seed phrases.
