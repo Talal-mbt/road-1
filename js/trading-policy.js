@@ -103,7 +103,7 @@
   function cycleTargetAmount(baseCapital,settings){
     const p=normalize(settings||DEFAULTS),base=Number(baseCapital);
     if(!Number.isFinite(base)||base<0)return null;
-    return round8(fromScaled((scaled(base)*scaled(p.targetCycleGrowthPct))/100n));
+    return round8(fromScaled((scaled(base)*scaled(p.targetCycleGrowthPct))/(SCALE*100n)));
   }
   function positionSizing({equity,availableCash,entryPrice,stopPrice,riskPct,maxExposurePct,feePct,slippagePct}={}){
     const eq=Number(equity),cash=Number(availableCash),entry=Number(entryPrice),stop=Number(stopPrice);
