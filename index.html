@@ -507,15 +507,15 @@ const risk=syncRiskLock(state.riskLocked),summary=Engine.getSummary(state,priceM
 $("equity").textContent=money(summary.equity);$("realized").textContent=money(summary.realizedPnl);
 $("unrealized").textContent=money(summary.unrealizedPnl);$("unrealized").className="metric "+(summary.unrealizedPnl>=0?"green":"red");
 $("positions").textContent=summary.openPositions+" / "+Engine.CONFIG.maxPositions;
-$("pause").textContent=state.riskLocked?"⛔ Risk lock active":(state.manualPaused?"▶ Resume entries":"Ⅱ Pause entries");
+$("pause").textContent=state.riskLocked?"⛔ قفل المخاطر نشط":(state.manualPaused?"▶ استئناف المحاكاة":"Ⅱ إيقاف المحاكاة");
 $("pause").disabled=state.riskLocked;$("riskpause").textContent=state.riskLocked?"LOCKED":(state.manualPaused?"MANUAL":"OFF");
 $("riskpause").className=state.riskLocked||state.manualPaused?"red":"green";
-$("kill").textContent=state.riskLocked?"Risk lock active":(state.manualPaused?"Entries paused":"Activate emergency pause");$("kill").disabled=state.riskLocked;
+$("kill").textContent=state.riskLocked?"قفل المخاطر نشط":(state.manualPaused?"المحاكاة متوقفة":"تفعيل إيقاف الطوارئ");$("kill").disabled=state.riskLocked;
 $("dailyLossValue").textContent=risk.dailyLossPct.toFixed(2)+"% / "+risk.dailyLimitPct.toFixed(2)+"%";
 $("drawdownValue").textContent=risk.drawdownPct.toFixed(2)+"% / "+risk.maxDrawdownPct.toFixed(2)+"%";
 $("riskReason").textContent=risk.pauseReason?"LOCK: "+risk.pauseReason:"NO CIRCUIT BREAKER";$("riskReason").className=risk.paused?"red":"green";
 $("storageStatus").textContent=storageAvailable?"LOCAL ONLY":"SESSION ONLY";$("storageStatus").className=storageAvailable?"green":"amber";
-$("pauseReason").textContent=summary.paused?"New paper entries are disabled. Existing paper positions remain manually closable.":"Paper simulation only. No real orders or wallet transactions are possible.";
+$("pauseReason").textContent=summary.paused?"تم إيقاف فتح المراكز الجديدة، ويمكن إغلاق المراكز الافتراضية يدوياً.":"محاكاة محلية فقط؛ لا يتم إرسال أوامر حقيقية إلى وسيط أو محفظة.";
 $("provider").textContent=sourceMode==="PUBLIC"?"PUBLIC DEXSCREENER":"DEMO SNAPSHOT";
 $("data-label").textContent=sourceMode==="PUBLIC"?"PUBLIC PAIR DATA · SECURITY UNVERIFIED":"SAMPLE DATA · NOT LIVE";
 $("last-refresh").textContent=lastRefresh?"FETCHED "+new Date(lastRefresh).toLocaleTimeString():"NO LIVE SNAPSHOT";
@@ -526,6 +526,7 @@ $("liveDataAge").className=stale?"red":"amber";
 $("data-label").textContent=stale?"STALE PUBLIC DATA · ENTRIES BLOCKED":(sourceMode==="PUBLIC"?"PUBLIC PAIR DATA · SECURITY UNVERIFIED":"SAMPLE DATA · NOT LIVE");
 $("tokens").innerHTML=assets.map(a=>'<tr><td class="token">'+esc(a.name)+'<span class="symbol">'+esc(a.symbol)+'</span></td><td>'+fmt(a.price)+'</td><td>'+money(a.liq)+'</td><td>'+money(a.vol)+'</td><td class="cyan">'+(Number.isFinite(Number(a.score))?esc(a.score)+"/100":"NOT SCORED")+'</td><td><span class="tag warn">UNVERIFIED</span></td><td><button class="smallbtn" data-buy="'+esc(a.symbol)+'">Paper buy</button></td></tr>').join("")||'<tr><td colspan="7" class="muted">No valid market candidates.</td></tr>';
 $("scouttable").innerHTML=assets.map(a=>'<tr><td class="token">'+esc(a.name)+'<span class="symbol">'+esc(a.symbol)+'</span></td><td>'+fmt(a.price)+'</td><td>'+money(a.liq)+'</td><td>'+money(a.vol)+'</td><td>'+esc(a.age||"—")+'</td><td><span class="tag warn">UNVERIFIED</span></td></tr>').join("")||'<tr><td colspan="6" class="muted">No valid market candidates.</td></tr>';
+applyMarketSearch();
 $("openpositions").innerHTML=state.positions.map(p=>{const mark=price(p.symbol)||p.entryPrice,pnl=p.qty*mark-p.notional-p.entryFee;return '<tr><td>'+esc(p.symbol)+'</td><td>'+money(p.notional)+'</td><td>'+fmt(mark)+'</td><td class="'+(pnl>=0?"green":"red")+'">'+money(pnl)+'</td><td><button class="smallbtn" data-sell="'+esc(p.id)+'">Close</button></td></tr>';}).join("")||'<tr><td colspan="5" class="muted">No open paper positions.</td></tr>';
 $("clock").textContent=new Date().toISOString().slice(11,19)+" UTC";renderLogs();renderGold();
 }
@@ -546,13 +547,31 @@ function resetPaper(){
 if(!window.confirm("Reset the local paper account, positions, trade history and risk state? This cannot be undone."))return;
 state=Engine.createState();saveState();log("Local paper account reset by user","SYSTEM");render();toast("Paper account reset");
 }
+function setDrawer(open){
+ $("sidebar").classList.toggle("open",open);
+ $("drawerScrim").classList.toggle("active",open);
+ $("menu").setAttribute("aria-expanded",open?"true":"false");
+}
+function titlesCrumb(page){
+ const names={overview:"الرئيسية",gold:"الذهب",goldTrades:"الصفقات",scout:"الأسواق",filter:"الأمان",analyst:"التحليل",executor:"المحاكاة",risk:"المخاطر",logger:"السجل",health:"الإعدادات"};
+ return names[page]||"المنصة";
+}
+function applyMarketSearch(){
+ const input=$("marketSearch");if(!input)return;
+ const q=input.value.trim().toLowerCase();
+ ["tokens","scouttable"].forEach(id=>{
+  const body=$(id);if(!body)return;
+  body.querySelectorAll("tr").forEach(row=>{row.hidden=q!==""&&!row.textContent.toLowerCase().includes(q);});
+ });
+}
 function navigate(page){
-document.querySelectorAll(".mobile-bottom button").forEach(x=>x.classList.toggle("active",x.dataset.page===page));
-document.querySelectorAll(".page").forEach(x=>x.classList.toggle("active",x.id===page));
-document.querySelectorAll(".nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===page));
-$("crumb").textContent=page.toUpperCase();
-const titles={overview:"Command Center",gold:"Gold / XAUUSD",goldTrades:"Gold paper trades",scout:"SCOUT / Discovery",filter:"FILTER / Security Gate",analyst:"ANALYST / Intelligence",executor:"EXECUTOR / Paper Desk",risk:"RISK ENGINE / Controls",logger:"LOGGER / Audit Trail",health:"System Health"};
-$("title").innerHTML=esc(titles[page]||"Workspace")+"<span class='cyan'>.</span>";$("sidebar").classList.remove("open");
+ document.querySelectorAll("[data-page]").forEach(x=>x.classList.toggle("active",x.dataset.page===page));
+ document.querySelectorAll(".page").forEach(x=>x.classList.toggle("active",x.id===page));
+ $("crumb").textContent=titlesCrumb(page);
+ const titles={overview:"لوحة التحكم",gold:"تحليل الذهب · XAUUSD",goldTrades:"صفقات الذهب",scout:"استكشاف الأسواق",filter:"فلتر الأمان",analyst:"التحليل والمؤشرات",executor:"مركز المحاكاة",risk:"إدارة المخاطر",logger:"سجل النشاط",health:"الإعدادات وحالة النظام"};
+ $("title").innerHTML=esc(titles[page]||"مساحة العمل")+"<span class='cyan'>.</span>";
+ setDrawer(false);
+ window.scrollTo({top:0,behavior:"smooth"});
 }
 async function loadDexScreener(){
 if(fetchInProgress)return;fetchInProgress=true;$("livefetch").disabled=true;$("refresh").disabled=true;toast("Fetching public Solana pair data…");
@@ -589,7 +608,11 @@ assets=assets.map(a=>({...a,price:Number(a.price)*(1+(Math.random()-.5)*.02)}));
 lastRefresh=new Date().toISOString();saveMarket();log("Synthetic demo snapshot refreshed — not a market feed","DEMO");render();toast("Synthetic demo snapshot refreshed");
 }
 document.querySelectorAll("[data-page]").forEach(button=>button.addEventListener("click",()=>navigate(button.dataset.page)));
-$("menu").addEventListener("click",()=>$("sidebar").classList.toggle("open"));
+$("menu").addEventListener("click",()=>setDrawer(!$("sidebar").classList.contains("open")));
+$("closeMenu").addEventListener("click",()=>setDrawer(false));
+$("drawerScrim").addEventListener("click",()=>setDrawer(false));
+$("marketSearch").addEventListener("input",applyMarketSearch);
+document.addEventListener("keydown",event=>{if(event.key==="Escape")setDrawer(false);});
 $("pause").addEventListener("click",()=>{
 if(state.riskLocked)return toast("Risk lock cannot be manually bypassed");
 Engine.setManualPause(state,!state.manualPaused,new Date());log(state.manualPaused?"Manual entry pause enabled":"Manual entry pause disabled","RISK");render();
@@ -761,7 +784,7 @@ if("serviceWorker" in navigator&&location.protocol==="https:"){
  navigator.serviceWorker.register("./service-worker.js",{scope:"./"}).catch(error=>log("Offline app-shell setup failed: "+String(error.message||error),"WARN"));
 }
 
-log("Terminal initialized. Paper-only mode; no wallet or live execution.","SYSTEM");
+log("تم تشغيل المنصة. الوضع الحالي للتحليل والمحاكاة فقط.","SYSTEM");
 render();
 setInterval(()=>$("clock").textContent=new Date().toISOString().slice(11,19)+" UTC",1000);
 setInterval(()=>{const previous=state.riskLocked;syncRiskLock(previous);render();},5000);
