@@ -310,7 +310,7 @@ button.danger{color:var(--red);border-color:#653b4c;background:#2a1824}
  </div>
  <div class="top-actions">
   <span class="connection-pill"><i class="led"></i><span id="provider">DEMO SNAPSHOT</span></span>
-  <span class="pill">محاكاة فقط</span>
+  <span class="pill">وضع تجريبي</span>
   <button id="installApp" class="install-button">تثبيت التطبيق</button>
   <span id="clock" class="clock">--:-- UTC</span>
  </div>
@@ -342,7 +342,7 @@ button.danger{color:var(--red);border-color:#653b4c;background:#2a1824}
 
  <div class="section-heading"><div><span class="section-kicker">نظرة سريعة</span><h2>ملخص المحفظة</h2></div><span class="section-caption">PAPER ACCOUNT</span></div>
  <div class="metrics home-metrics">
-  <div class="card metric-card"><div class="metric-top"><span class="metric-icon">◈</span><span class="metriclabel">EQUITY الافتراضي</span></div><div class="metric" id="equity">$1,000.00</div><div class="sub">رصيد محاكاة محلي</div></div>
+  <div class="card metric-card"><div class="metric-top"><span class="metric-icon">◈</span><span class="metriclabel">قيمة المحفظة الافتراضي</span></div><div class="metric" id="equity">$1,000.00</div><div class="sub">رصيد محاكاة محلي</div></div>
   <div class="card metric-card"><div class="metric-top"><span class="metric-icon">↗</span><span class="metriclabel">الربح المحقق</span></div><div class="metric green" id="realized">$0.00</div><div class="sub">بعد التكاليف الافتراضية</div></div>
   <div class="card metric-card"><div class="metric-top"><span class="metric-icon">⌁</span><span class="metriclabel">الربح العائم</span></div><div class="metric" id="unrealized">$0.00</div><div class="sub">المراكز المفتوحة</div></div>
   <div class="card metric-card"><div class="metric-top"><span class="metric-icon">▤</span><span class="metriclabel">المراكز المفتوحة</span></div><div class="metric" id="positions">0 / 3</div><div class="sub">الحد الافتراضي للمحاكاة</div></div>
@@ -381,13 +381,13 @@ button.danger{color:var(--red);border-color:#653b4c;background:#2a1824}
   <div class="card panel-card"><div class="cardhead"><div><span class="section-kicker">سجل الأحداث</span><strong>آخر النشاطات</strong></div><button class="text-link" data-page="logger">السجل الكامل ←</button></div><div class="log" id="logs"></div></div>
  </div>
 </section>
-<section id="scout" class="page"><div class="card"><div class="cardhead"><strong>SCOUT / Discovery feed</strong><small>PUBLIC MARKET DATA ONLY · <span id="last-refresh">NO LIVE SNAPSHOT</span> · <span id="liveDataAge" class="amber">SYNTHETIC DEMO DATA</span></small><button id="livefetch" class="smallbtn">Fetch DexScreener public feed</button></div><p class="sub">Only public pair metrics are fetched. Contract authority and holder facts remain unknown unless an on-chain security provider is configured.</p><div class="tablewrap"><table class="table"><thead><tr><th>ASSET</th><th>PRICE</th><th>LIQUIDITY</th><th>VOLUME</th><th>PAIR AGE</th><th>STATUS</th></tr></thead><tbody id="scouttable"></tbody></table></div></div></section>
-<section id="filter" class="page"><div class="card"><div class="cardhead"><strong>FILTER / Security gate</strong><small>FAIL-CLOSED POLICY</small></div><p>Candidate safety data is unverified in this build. Unknown facts do not pass risk gate.</p><div class="riskgrid"><div class="riskbox"><label>MINT AUTHORITY</label><strong class="red">UNKNOWN</strong></div><div class="riskbox"><label>FREEZE AUTHORITY</label><strong class="red">UNKNOWN</strong></div><div class="riskbox"><label>HOLDER CONCENTRATION</label><strong class="red">UNKNOWN</strong></div><div class="riskbox"><label>TOKEN EXTENSIONS</label><strong class="red">UNKNOWN</strong></div><div class="riskbox"><label>SELL SIMULATION</label><strong class="amber">NOT VERIFIED</strong></div><div class="riskbox"><label>GATE</label><strong class="red">BLOCKED</strong></div></div></div></section>
-<section id="analyst" class="page"><div class="card"><div class="cardhead"><strong>ANALYST / Explainable demo factors</strong><small>HEURISTIC · NOT A PROFIT FORECAST</small></div><p>Demo score only; no trained AI model, no validated predictive edge and no profit probability. Scores never bypass security or risk controls.</p><div class="riskgrid"><div class="riskbox"><label>LIQUIDITY · 25%</label><strong>—</strong></div><div class="riskbox"><label>HOLDER DISTRIBUTION · 15%</label><strong>UNKNOWN</strong></div><div class="riskbox"><label>CONTRACT SECURITY · 15%</label><strong>UNKNOWN</strong></div><div class="riskbox"><label>POOL QUALITY · 15%</label><strong>—</strong></div><div class="riskbox"><label>TRADE FLOW · 15%</label><strong>—</strong></div><div class="riskbox"><label>MOMENTUM · 10%</label><strong>—</strong></div></div></div></section>
-<section id="executor" class="page"><div class="card"><div class="cardhead"><strong>EXECUTOR / Paper trade console</strong><small>NO LIVE ORDER SIGNING</small></div><p>Choose an illustrative demo asset to simulate a small virtual buy. Unknown security means live trading would be blocked.</p><div class="actions"><select id="assetselect"><option value="SOLX">SOLX Demo</option><option value="NOVA">NOVA Demo</option><option value="MINT">MINT Demo</option></select><button id="paperbuy" class="primary">Simulate paper buy</button><button id="sellall">Close all paper positions</button><button id="resetpaper" class="danger">Reset paper account</button></div><p class="sub">Paper notional only: 1% of equity per position · 3 concurrent positions maximum · simulated entry/exit fees and slippage. This is not a live trade or stop-loss-managed strategy.</p><p class="sub" id="pauseReason">Paper simulation only.</p></div></section>
-<section id="risk" class="page"><div class="card"><div class="cardhead"><strong>RISK ENGINE / Guardrails</strong><small>CONFIGURATION VIEW</small></div><div class="riskgrid"><div class="riskbox"><label>MAX POSITION NOTIONAL</label><strong>1% EQUITY</strong></div><div class="riskbox"><label>MAX OPEN POSITIONS</label><strong>3</strong></div><div class="riskbox"><label>DAILY LOSS / 2% LIMIT</label><strong id="dailyLossValue" class="amber">0.00% / 2.00%</strong></div><div class="riskbox"><label>DRAWDOWN / 5% LIMIT</label><strong id="drawdownValue" class="amber">0.00% / 5.00%</strong></div><div class="riskbox"><label>SECURITY UNKNOWN</label><strong class="red">DENY LIVE USE</strong></div><div class="riskbox"><label>RISK CIRCUIT BREAKER</label><strong id="riskpause" class="green">OFF</strong></div><div class="riskbox"><label>RISK STATE</label><strong id="riskReason" class="green">NO CIRCUIT BREAKER</strong></div><div class="riskbox"><label>PERSISTENCE</label><strong id="storageStatus" class="green">LOCAL ONLY</strong></div></div><button class="danger" id="kill" style="margin-top:15px">Activate emergency pause</button><p class="sub">Limits block new paper entries only; they do not force-close positions. Local browser state is editable and is not an authoritative ledger.</p></div></section>
-<section id="logger" class="page"><div class="card"><div class="cardhead"><strong>LOGGER / Audit trail</strong><small>LOCAL SESSION</small><button id="clearlogs" class="smallbtn">Clear logs</button></div><div class="log" id="alllogs"></div></div></section>
-<section id="health" class="page"><div class="card"><div class="cardhead"><strong>System health</strong><small>LOCAL FRONTEND</small></div><div class="riskgrid"><div class="riskbox"><label>APP</label><strong class="green">OPERATIONAL</strong></div><div class="riskbox"><label>DATA</label><strong class="amber">DEMO MODE</strong></div><div class="riskbox"><label>EXECUTION</label><strong class="green">PAPER ONLY</strong></div><div class="riskbox"><label>BACKEND</label><strong class="amber">NOT CONNECTED</strong></div><div class="riskbox"><label>ON-CHAIN SECURITY</label><strong class="red">NOT CONNECTED</strong></div><div class="riskbox"><label>WALLET SIGNING</label><strong class="red">DISABLED</strong></div></div></div></section>
+<section id="scout" class="page"><div class="card"><div class="cardhead"><strong>استكشاف السوق</strong><small>بيانات السوق العامة فقط · <span id="last-refresh">NO LIVE SNAPSHOT</span> · <span id="liveDataAge" class="amber">SYNTHETIC DEMO DATA</span></small><button id="livefetch" class="smallbtn">تحديث بيانات السوق</button></div><p class="sub">نعرض مؤشرات الأزواج العامة فقط. بيانات صلاحيات العقد وتوزيع الحائزين غير متاحة حتى يتم ربط مصدر أمان متخصص.</p><div class="tablewrap"><table class="table"><thead><tr><th>الأصل</th><th>السعر</th><th>السيولة</th><th>الحجم</th><th>عمر الزوج</th><th>الحالة</th></tr></thead><tbody id="scouttable"></tbody></table></div></div></section>
+<section id="filter" class="page"><div class="card"><div class="cardhead"><strong>فلتر أمان الأصول</strong><small>سياسة المنع عند عدم التحقق</small></div><p>بيانات أمان الأصول غير مكتملة في هذه النسخة. أي معلومة مجهولة لا تجتاز بوابة الأمان.</p><div class="riskgrid"><div class="riskbox"><label>صلاحية الإصدار</label><strong class="red">UNKNOWN</strong></div><div class="riskbox"><label>صلاحية التجميد</label><strong class="red">UNKNOWN</strong></div><div class="riskbox"><label>تركيز الحائزين</label><strong class="red">UNKNOWN</strong></div><div class="riskbox"><label>خصائص الرمز</label><strong class="red">UNKNOWN</strong></div><div class="riskbox"><label>محاكاة البيع</label><strong class="amber">غير متحقق</strong></div><div class="riskbox"><label>GATE</label><strong class="red">BLOCKED</strong></div></div></div></section>
+<section id="analyst" class="page"><div class="card"><div class="cardhead"><strong>التحليل · العوامل التوضيحية</strong><small>قواعد إرشادية · ليست توقعاً للربح</small></div><p>الدرجات الحالية توضيحية وليست نموذج ذكاء اصطناعي مدرّباً أو احتمالاً للربح. لا تتجاوز أي درجة فلاتر الأمان والمخاطر.</p><div class="riskgrid"><div class="riskbox"><label>LIQUIDITY · 25%</label><strong>—</strong></div><div class="riskbox"><label>توزيع الحائزين · 15%</label><strong>UNKNOWN</strong></div><div class="riskbox"><label>أمان العقد · 15%</label><strong>UNKNOWN</strong></div><div class="riskbox"><label>جودة السيولة · 15%</label><strong>—</strong></div><div class="riskbox"><label>تدفق التداول · 15%</label><strong>—</strong></div><div class="riskbox"><label>MOMENTUM · 10%</label><strong>—</strong></div></div></div></section>
+<section id="executor" class="page"><div class="card"><div class="cardhead"><strong>مركز المحاكاة</strong><small>لا يوجد تنفيذ حقيقي</small></div><p>اختر أصلاً توضيحياً لفتح مركز افتراضي. الأصول غير المتحقق من أمانها لا تُسمح لها بتجاوز الفلتر.</p><div class="actions"><select id="assetselect"><option value="SOLX">SOLX Demo</option><option value="NOVA">NOVA Demo</option><option value="MINT">MINT Demo</option></select><button id="paperbuy" class="primary">شراء افتراضي</button><button id="sellall">إغلاق المراكز الافتراضية</button><button id="resetpaper" class="danger">إعادة ضبط المحاكاة</button></div><p class="sub">Paper notional only: 1% of equity per position · 3 concurrent positions maximum · simulated entry/exit fees and slippage. This is not a live trade or stop-loss-managed strategy.</p><p class="sub" id="pauseReason">Paper simulation only.</p></div></section>
+<section id="risk" class="page"><div class="card"><div class="cardhead"><strong>إدارة المخاطر والحماية</strong><small>إعدادات المحاكاة</small></div><div class="riskgrid"><div class="riskbox"><label>القيمة الاسمية للمركز</label><strong>1% قيمة المحفظة</strong></div><div class="riskbox"><label>أقصى المراكز المفتوحة</label><strong>3</strong></div><div class="riskbox"><label>DAILY LOSS / 2% LIMIT</label><strong id="dailyLossValue" class="amber">0.00% / 2.00%</strong></div><div class="riskbox"><label>DRAWDOWN / 5% LIMIT</label><strong id="drawdownValue" class="amber">0.00% / 5.00%</strong></div><div class="riskbox"><label>الأمان غير مؤكد</label><strong class="red">منع التداول الحقيقي</strong></div><div class="riskbox"><label>قاطع المخاطر</label><strong id="riskpause" class="green">OFF</strong></div><div class="riskbox"><label>حالة المخاطر</label><strong id="riskReason" class="green">NO CIRCUIT BREAKER</strong></div><div class="riskbox"><label>التخزين</label><strong id="storageStatus" class="green">LOCAL ONLY</strong></div></div><button class="danger" id="kill" style="margin-top:15px">تفعيل إيقاف الطوارئ</button><p class="sub">الحدود تمنع فتح مراكز افتراضية جديدة ولا تغلق المراكز تلقائياً. التخزين المحلي قابل للتعديل وليس سجلاً مالياً معتمداً.</p></div></section>
+<section id="logger" class="page"><div class="card"><div class="cardhead"><strong>سجل النشاط</strong><small>جلسة محلية</small><button id="clearlogs" class="smallbtn">مسح السجل</button></div><div class="log" id="alllogs"></div></div></section>
+<section id="health" class="page"><div class="card"><div class="cardhead"><strong>حالة النظام</strong><small>واجهة محلية</small></div><div class="riskgrid"><div class="riskbox"><label>APP</label><strong class="green">يعمل</strong></div><div class="riskbox"><label>DATA</label><strong class="amber">وضع تجريبي</strong></div><div class="riskbox"><label>EXECUTION</label><strong class="green">محاكاة فقط</strong></div><div class="riskbox"><label>الخادم</label><strong class="amber">غير متصل</strong></div><div class="riskbox"><label>أمان الشبكة</label><strong class="red">غير متصل</strong></div><div class="riskbox"><label>توقيع المحفظة</label><strong class="red">معطل</strong></div></div></div></section>
 <section id="gold" class="page" dir="rtl" lang="ar">
 <div class="gold-page">
  <div class="card">
@@ -422,12 +422,12 @@ button.danger{color:var(--red);border-color:#653b4c;background:#2a1824}
   <div class="gold-ref" id="goldSignalText">لا توجد إشارة حتى تتوفر بيانات حديثة وكافية.</div>
  </div>
  <div class="card">
-  <div class="cardhead"><strong>تجربة الصفقات على الذهب</strong><small>VIRTUAL / PAPER ONLY</small></div>
+  <div class="cardhead"><strong>تجربة الصفقات على الذهب</strong><small>VIRTUAL / محاكاة فقط</small></div>
   <div class="gold-grid">
-   <div class="gold-kpi"><label>VIRTUAL EQUITY</label><strong id="goldEquity">$1,000.00</strong></div>
-   <div class="gold-kpi"><label>REALIZED P/L</label><strong id="goldRealized">$0.00</strong></div>
+   <div class="gold-kpi"><label>VIRTUAL قيمة المحفظة</label><strong id="goldEquity">$1,000.00</strong></div>
+   <div class="gold-kpi"><label>الربح المحقق</label><strong id="goldRealized">$0.00</strong></div>
    <div class="gold-kpi"><label>OPEN POSITIONS</label><strong id="goldOpenCount">0 / 3</strong></div>
-   <div class="gold-kpi"><label>RISK STATE</label><strong id="goldRiskState">READY</strong></div>
+   <div class="gold-kpi"><label>حالة المخاطر</label><strong id="goldRiskState">READY</strong></div>
   </div>
   <div class="gold-actions" style="margin-top:12px">
    <button id="goldPaperBuy" class="primary">شراء تجريبي</button>
@@ -440,20 +440,20 @@ button.danger{color:var(--red);border-color:#653b4c;background:#2a1824}
 </section>
 <section id="goldTrades" class="page" dir="rtl" lang="ar">
  <div class="card">
-  <div class="cardhead"><strong>صفقات الذهب التجريبية</strong><small>LOCAL DEVICE · NO BROKER ORDERS</small></div>
+  <div class="cardhead"><strong>صفقات الذهب التجريبية</strong><small>تخزين محلي · لا أوامر للوسيط</small></div>
   <div class="gold-grid">
-   <div class="gold-kpi"><label>VIRTUAL CASH</label><strong id="goldTradesCash">$1,000.00</strong></div>
-   <div class="gold-kpi"><label>EQUITY</label><strong id="goldTradesEquity">$1,000.00</strong></div>
-   <div class="gold-kpi"><label>OPEN P/L</label><strong id="goldTradesOpenPnl">$0.00</strong></div>
-   <div class="gold-kpi"><label>REALIZED P/L</label><strong id="goldTradesRealized">$0.00</strong></div>
+   <div class="gold-kpi"><label>الرصيد الافتراضي</label><strong id="goldTradesCash">$1,000.00</strong></div>
+   <div class="gold-kpi"><label>قيمة المحفظة</label><strong id="goldTradesEquity">$1,000.00</strong></div>
+   <div class="gold-kpi"><label>الربح العائم</label><strong id="goldTradesOpenPnl">$0.00</strong></div>
+   <div class="gold-kpi"><label>الربح المحقق</label><strong id="goldTradesRealized">$0.00</strong></div>
   </div>
  </div>
  <div class="card">
-  <div class="cardhead"><strong>المراكز المفتوحة</strong><small>SIMULATED</small></div>
+  <div class="cardhead"><strong>المراكز المفتوحة</strong><small>افتراضي</small></div>
   <div class="tablewrap"><table class="gold-table"><thead><tr><th>الاتجاه</th><th>الدخول</th><th>وقف افتراضي</th><th>هدف افتراضي</th><th>النتيجة الحالية</th><th></th></tr></thead><tbody id="goldOpenPositions"><tr><td colspan="6">لا توجد مراكز</td></tr></tbody></table></div>
  </div>
  <div class="card">
-  <div class="cardhead"><strong>سجل الصفقات المغلقة</strong><small>LOCAL PAPER LEDGER</small><button id="goldResetPaper" class="smallbtn danger">إعادة ضبط المحاكاة</button></div>
+  <div class="cardhead"><strong>سجل الصفقات المغلقة</strong><small>سجل المحاكاة المحلي</small><button id="goldResetPaper" class="smallbtn danger">إعادة ضبط المحاكاة</button></div>
   <div class="tablewrap"><table class="gold-table"><thead><tr><th>الاتجاه</th><th>الدخول</th><th>الخروج</th><th>صافي P/L</th><th>سبب الإغلاق</th><th>التاريخ</th></tr></thead><tbody id="goldTradeHistory"><tr><td colspan="6">لا يوجد سجل بعد</td></tr></tbody></table></div>
  </div>
  <div class="gold-disclaimer">كل الأرقام في هذه الصفحة افتراضية ومخزنة على هذا الجهاز في المتصفح. مسح بيانات الموقع أو إعادة ضبط المحاكاة يحذف السجل المحلي.</div>
@@ -465,7 +465,7 @@ button.danger{color:var(--red);border-color:#653b4c;background:#2a1824}
  <button data-page="scout"><span class="navicon">⌕</span><span>الأسواق</span></button>
  <button data-page="health"><span class="navicon">⚙</span><span>المزيد</span></button>
 </nav>
-<footer class="footer"><span>ROAD TO CASH · V0.1.0</span><span>NOT FINANCIAL ADVICE · PAPER ONLY</span><span>LOCAL SESSION</span></footer></div></main></div><div id="toast" class="toast hide"></div>
+<footer class="footer"><span>ROAD TO CASH · الإصدار 0.2</span><span>NOT FINANCIAL ADVICE · محاكاة فقط</span><span>جلسة محلية</span></footer></div></main></div><div id="toast" class="toast hide"></div>
 <script src="js/paper-engine.js"></script><script src="js/gold-engine.js"></script><script>
 "use strict";
 const $ = id => document.getElementById(id);
