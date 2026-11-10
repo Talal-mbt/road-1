@@ -426,6 +426,13 @@ html[lang="ar"] body,html[lang="ar"] button,html[lang="ar"] input,html[lang="ar"
 }
 @media(max-width:380px){.policy-grid{grid-template-columns:1fr}}
 
+
+.capital-current-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
+.capital-current-grid .riskbox strong{display:block;color:#74e0d1;font:700 20px var(--mono);direction:ltr;text-align:right;margin-top:5px}
+.capital-current-grid .riskbox small{display:block;margin-top:5px}
+.capital-note{font-size:10px;line-height:1.8;color:#e7c98c;background:#302718;border:1px solid #64502b;padding:12px 14px;border-radius:12px;margin:10px 0}
+@media(max-width:760px){.capital-current-grid{grid-template-columns:1fr}}
+
 </style></head>
 <body><div class="shell">
 <aside class="sidebar" id="sidebar" aria-label="القائمة الرئيسية">
@@ -548,12 +555,17 @@ html[lang="ar"] body,html[lang="ar"] button,html[lang="ar"] input,html[lang="ar"
  <div class="card">
   <div class="cardhead"><div><span class="section-kicker">01 · COMPOUND GROWTH</span><strong>إعدادات النمو المركب</strong></div></div>
   <div class="policy-grid">
-   <label>رأس المال الابتدائي ($)<input id="policyInitialCapital" type="number" min="0.01" max="100000000" step="0.01"></label>
+   <label>رأس المال الابتدائي للحساب الجديد أو عند إعادة الضبط ($)<input id="policyInitialCapital" type="number" min="0.01" max="100000000" step="0.01"></label>
    <label>هدف النمو لكل دورة (%)<input id="policyTargetCycleGrowthPct" type="number" min="0.1" max="25" step="0.1"></label>
    <label>الدورات المخططة يومياً<input id="policyCyclesPerDay" type="number" min="1" max="100" step="1"></label>
    <label>أيام التداول شهرياً<input id="policyTradingDaysPerMonth" type="number" min="1" max="31" step="1"></label>
    <label class="policy-check"><input id="policyAutoReinvest" type="checkbox"><span>إعادة استثمار الأرباح المحققة تلقائياً</span></label>
   </div>
+  <div class="capital-current-grid">
+   <div class="riskbox"><label>Equity الحالي · حساب محاكاة السوق</label><strong id="currentPaperEquity">$3.00</strong><small id="currentPaperCash" class="sub">الرصيد المتاح: $3.00</small></div>
+   <div class="riskbox"><label>Equity الحالي · محاكاة الذهب</label><strong id="currentGoldEquity">$3.00</strong><small id="currentGoldCash" class="sub">الرصيد المتاح: $3.00</small></div>
+  </div>
+  <p class="capital-note">تعديل رأس المال الابتدائي يحفظ القيمة للحسابات الجديدة. لتطبيقه على حسابي المحاكاة الحاليين استخدم زر إعادة تأسيس الحسابين؛ سيؤدي ذلك إلى حذف المراكز وسجل الصفقات الافتراضي الحالي وإعادة الرصيدين إلى القيمة الجديدة. لا يؤثر هذا على حساب MT5.</p>
   <div class="projection-panel">
    <div class="projection-head"><strong>حاسبة النمو النظري</strong><span class="tag warn">THEORETICAL ONLY</span></div>
    <label>عدد الدورات الرابحة المفترضة<input id="policyProjectionCycles" type="number" min="0" max="10000" step="1" value="10"></label>
@@ -619,7 +631,7 @@ html[lang="ar"] body,html[lang="ar"] button,html[lang="ar"] input,html[lang="ar"
   <div class="policy-actions">
    <button class="primary" id="savePolicy">حفظ وتطبيق الإعدادات</button>
    <button id="resetPolicyDefaults">استعادة القيم الأصلية</button>
-   <button class="danger" id="resetAllPaper">إعادة ضبط حسابات المحاكاة إلى رأس المال الجديد</button>
+   <button class="danger" id="resetAllPaper">إعادة تأسيس حسابي المحاكاة برأس المال الجديد (مسح السجل)</button>
    <button id="validateRiskRecovery" class="danger">فحص شروط استئناف التداول التجريبي</button>
   </div>
   <p class="sub">تُحفظ هذه السياسة في متصفح هذا الجهاز فقط. لا توجد لوحة إدارة مركزية أو قاعدة بيانات حالياً. تغيير هذه القيم لا يغيّر حساب MT5 ولا يرسل أوامر حقيقية.</p>
@@ -1119,6 +1131,8 @@ function applyLanguage(){
  if(projectionLabel)projectionLabel.textContent=pt.projection;
  const summaryLabels=document.querySelectorAll(".policy-summary-grid .riskbox label");
  [pt.capital,pt.target,pt.risk,pt.dd].forEach((s,i)=>{if(summaryLabels[i])summaryLabels[i].textContent=s;});
+ setNode(".capital-note","تعديل رأس المال الابتدائي يحفظ القيمة للحسابات الجديدة. لتطبيقه على حسابي المحاكاة الحاليين استخدم زر إعادة تأسيس الحسابين؛ سيؤدي ذلك إلى حذف المراكز وسجل الصفقات الافتراضي وإعادة الرصيدين إلى القيمة الجديدة. لا يؤثر هذا على حساب MT5.",
+  "Changing initial capital saves it for new accounts. To apply it to the current paper accounts, use Reset paper accounts; this clears simulated positions and trade history and recreates both balances at the new amount. It does not affect MT5.");
  setNode("#risk .projection-head strong","حاسبة النمو النظري","Theoretical compound calculator");
  setNode(".projection-result span","القيمة النظرية بعد الدورات","Theoretical value after cycles");
  setNode(".projection-panel .sub","هذه حاسبة افتراضية وليست قيمة المحفظة الفعلية. الرصيد الحقيقي يتغير فقط وفق نتائج الصفقات المحققة والتكاليف.","This is a projection, not actual account equity. Actual capital changes only with verified realized results and costs.");
@@ -1233,6 +1247,12 @@ function renderPolicyForm(){
  $("policyCycleTargetSummary").textContent=money(Policy.cycleTargetAmount(tradingSettings.initialCapital,tradingSettings));
  $("policyRiskSummary").textContent=tradingSettings.riskPerTradePct.toFixed(2)+"%";
  $("policyDrawdownSummary").textContent=tradingSettings.maxAccountDrawdownPct.toFixed(2)+"%";
+ const paper=Engine.getSummary(state,priceMap());
+ const gold=GoldEngine.summary(goldPaperState,goldCurrentQuote||undefined);
+ $("currentPaperEquity").textContent=money(paper.equity);
+ $("currentPaperCash").textContent=localized("الرصيد المتاح: ","Available cash: ")+money(paper.cash);
+ $("currentGoldEquity").textContent=money(gold.equity);
+ $("currentGoldCash").textContent=localized("الرصيد المتاح: ","Available cash: ")+money(gold.cash);
  updatePolicyProjection();
  const snap=Engine.getRiskSnapshot(state,priceMap());
  $("weeklyLossValue").textContent=snap.weeklyLossPct.toFixed(2)+"% / "+tradingSettings.weeklyLossLimitPct.toFixed(2)+"%";
@@ -1249,6 +1269,7 @@ function readPolicyForm(){
 }
 function savePolicy(){
  const next=readPolicyForm();
+ const initialCapitalChanged=next.initialCapital!==tradingSettings.initialCapital;
  if(next.riskPerTradePct>next.maxRiskPerTradePct||next.reducedRiskPerTradePct>next.riskPerTradePct)
   return toast(localized("تأكد من ترتيب حدود المخاطرة قبل الحفظ.","Check the risk limits before saving."));
  try{
@@ -1256,7 +1277,10 @@ function savePolicy(){
   tradingSettings=next;Engine.configure(next);GoldEngine.configure(next);
   saveState();saveGoldPaper();renderPolicyForm();render();renderGold();
   log(localized("تم حفظ سياسة رأس المال والمخاطر وتطبيقها على المحاكاة المحلية.","Capital and risk policy saved and applied to local paper engines."),"POLICY");
-  toast(localized("تم حفظ الإعدادات وتطبيقها.","Settings saved and applied."));
+  toast(initialCapitalChanged
+   ?localized("حُفظ رأس المال للحسابات الجديدة. لتطبيقه الآن على المحاكاة اضغط إعادة تأسيس حسابي المحاكاة.",
+      "Initial capital saved for new accounts. To apply it to current paper accounts, use Reset paper accounts.")
+   :localized("تم حفظ الإعدادات وتطبيقها.","Settings saved and applied."));
  }catch(error){toast(localized("تعذر حفظ الإعدادات على هذا الجهاز.","Could not save settings on this device."));}
 }
 function restorePolicyDefaults(){
@@ -1315,12 +1339,6 @@ $("languageToggle").addEventListener("click",()=>{
  try{localStorage.setItem(LANG_KEY,appLanguage);}catch(_){}
  applyLanguage();
 });
-$("savePolicy").addEventListener("click",savePolicy);
-$("resetPolicyDefaults").addEventListener("click",restorePolicyDefaults);
-$("resetAllPaper").addEventListener("click",resetAllPaperAccounts);
-$("validateRiskRecovery").addEventListener("click",validateRiskRecovery);
-$("policyProjectionCycles").addEventListener("input",updatePolicyProjection);
-Object.values(POLICY_FIELDS).forEach(id=>$(id).addEventListener("input",updatePolicyProjection));
 $("savePolicy").addEventListener("click",savePolicy);
 $("resetPolicyDefaults").addEventListener("click",restorePolicyDefaults);
 $("resetAllPaper").addEventListener("click",resetAllPaperAccounts);
