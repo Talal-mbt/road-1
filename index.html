@@ -710,8 +710,10 @@ function navigate(page){
  setDrawer(false);
 }
 async function loadDexScreener(){
-if(fetchInProgress)return;fetchInProgress=true;$("livefetch").disabled=true;$("refresh").disabled=true;toast("جارٍ جلب بيانات السوق العامة…");
-const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),15000);
+if(fetchInProgress)return;
+if(!navigator.onLine){setNetworkState();toast(localized("لا يوجد اتصال بالإنترنت.","No internet connection."));return;}
+fetchInProgress=true;$("livefetch").disabled=true;$("refresh").disabled=true;toast("جارٍ جلب بيانات السوق العامة…");
+dexController=new AbortController();const controller=dexController,timeout=setTimeout(()=>controller.abort(),15000);
 try{
 const response=await fetch("https://api.dexscreener.com/token-profiles/latest/v1",{signal:controller.signal,headers:{Accept:"application/json"}});
 if(!response.ok)throw new Error("Provider HTTP "+response.status);
@@ -731,14 +733,16 @@ price:Number(pair.priceUsd),liq:Math.max(0,Number(pair.liquidity&&pair.liquidity
 score:null,age,tokenAddress:profile.tokenAddress});
 }
 if(!found.length)throw new Error("No valid Solana base-token pairs returned");
-assets=found;sourceMode="PUBLIC";lastRefresh=new Date().toISOString();saveMarket();
-log("Loaded "+found.length+" public pair snapshots. Security and sellability remain unverified.","DATA");render();toast("تم جلب بيانات عامة؛ لم يتم التحقق من أمان الأصول");
+const signature=JSON.stringify(found);const changed=signature!==lastDexSignature;assets=found;lastDexSignature=signature;sourceMode="PUBLIC";lastRefresh=new Date().toISOString();saveMarket();
+if(changed)render();else{$("last-refresh").textContent=localized("تم التحديث الآن","Updated just now");}
+log("Loaded "+found.length+" public pair snapshots. Security and sellability remain unverified.","DATA");toast(localized("تم جلب بيانات عامة؛ لم يتم التحقق من أمان الأصول","Public data loaded; asset safety is unverified"));
 }catch(error){
 const message=error&&error.name==="AbortError"?"Provider request timed out":String(error&&error.message||"Fetch failed");
 log("Public data fetch failed: "+message,"ERROR");toast("تعذر التحديث؛ تم الاحتفاظ بآخر بيانات");
-}finally{clearTimeout(timeout);fetchInProgress=false;$("livefetch").disabled=false;$("refresh").disabled=false;}
+}finally{clearTimeout(timeout);if(dexController===controller)dexController=null;fetchInProgress=false;$("livefetch").disabled=!navigator.onLine;$("refresh").disabled=!navigator.onLine;}
 }
 function refreshDemo(){
+if(!navigator.onLine){setNetworkState();toast(localized("انقطع الاتصال؛ التحديث متوقف.","Offline; refresh is paused."));return;}
 if(sourceMode==="PUBLIC")return loadDexScreener();
 assets=assets.map(a=>({...a,price:Number(a.price)*(1+(Math.random()-.5)*.02)}));
 lastRefresh=new Date().toISOString();saveMarket();log("تم تحديث البيانات الاصطناعية؛ ليست أسعار سوق مباشرة","DEMO");render();toast("تم تحديث البيانات التجريبية");
@@ -995,8 +999,8 @@ const goldMoney=n=>"$"+Number(n||0).toLocaleString("en-US",{minimumFractionDigit
 const goldPriceText=n=>Number(n).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
 function saveGoldPaper(){try{localStorage.setItem(GOLD_PAPER_KEY,JSON.stringify(goldPaperState));}catch(_){$("goldRiskState").textContent="SESSION ONLY";}}
 function setGoldStatus(title,detail,pill,usable=false){
- $("goldMonitorStatus").textContent=title;$("goldMonitorDetail").textContent=detail;
- $("goldMonitorPill").textContent=pill;$("goldMonitorToggle").classList.toggle("on",goldMonitoring);
+ $("goldMonitorStatus").textContent=localizeGoldText(title);$("goldMonitorDetail").textContent=localizeGoldText(detail);
+ $("goldMonitorPill").textContent=appLanguage==="ar"?pill:({ON:"ON",OFF:"OFF",STALE:"STALE",ERROR:"ERROR",PAUSED:"PAUSED",CONNECTING:"CONNECTING"}[pill]||pill);$("goldMonitorToggle").classList.toggle("on",goldMonitoring);
  $("goldMonitorToggle").textContent=goldMonitoring?"■ إيقاف المراقبة":"▶ تفعيل مراقبة الذهب";
  $("goldFeedStatus").textContent=usable?"بيانات حديثة":(goldLastFetchedAt?"بيانات قديمة / غير متاحة":"غير متصل");
  $("goldFeedStatus").className=usable?"gold-badge":"tag warn";
@@ -1027,22 +1031,22 @@ function renderGold(){
  if(goldCurrentQuote!==null)$("goldPrice").textContent=goldPriceText(goldCurrentQuote);
  else $("goldPrice").textContent="—";
  if(goldQuoteTime)$("goldUpdatedAt").textContent="وقت الملاحظة: "+new Date(goldQuoteTime).toLocaleString()+" · UTC/جهازك";
- $("goldFeedAge").textContent=goldLastFetchedAt?"آخر فحص: "+new Date(goldLastFetchedAt).toLocaleTimeString():"لم يتم الفحص";
- $("goldFreshness").textContent=goldFeedUsable?"FRESH":"UNAVAILABLE";
+ $("goldFeedAge").textContent=goldLastFetchedAt?localized("آخر فحص: ","Last checked: ")+new Date(goldLastFetchedAt).toLocaleTimeString():localized("لم يتم الفحص","Not checked");
+ $("goldFreshness").textContent=goldFeedUsable?localized("حديثة","FRESH"):localized("غير متاحة","UNAVAILABLE");
  const a=goldAnalysis;
  if(a&&a.ok){
   $("goldEma20").textContent=goldPriceText(a.ema20);$("goldEma50").textContent=goldPriceText(a.ema50);
   $("goldRsi").textContent=a.rsi14.toFixed(1);$("goldMomentum").textContent=(a.momentumPct>=0?"+":"")+a.momentumPct.toFixed(3)+"%";
   $("goldRange").textContent=a.rangePct.toFixed(3)+"%";$("goldSamples").textContent=a.samples;
   $("goldScore").textContent=a.alignmentScore+"/100";
-  $("goldSignal").textContent=a.signal==="BUY_BIAS"?"ميل صعودي":a.signal==="SELL_BIAS"?"ميل هبوطي":"انتظار";
+  $("goldSignal").textContent=appLanguage==="ar"?(a.signal==="BUY_BIAS"?"ميل صعودي":a.signal==="SELL_BIAS"?"ميل هبوطي":"انتظار"):(a.signal==="BUY_BIAS"?"Bullish bias":a.signal==="SELL_BIAS"?"Bearish bias":"Wait");
   $("goldSignal").style.color=a.signal==="BUY_BIAS"?"var(--green)":a.signal==="SELL_BIAS"?"var(--red)":"var(--amber)";
-  $("goldSignalText").textContent=a.interpretation+" · درجة توافق المؤشرات وليست احتمال ربح أو نسبة نجاح.";
+  $("goldSignalText").textContent=appLanguage==="ar"?a.interpretation+" · درجة توافق المؤشرات وليست احتمال ربح أو نسبة نجاح.":(a.signal==="BUY_BIAS"?"Bullish indicator alignment — not a buy instruction.":a.signal==="SELL_BIAS"?"Bearish indicator alignment — not a sell instruction.":"No sufficient directional alignment. Wait.");
   renderGoldChart(goldSeries);
  }else{
   ["goldEma20","goldEma50","goldRsi","goldMomentum","goldRange","goldSamples","goldScore"].forEach(id=>$(id).textContent="—");
-  $("goldSignal").textContent="لا توجد إشارة";$("goldSignal").style.color="var(--amber)";
-  $("goldSignalText").textContent=a&&a.reason==="INSUFFICIENT_HISTORY"?"البيانات التاريخية غير كافية حالياً.":"أوقفنا إصدار الإشارات لأن البيانات غير متاحة أو قديمة.";
+  $("goldSignal").textContent=localized("لا توجد إشارة","No signal");$("goldSignal").style.color="var(--amber)";
+  $("goldSignalText").textContent=a&&a.reason==="INSUFFICIENT_HISTORY"?localized("البيانات التاريخية غير كافية حالياً.","Not enough history yet."):localized("أوقفنا إصدار الإشارات لأن البيانات غير متاحة أو قديمة.","Signals are disabled because data is unavailable or stale.");
   renderGoldChart([]);
  }
  $("goldPaperBuy").disabled=!goldMonitoring||!goldFeedUsable||!goldCurrentQuote||goldPaperState.riskLocked;
@@ -1050,8 +1054,9 @@ function renderGold(){
  renderGoldTrades();
 }
 async function fetchGoldSnapshot(){
- if(goldFetchBusy)return;goldFetchBusy=true;
- const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),12000);
+ if(goldFetchBusy)return;
+ if(!navigator.onLine){goldFeedUsable=false;setGoldStatus("تعذر تحديث البيانات","انقطع اتصال الإنترنت. سيُستأنف الفحص عند عودة الشبكة.","OFFLINE",false);renderGold();return;}
+ goldFetchBusy=true;goldController=new AbortController();const controller=goldController,timeout=setTimeout(()=>controller.abort(),12000);
  try{
   const stamp=Date.now();
   const urls=[
@@ -1081,9 +1086,10 @@ async function fetchGoldSnapshot(){
   const message=error&&error.name==="AbortError"?"انتهت مهلة الاتصال":String(error&&error.message||"تعذر الاتصال");
   setGoldStatus("تعذر تحديث البيانات",message+" · لا نستخدم بيانات قديمة لإنشاء مراكز تجريبية.","ERROR",false);
   log("Gold feed error: "+message,"ERROR");renderGold();
- }finally{clearTimeout(timeout);goldFetchBusy=false;}
+ }finally{clearTimeout(timeout);if(goldController===controller)goldController=null;goldFetchBusy=false;}
 }
 function toggleGoldMonitoring(){
+ if(!goldMonitoring&&!navigator.onLine){setNetworkState();toast(localized("يتطلب تشغيل مراقبة الذهب اتصالاً بالإنترنت.","Gold monitoring requires an internet connection."));return;}
  if(goldMonitoring){
   goldMonitoring=false;if(goldTimer){clearInterval(goldTimer);goldTimer=null;}
   setGoldStatus("متوقف","تم إيقاف الفحص الدوري. لا توجد مراقبة حالية.","OFF",goldFeedUsable);
@@ -1094,7 +1100,7 @@ function toggleGoldMonitoring(){
  log("Gold monitoring started by user","GOLD");
  fetchGoldSnapshot();
  goldTimer=setInterval(()=>{
-  if(document.visibilityState==="visible")fetchGoldSnapshot();
+  if(document.visibilityState==="visible"&&navigator.onLine)fetchGoldSnapshot();
   else setGoldStatus("معلّق بالخلفية","قد يوقف Android تحديثات الصفحة في الخلفية. افتح التطبيق لاستئناف المراقبة.","PAUSED",false);
  },60000);
 }
@@ -1125,7 +1131,7 @@ document.addEventListener("click",event=>{
 });
 document.addEventListener("visibilitychange",()=>{
  if(!goldMonitoring)return;
- if(document.visibilityState==="visible"){
+ if(document.visibilityState==="visible"&&navigator.onLine){
   setGoldStatus("استؤنفت المراقبة","التطبيق في الواجهة؛ جارٍ تحديث البيانات.","CONNECTING",false);fetchGoldSnapshot();
  }else{goldFeedUsable=false;setGoldStatus("معلّق بالخلفية","قد يوقف Android تحديثات الصفحة في الخلفية. افتح التطبيق لاستئناف المراقبة.","PAUSED",false);renderGold();}
 });
@@ -1140,9 +1146,48 @@ if("serviceWorker" in navigator&&location.protocol==="https:"){
  navigator.serviceWorker.register("./service-worker.js",{scope:"./"}).catch(error=>log("Offline app-shell setup failed: "+String(error.message||error),"WARN"));
 }
 
+function handleOffline(){
+ setNetworkState();
+ if(dexController)dexController.abort();
+ if(goldController)goldController.abort();
+ goldFeedUsable=false;
+ if(goldMonitoring){if(goldTimer){clearInterval(goldTimer);goldTimer=null;}setGoldStatus("تعذر تحديث البيانات","انقطع اتصال الإنترنت. سيُستأنف الفحص عند عودة الشبكة.","OFFLINE",false);renderGold();}
+ log(localized("انقطع اتصال الشبكة؛ تم تعليق التحديث دون إغلاق التطبيق.","Network disconnected; updates paused while the app stays open."),"NETWORK");
+}
+function handleOnline(){
+ setNetworkState();
+ log(localized("عاد اتصال الشبكة.","Network connection restored."),"NETWORK");
+ if(goldMonitoring&&document.visibilityState==="visible"){
+  setGoldStatus("استؤنفت المراقبة","التطبيق متصل؛ جارٍ جلب بيانات حديثة.","CONNECTING",false);
+  fetchGoldSnapshot();
+  if(!goldTimer)goldTimer=setInterval(()=>{if(navigator.onLine&&document.visibilityState==="visible")fetchGoldSnapshot();},60000);
+ }
+}
+window.addEventListener("offline",handleOffline);
+window.addEventListener("online",handleOnline);
+window.addEventListener("beforeunload",()=>{if(dexController)dexController.abort();if(goldController)goldController.abort();if(goldTimer)clearInterval(goldTimer);});
+
 log("تم تشغيل المنصة. الوضع الحالي للتحليل والمحاكاة فقط.","SYSTEM");
+decorateNavigationIcons();
+setNetworkState();
+applyLanguage();
 render();
+renderGold();
+renderMt5Profiles();
 setInterval(()=>$("clock").textContent=new Date().toISOString().slice(11,19)+" UTC",1000);
-setInterval(()=>{const previous=state.riskLocked;syncRiskLock(previous);render();},5000);
+setInterval(()=>{
+ const previous=state.riskLocked;
+ const previousDay=state.dayKey,previousHigh=state.highWaterEquity;
+ const risk=Engine.refreshRisk(state,priceMap(),new Date());
+ if(!previous&&state.riskLocked){addEvent("Risk circuit breaker locked new entries: "+state.riskLockReason,"RISK");saveState();}
+ else if(previousDay!==state.dayKey||previousHigh!==state.highWaterEquity)saveState();
+ $("riskpause").textContent=state.riskLocked?"LOCKED":(state.manualPaused?"MANUAL":"OFF");
+ $("riskpause").className=state.riskLocked||state.manualPaused?"red":"green";
+ $("riskReason").textContent=risk.pauseReason?"LOCK: "+risk.pauseReason:"NO CIRCUIT BREAKER";
+ $("riskReason").className=risk.paused?"red":"green";
+ $("dailyLossValue").textContent=risk.dailyLossPct.toFixed(2)+"% / "+risk.dailyLimitPct.toFixed(2)+"%";
+ $("drawdownValue").textContent=risk.drawdownPct.toFixed(2)+"% / "+risk.maxDrawdownPct.toFixed(2)+"%";
+ $("pause").disabled=state.riskLocked;$("kill").disabled=state.riskLocked;
+},30000);
 
 </script></body></html>
