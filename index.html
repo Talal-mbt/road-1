@@ -802,16 +802,22 @@ const all=state.events.map(e=>'<div class="logrow"><time>'+esc(e.at?e.at.slice(1
 $("logs").innerHTML=rows||'<div class="sub">No events recorded.</div>';$("alllogs").innerHTML=all||'<div class="sub">No events recorded.</div>';
 }
 function render(){
-const risk=syncRiskLock(state.riskLocked),summary=Engine.getSummary(state,priceMap());
+ const stopped=Engine.checkStops(state,priceMap(),new Date());
+ if(stopped.length){stopped.forEach(t=>addEvent("Automatic paper exit "+t.symbol+" · "+t.reason+" · "+money(t.pnl),"PAPER STOP"));saveState();}
+ const risk=syncRiskLock(state.riskLocked),summary=Engine.getSummary(state,priceMap());
 $("equity").textContent=money(summary.equity);$("realized").textContent=money(summary.realizedPnl);
 $("unrealized").textContent=money(summary.unrealizedPnl);$("unrealized").className="metric "+(summary.unrealizedPnl>=0?"green":"red");
 $("positions").textContent=summary.openPositions+" / "+Engine.CONFIG.maxPositions;
-$("pause").textContent=state.riskLocked?"⛔ قفل المخاطر نشط":(state.manualPaused?"▶ استئناف المحاكاة":"Ⅱ إيقاف المحاكاة");
-$("pause").disabled=state.riskLocked;$("riskpause").textContent=state.riskLocked?"LOCKED":(state.manualPaused?"MANUAL":"OFF");
-$("riskpause").className=state.riskLocked||state.manualPaused?"red":"green";
+$("pause").textContent=summary.paused?"⛔ التداول متوقف":"Ⅱ إيقاف المحاكاة";
+$("pause").disabled=summary.paused;$("riskpause").textContent=summary.paused?"LOCKED":"ACTIVE";
+$("riskpause").className=summary.paused?"red":"green";
 $("kill").textContent=state.riskLocked?"قفل المخاطر نشط":(state.manualPaused?"المحاكاة متوقفة":"تفعيل إيقاف الطوارئ");$("kill").disabled=state.riskLocked;
 $("dailyLossValue").textContent=risk.dailyLossPct.toFixed(2)+"% / "+risk.dailyLimitPct.toFixed(2)+"%";
+$("weeklyLossValue").textContent=risk.weeklyLossPct.toFixed(2)+"% / "+risk.weeklyLimitPct.toFixed(2)+"%";
 $("drawdownValue").textContent=risk.drawdownPct.toFixed(2)+"% / "+risk.maxDrawdownPct.toFixed(2)+"%";
+$("openRiskValue").textContent=risk.openRiskPct.toFixed(2)+"% / "+tradingSettings.maxConcurrentRiskPct.toFixed(2)+"%";
+$("lossStreakValue").textContent=String(risk.consecutiveLosses);
+$("effectiveRiskValue").textContent=risk.effectiveRiskPct.toFixed(2)+"%";
 $("riskReason").textContent=risk.pauseReason?"مقفل: "+risk.pauseReason:"لا يوجد قفل مخاطر";$("riskReason").className=risk.paused?"red":"green";
 $("storageStatus").textContent=storageAvailable?"محلي على الجهاز":"جلسة مؤقتة";$("storageStatus").className=storageAvailable?"green":"amber";
 $("pauseReason").textContent=summary.paused?"تم إيقاف فتح المراكز الجديدة، ويمكن إغلاق المراكز الافتراضية يدوياً.":"محاكاة محلية فقط؛ لا يتم إرسال أوامر حقيقية إلى وسيط أو محفظة.";
@@ -1087,6 +1093,37 @@ function applyLanguage(){
  document.querySelectorAll(".page").forEach(el=>el.setAttribute("lang",appLanguage));
  renderGold();
  renderMt5Profiles();
+
+ renderPolicyForm();
+ const policyText={
+  ar:{heading:["إدارة رأس المال والنمو المركب","إعدادات النمو المركب","حجم المركز وحدود المخاطرة","حدود الخسارة وقواطع الحماية","وقف الخسارة والهدف وتكاليف التنفيذ","سلوكيات ممنوعة","السياسة المطبقة حالياً"],
+      labels:["رأس المال الابتدائي ($)","هدف النمو لكل دورة (%)","الدورات المخططة يومياً","أيام التداول شهرياً","المخاطرة الأساسية لكل صفقة (%)","أقصى مخاطرة لكل صفقة (%)","مجموع المخاطر المفتوحة (%)","أقصى تعرض اسمي للمركز (% Equity)","الحد الأقصى للمراكز المتزامنة","خفض المخاطرة عند تراجع (%)","المخاطرة المخفضة بعد التراجع (%)","أقصى خسارة يومية (%)","أقصى خسارة أسبوعية (%)","الحد الأقصى لسحب الحساب (%)","إيقاف مؤقت بعد خسائر متتالية","قفل الاستراتيجية بعد خسائر","مسافة وقف الخسارة الافتراضية (%)","الحد الأدنى للعائد إلى المخاطرة (R:R)","عمولة تقديرية لكل جهة (%)","انزلاق تقديري لكل جهة (%)"],
+      checks:["إعادة استثمار الأرباح المحققة تلقائياً","تفعيل قاطع الطوارئ تلقائياً"],
+      buttons:["حفظ وتطبيق الإعدادات","استعادة القيم الأصلية","إعادة ضبط حسابات المحاكاة إلى رأس المال الجديد","فحص شروط استئناف التداول التجريبي"],
+      projection:"عدد الدورات الرابحة المفترضة",capital:"رأس المال الابتدائي للدورات الجديدة",target:"هدف الدورة النظري",risk:"المخاطرة الأساسية للصفقة",dd:"الحد الأقصى للسحب"},
+  en:{heading:["Capital management & compound growth","Compound growth settings","Position sizing & risk limits","Loss limits & circuit breakers","Stops, targets & execution costs","Prohibited behaviours","Active policy status"],
+      labels:["Initial capital ($)","Target growth per cycle (%)","Planned cycles per day","Trading days per month","Base risk per trade (%)","Maximum risk per trade (%)","Maximum concurrent risk (%)","Maximum position exposure (% equity)","Maximum concurrent positions","Reduce risk at drawdown (%)","Reduced risk after drawdown (%)","Maximum daily loss (%)","Maximum weekly loss (%)","Maximum account drawdown (%)","Pause after consecutive losses","Strategy lock after losses","Default stop distance (%)","Minimum risk-to-reward (R:R)","Estimated commission per side (%)","Estimated slippage per side (%)"],
+      checks:["Automatically reinvest realized profits","Enable automatic emergency stop"],
+      buttons:["Save and apply settings","Restore default values","Reset paper accounts to configured capital","Validate paper-trading recovery"],
+      projection:"Assumed winning cycles",capital:"Initial capital for new paper accounts",target:"Theoretical cycle target",risk:"Base risk per trade",dd:"Maximum drawdown"}
+ };
+ const pt=policyText[appLanguage];
+ const policyHeadIds=[".policy-hero .cardhead strong","#risk .card:nth-child(2) .cardhead strong","#risk .card:nth-child(3) .cardhead strong","#risk .card:nth-child(4) .cardhead strong","#risk .card:nth-child(5) .cardhead strong","#risk .card:nth-child(6) .cardhead strong","#risk .card:nth-child(7) .cardhead strong"];
+ policyHeadIds.forEach((sel,i)=>setNode(sel,policyText.ar.heading[i],policyText.en.heading[i]));
+ document.querySelectorAll(".policy-grid label").forEach((label,i)=>{
+  if(label.firstChild&&label.firstChild.nodeType===3)label.firstChild.textContent=(appLanguage==="ar"?policyText.ar.labels:policyText.en.labels)[i]||label.firstChild.textContent;
+ });
+ document.querySelectorAll(".policy-check span").forEach((node,i)=>node.textContent=(appLanguage==="ar"?policyText.ar.checks:policyText.en.checks)[i]||node.textContent);
+ ["savePolicy","resetPolicyDefaults","resetAllPaper","validateRiskRecovery"].forEach((id,i)=>$(id).textContent=(appLanguage==="ar"?policyText.ar.buttons:policyText.en.buttons)[i]);
+ const projectionLabel=$("policyProjectionCycles").previousElementSibling;
+ if(projectionLabel)projectionLabel.textContent=pt.projection;
+ const summaryLabels=document.querySelectorAll(".policy-summary-grid .riskbox label");
+ [pt.capital,pt.target,pt.risk,pt.dd].forEach((s,i)=>{if(summaryLabels[i])summaryLabels[i].textContent=s;});
+ setNode("#risk .projection-head strong","حاسبة النمو النظري","Theoretical compound calculator");
+ setNode(".projection-result span","القيمة النظرية بعد الدورات","Theoretical value after cycles");
+ setNode(".projection-panel .sub","هذه حاسبة افتراضية وليست قيمة المحفظة الفعلية. الرصيد الحقيقي يتغير فقط وفق نتائج الصفقات المحققة والتكاليف.","This is a projection, not actual account equity. Actual capital changes only with verified realized results and costs.");
+ setNode("#risk .policy-actions + p","تُحفظ هذه السياسة في متصفح هذا الجهاز فقط. لا توجد لوحة إدارة مركزية أو قاعدة بيانات حالياً. تغيير هذه القيم لا يغيّر حساب MT5 ولا يرسل أوامر حقيقية.","This policy is stored only in this device's browser. There is no central admin dashboard or database. These settings do not change an MT5 account or send real orders.");
+
 }
 function localized(ar,en){return appLanguage==="ar"?ar:en;}
 function localizeGoldText(value){
@@ -1254,8 +1291,9 @@ $("drawerScrim").addEventListener("click",()=>setDrawer(false));
 $("marketSearch").addEventListener("input",applyMarketSearch);
 document.addEventListener("keydown",event=>{if(event.key==="Escape")setDrawer(false);});
 $("pause").addEventListener("click",()=>{
-if(state.riskLocked)return toast("Risk lock cannot be manually bypassed");
-Engine.setManualPause(state,!state.manualPaused,new Date());log(state.manualPaused?"Manual entry pause enabled":"Manual entry pause disabled","RISK");render();
+ const risk=Engine.getRiskSnapshot(state,priceMap());
+ if(risk.paused)return toast(localized("يجب فحص شروط الاستئناف من صفحة إدارة المخاطر أولاً.","Validate recovery from the risk management page before resuming."));
+ Engine.setManualPause(state,!state.manualPaused,new Date());log(state.manualPaused?"Manual entry pause enabled":"Manual entry pause disabled","RISK");render();
 });
 $("kill").addEventListener("click",()=>{
 if(state.riskLocked)return toast("Risk lock cannot be manually bypassed");
@@ -1277,6 +1315,12 @@ $("languageToggle").addEventListener("click",()=>{
  try{localStorage.setItem(LANG_KEY,appLanguage);}catch(_){}
  applyLanguage();
 });
+$("savePolicy").addEventListener("click",savePolicy);
+$("resetPolicyDefaults").addEventListener("click",restorePolicyDefaults);
+$("resetAllPaper").addEventListener("click",resetAllPaperAccounts);
+$("validateRiskRecovery").addEventListener("click",validateRiskRecovery);
+$("policyProjectionCycles").addEventListener("input",updatePolicyProjection);
+Object.values(POLICY_FIELDS).forEach(id=>$(id).addEventListener("input",updatePolicyProjection));
 $("savePolicy").addEventListener("click",savePolicy);
 $("resetPolicyDefaults").addEventListener("click",restorePolicyDefaults);
 $("resetAllPaper").addEventListener("click",resetAllPaperAccounts);
