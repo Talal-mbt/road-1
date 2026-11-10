@@ -313,8 +313,8 @@ function renderGold(){
   $("goldSignalText").textContent=a&&a.reason==="INSUFFICIENT_HISTORY"?"البيانات التاريخية غير كافية حالياً.":"أوقفنا إصدار الإشارات لأن البيانات غير متاحة أو قديمة.";
   renderGoldChart([]);
  }
- $("goldPaperBuy").disabled=!goldFeedUsable||!goldCurrentQuote||goldPaperState.riskLocked;
- $("goldPaperSell").disabled=!goldFeedUsable||!goldCurrentQuote||goldPaperState.riskLocked;
+ $("goldPaperBuy").disabled=!goldMonitoring||!goldFeedUsable||!goldCurrentQuote||goldPaperState.riskLocked;
+ $("goldPaperSell").disabled=!goldMonitoring||!goldFeedUsable||!goldCurrentQuote||goldPaperState.riskLocked;
  renderGoldTrades();
 }
 async function fetchGoldSnapshot(){
@@ -368,7 +368,7 @@ function toggleGoldMonitoring(){
 }
 function openGoldPaper(side){
  if(!goldMonitoring)return toast("فعّل المراقبة أولاً للحصول على بيانات حديثة");
- if(!goldFeedUsable||!goldCurrentQuote)return toast("لا يمكن فتح محاكاة من بيانات قديمة أو غير مكتملة");
+ if(!goldMonitoring||!goldFeedUsable||!goldCurrentQuote)return toast("فعّل المراقبة وتأكد من حداثة البيانات أولاً");
  const result=GoldEngine.openPaperTrade(goldPaperState,side,goldCurrentQuote,new Date());
  if(!result.ok){log("Gold paper entry blocked: "+result.reason,"RISK");toast("تم رفض الصفقة التجريبية: "+result.reason);renderGold();return;}
  saveGoldPaper();log("Gold paper "+side+" opened · "+goldMoney(result.position.notional)+" virtual notional","GOLD PAPER");
@@ -376,7 +376,7 @@ function openGoldPaper(side){
 }
 function closeGoldPaper(id){
  const p=goldPaperState.positions.find(x=>x.id===id);if(!p)return;
- if(!goldFeedUsable||!goldCurrentQuote)return toast("لا يمكن الإغلاق بسعر غير حديث");
+ if(!goldMonitoring||!goldFeedUsable||!goldCurrentQuote)return toast("فعّل المراقبة لتحديث السعر قبل الإغلاق");
  const result=GoldEngine.closePaperTrade(goldPaperState,id,goldCurrentQuote,"MANUAL",new Date());
  if(result.ok){saveGoldPaper();log("Gold paper position closed · "+goldMoney(result.trade.pnl),"GOLD PAPER");renderGold();}
 }
