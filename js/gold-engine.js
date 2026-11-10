@@ -49,10 +49,10 @@
     const quote=Number(spot.spot_usd_oz??spot.xau?.price);
     const quoteTime=timestampMs(spot.price_as_of||spot.data_state?.as_of||spot.updated_at);
     if(!positive(quote))return {ok:false,reason:"INVALID_SPOT_PRICE"};
-    if(spot.data_state&&spot.data_state.status!=="fresh")return {ok:false,reason:"SPOT_NOT_FRESH"};
+    if(!spot.data_state||spot.data_state.status!=="fresh")return {ok:false,reason:"SPOT_NOT_FRESH"};
     if(!Number.isFinite(quoteTime)||now-quoteTime< -30000||now-quoteTime>CONFIG.maxQuoteAgeMs)return {ok:false,reason:"SPOT_STALE"};
     if(!intraday||!Array.isArray(intraday.points))return {ok:false,reason:"INTRADAY_UNAVAILABLE"};
-    if(intraday.data_state&&intraday.data_state.status!=="fresh")return {ok:false,reason:"INTRADAY_NOT_FRESH"};
+    if(!intraday.data_state||intraday.data_state.status!=="fresh")return {ok:false,reason:"INTRADAY_NOT_FRESH"};
     const points=normalizePoints(intraday.points);
     if(points.length<CONFIG.minSamples)return {ok:false,reason:"INSUFFICIENT_HISTORY",points,quote,quoteTime};
     const last=points[points.length-1];
