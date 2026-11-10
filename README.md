@@ -1,4 +1,4 @@
-# ROAD TO CASH — Mobile Market Intelligence Terminal
+# ROAD — Mobile Market Intelligence Terminal
 
 A phone-first market research dashboard for Solana token discovery and XAU/USD (gold) reference analysis, with local paper-trading simulations. It is designed as an installable Progressive Web App (PWA) for a personal phone.
 
