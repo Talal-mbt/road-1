@@ -58,6 +58,8 @@
   });
   const SCALE=100000000n;
   const round8=n=>Math.round((Number(n)+Number.EPSILON)*1e8)/1e8;
+  const floor8=n=>Math.floor((Number(n)+Number.EPSILON)*1e8)/1e8;
+  const ceil8=n=>Math.ceil((Number(n)-Number.EPSILON)*1e8)/1e8;
   function scaled(value){
     const s=Number(value).toFixed(8),negative=s.startsWith("-"),body=negative?s.slice(1):s;
     const [whole,fraction=""]=body.split(".");
@@ -119,11 +121,14 @@
     const rawQty=riskBudget/riskPerUnit;
     const exposureCap=eq*exp/100;
     const cashCap=cash/(1+fee/100);
-    const notional=Math.min(rawQty*entry,exposureCap,cashCap);
-    if(!Number.isFinite(notional)||notional<=0)return {ok:false,reason:"POSITION_SIZE_ZERO"};
-    const quantity=round8(notional/entry);
-    const estimatedStopLoss=round8(quantity*(stopDistance+costPerUnit));
-    const actualRiskPct=estimatedStopLoss/eq*100;
+    const notionalCap=Math.min(rawQty*entry,exposureCap,cashCap);
+    if(!Number.isFinite(notionalCap)||notionalCap<=0)return {ok:false,reason:"POSITION_SIZE_ZERO"};
+    // Round quantity DOWN so precision cannot push the order beyond the risk budget.
+    const quantity=floor8(notionalCap/entry);
+    const notional=floor8(quantity*entry);
+    const rawEstimatedStopLoss=quantity*(stopDistance+costPerUnit);
+    const estimatedStopLoss=ceil8(rawEstimatedStopLoss);
+    const actualRiskPct=rawEstimatedStopLoss/eq*100;
     if(actualRiskPct>rp+1e-7)return {ok:false,reason:"RISK_BUDGET_EXCEEDED"};
     return {ok:true,quantity,notional:round8(notional),riskBudget:round8(riskBudget),
       estimatedStopLoss,actualRiskPct,stopDistance,exposurePct:round8(notional/eq*100)};
