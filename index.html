@@ -1170,6 +1170,83 @@ function selectMt5Profile(id){
  renderMt5Profiles();
 }
 
+
+const POLICY_FIELDS={
+ initialCapital:"policyInitialCapital",targetCycleGrowthPct:"policyTargetCycleGrowthPct",
+ cyclesPerDay:"policyCyclesPerDay",tradingDaysPerMonth:"policyTradingDaysPerMonth",
+ riskPerTradePct:"policyRiskPerTradePct",maxRiskPerTradePct:"policyMaxRiskPerTradePct",
+ maxConcurrentRiskPct:"policyMaxConcurrentRiskPct",maxPositionExposurePct:"policyMaxPositionExposurePct",
+ maxPositions:"policyMaxPositions",drawdownReduceRiskAtPct:"policyDrawdownReduceRiskAtPct",
+ reducedRiskPerTradePct:"policyReducedRiskPerTradePct",dailyLossLimitPct:"policyDailyLossLimitPct",
+ weeklyLossLimitPct:"policyWeeklyLossLimitPct",maxAccountDrawdownPct:"policyMaxAccountDrawdownPct",
+ maxConsecutiveLossesPause:"policyMaxConsecutiveLossesPause",maxConsecutiveLossesLock:"policyMaxConsecutiveLossesLock",
+ stopLossPct:"policyStopLossPct",minimumRiskReward:"policyMinimumRiskReward",
+ commissionPctPerSide:"policyCommissionPctPerSide",slippagePctPerSide:"policySlippagePctPerSide"
+};
+function updatePolicyProjection(){
+ const n=Math.max(0,Math.min(10000,Math.floor(Number($("policyProjectionCycles").value)||0)));
+ const result=Policy.theoreticalCompound(tradingSettings.initialCapital,n,tradingSettings);
+ $("policyProjectionResult").textContent=money(result);
+}
+function renderPolicyForm(){
+ for(const [key,id] of Object.entries(POLICY_FIELDS))$(id).value=tradingSettings[key];
+ $("policyAutoReinvest").checked=tradingSettings.autoReinvest;
+ $("policyAutomaticEmergencyStop").checked=tradingSettings.automaticEmergencyStop;
+ $("policyCapitalSummary").textContent=money(tradingSettings.initialCapital);
+ $("policyCycleTargetSummary").textContent=money(Policy.cycleTargetAmount(tradingSettings.initialCapital,tradingSettings));
+ $("policyRiskSummary").textContent=tradingSettings.riskPerTradePct.toFixed(2)+"%";
+ $("policyDrawdownSummary").textContent=tradingSettings.maxAccountDrawdownPct.toFixed(2)+"%";
+ updatePolicyProjection();
+ const snap=Engine.getRiskSnapshot(state,priceMap());
+ $("weeklyLossValue").textContent=snap.weeklyLossPct.toFixed(2)+"% / "+tradingSettings.weeklyLossLimitPct.toFixed(2)+"%";
+ $("openRiskValue").textContent=snap.openRiskPct.toFixed(2)+"% / "+tradingSettings.maxConcurrentRiskPct.toFixed(2)+"%";
+ $("lossStreakValue").textContent=String(state.currentConsecutiveLosses||0);
+ $("effectiveRiskValue").textContent=snap.effectiveRiskPct.toFixed(2)+"%";
+}
+function readPolicyForm(){
+ const next={...tradingSettings};
+ for(const [key,id] of Object.entries(POLICY_FIELDS))next[key]=Number($(id).value);
+ next.autoReinvest=$("policyAutoReinvest").checked;
+ next.automaticEmergencyStop=$("policyAutomaticEmergencyStop").checked;
+ return Policy.normalize(next);
+}
+function savePolicy(){
+ const next=readPolicyForm();
+ if(next.riskPerTradePct>next.maxRiskPerTradePct||next.reducedRiskPerTradePct>next.riskPerTradePct)
+  return toast(localized("تأكد من ترتيب حدود المخاطرة قبل الحفظ.","Check the risk limits before saving."));
+ try{
+  localStorage.setItem(POLICY_KEY,JSON.stringify(next));
+  tradingSettings=next;Engine.configure(next);GoldEngine.configure(next);
+  saveState();saveGoldPaper();renderPolicyForm();render();renderGold();
+  log(localized("تم حفظ سياسة رأس المال والمخاطر وتطبيقها على المحاكاة المحلية.","Capital and risk policy saved and applied to local paper engines."),"POLICY");
+  toast(localized("تم حفظ الإعدادات وتطبيقها.","Settings saved and applied."));
+ }catch(error){toast(localized("تعذر حفظ الإعدادات على هذا الجهاز.","Could not save settings on this device."));}
+}
+function restorePolicyDefaults(){
+ if(!window.confirm(localized("استعادة إعدادات السياسة الافتراضية؟ لن يتم حذف الصفقات الحالية.","Restore default policy settings? Existing paper trades will not be deleted.")))return;
+ tradingSettings=Policy.normalize(Policy.DEFAULTS);
+ Engine.configure(tradingSettings);GoldEngine.configure(tradingSettings);
+ try{localStorage.setItem(POLICY_KEY,JSON.stringify(tradingSettings));}catch(_){}
+ renderPolicyForm();render();renderGold();log("Default ROAD paper policy restored","POLICY");
+}
+function resetAllPaperAccounts(){
+ if(!window.confirm(localized("سيتم حذف مراكز وسجل المحاكاة الحاليين وإعادة حسابي المحاكاة إلى رأس المال المحدد في السياسة. هل تتابع؟","This deletes current paper positions and trade history and resets both paper accounts to the configured initial capital. Continue?")))return;
+ state=Engine.createState();goldPaperState=GoldEngine.createPaperState();
+ saveState();saveGoldPaper();render();renderGold();renderPolicyForm();
+ log("Both local paper accounts reset to the configured initial capital","POLICY");
+ toast(localized("تمت إعادة ضبط حسابات المحاكاة.","Paper accounts reset."));
+}
+function validateRiskRecovery(){
+ if(!window.confirm(localized("تؤكد أنك راجعت الاستراتيجية وبيانات السوق وأن ظروف المخاطر عادت إلى الحدود؟","Confirm that you reviewed the strategy and market data and that risk conditions are back within limits?")))return;
+ const now=new Date(),paper=Engine.validateRecovery(state,priceMap(),now,true);
+ const gold=goldFeedUsable?GoldEngine.validateRecovery(goldPaperState,goldCurrentQuote,now,true):{ok:false,reason:"GOLD_FEED_NOT_FRESH"};
+ if(paper.ok)saveState();
+ if(gold.ok)saveGoldPaper();
+ render();renderGold();renderPolicyForm();
+ log("Risk recovery check — Solana paper: "+(paper.ok?"PASS":paper.reason)+" · Gold paper: "+(gold.ok?"PASS":gold.reason),"RISK");
+ toast(localized("تم فحص الاستئناف. راجع حالة كل محرك في لوحة المخاطر.","Recovery check completed. Review each engine status in the risk dashboard."));
+}
+
 document.querySelectorAll("[data-page]").forEach(button=>button.addEventListener("click",()=>navigate(button.dataset.page)));
 $("menu").addEventListener("click",()=>setDrawer(!$("sidebar").classList.contains("open")));
 $("closeMenu").addEventListener("click",()=>setDrawer(false));
@@ -1200,6 +1277,12 @@ $("languageToggle").addEventListener("click",()=>{
  try{localStorage.setItem(LANG_KEY,appLanguage);}catch(_){}
  applyLanguage();
 });
+$("savePolicy").addEventListener("click",savePolicy);
+$("resetPolicyDefaults").addEventListener("click",restorePolicyDefaults);
+$("resetAllPaper").addEventListener("click",resetAllPaperAccounts);
+$("validateRiskRecovery").addEventListener("click",validateRiskRecovery);
+$("policyProjectionCycles").addEventListener("input",updatePolicyProjection);
+Object.values(POLICY_FIELDS).forEach(id=>$(id).addEventListener("input",updatePolicyProjection));
 $("saveMt5Profile").addEventListener("click",saveMt5Profile);
 document.addEventListener("click",event=>{
  const select=event.target.closest("[data-mt5-select]");if(select)selectMt5Profile(select.getAttribute("data-mt5-select"));
@@ -1389,6 +1472,7 @@ applyLanguage();
 render();
 renderGold();
 renderMt5Profiles();
+renderPolicyForm();
 setInterval(()=>$("clock").textContent=new Date().toISOString().slice(11,19)+" UTC",1000);
 setInterval(()=>{
  const previous=state.riskLocked;
