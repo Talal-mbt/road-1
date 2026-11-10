@@ -2,7 +2,8 @@
  * XAUS spot is not a broker quote. No MT5, wallet or live execution is present.
  */
 (function(root,factory){
-  const api=factory(root&&root.RoadTradingPolicy);
+  let policy=root&&root.RoadTradingPolicy;if(!policy&&typeof module==="object"&&module.exports)policy=require("./trading-policy.js");
+  const api=factory(policy);
   if(typeof module==="object"&&module.exports)module.exports=api;
   if(root)root.GoldEngine=api;
 })(typeof globalThis!=="undefined"?globalThis:this,function(Policy){
