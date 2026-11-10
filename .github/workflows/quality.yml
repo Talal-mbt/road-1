@@ -1,0 +1,20 @@
+name: Quality gates
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Run paper engine unit tests
+        run: node --test tests/paper-engine.test.cjs
+      - name: Run static app smoke checks
+        run: node scripts/smoke-check.cjs
