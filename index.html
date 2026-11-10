@@ -304,7 +304,7 @@ button.danger{color:var(--red);border-color:#653b4c;background:#2a1824}
 </aside>
 <div class="drawer-scrim" id="drawerScrim"></div>
 <main class="main"><header class="top" dir="rtl">
- <div class="top-brand">
+ <span id="crumb" class="hide">الرئيسية</span><div class="top-brand">
   <button id="menu" class="menu-button" aria-label="فتح القائمة">☰</button>
   <div class="brand-mini"><span class="brand-mini-icon">R</span><div><b>ROAD TO <em>CASH</em></b><small>منصة تحليل الأسواق</small></div></div>
  </div>
@@ -569,7 +569,9 @@ function navigate(page){
  document.querySelectorAll(".page").forEach(x=>x.classList.toggle("active",x.id===page));
  $("crumb").textContent=titlesCrumb(page);
  const titles={overview:"لوحة التحكم",gold:"تحليل الذهب · XAUUSD",goldTrades:"صفقات الذهب",scout:"استكشاف الأسواق",filter:"فلتر الأمان",analyst:"التحليل والمؤشرات",executor:"مركز المحاكاة",risk:"إدارة المخاطر",logger:"سجل النشاط",health:"الإعدادات وحالة النظام"};
+ const subtitles={overview:"تابع الذهب والأسواق وإدارة المحاكاة من واجهة واحدة.",gold:"بيانات مرجعية ومؤشرات فنية للذهب مع توضيح حالة المصدر.",goldTrades:"متابعة المراكز الافتراضية والنتائج وسجل الصفقات.",scout:"استكشف بيانات السوق العامة مع إبقاء معلومات الأمان غير المؤكدة واضحة.",filter:"مراجعة حقائق الأمان قبل اعتبار أي أصل قابلاً للتداول.",analyst:"مؤشرات قابلة للتفسير وليست توقعاً مضموناً للربح.",executor:"أدوات تنفيذ افتراضي فقط؛ لا تتصل بحساب وسيط.",risk:"حدود المحاكاة وقواطع إيقاف فتح المراكز.",logger:"سجل محلي لأحداث التحليل والمحاكاة.",health:"معلومات التطبيق والبيانات وحدود التشغيل."};
  $("title").innerHTML=esc(titles[page]||"مساحة العمل")+"<span class='cyan'>.</span>";
+ $("subtitle").textContent=subtitles[page]||"إدارة ومتابعة المنصة.";
  setDrawer(false);
  window.scrollTo({top:0,behavior:"smooth"});
 }
