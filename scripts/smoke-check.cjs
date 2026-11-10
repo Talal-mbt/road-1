@@ -5,7 +5,7 @@ const paperEngine = fs.readFileSync("js/paper-engine.js", "utf8");
 const goldEngine = fs.readFileSync("js/gold-engine.js", "utf8");
 const manifest = JSON.parse(fs.readFileSync("manifest.webmanifest", "utf8"));
 const sw = fs.readFileSync("service-worker.js", "utf8");
-const scripts = [...html.matchAll(/<script>([\\s\\S]*?)<\\/script>/g)].map(match => match[1]);
+const scripts = html.split("<script>").slice(1).map(part => part.split("</script>")[0]).filter(script => script.trim());
 
 for (const id of ["equity","realized","unrealized","positions","dailyLossValue","drawdownValue","riskReason","storageStatus","assetselect","resetpaper","livefetch","liveDataAge"]) {
   assert.match(html, new RegExp('id="' + id + '"'), "missing Solana UI element: " + id);
@@ -25,7 +25,8 @@ assert.match(html, /transform:translateX\(110%\)/, "mobile drawer must be off-ca
 assert.match(html, /class="drawer-scrim"/, "mobile drawer must have a scrim");
 assert.match(html, /function setDrawer\(open\)/, "drawer controller is missing");
 assert.match(html, /function applyMarketSearch\(\)/, "market search controller is missing");
-assert.equal((html.match(/class="mobile-bottom"[^>]*>[\\s\\S]*?<button data-page=/g) || []).length, 1, "mobile nav should render once");
+const bottomNav = html.split('<nav class="mobile-bottom"')[1]?.split("</nav>")[0] || "";
+assert.equal((bottomNav.match(/data-page=/g) || []).length, 5, "mobile nav should have five main destinations");
 assert.ok(scripts.length >= 1, "application script is missing");
 for (const script of scripts) new Function(script);
 
