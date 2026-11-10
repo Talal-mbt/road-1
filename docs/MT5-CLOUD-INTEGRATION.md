@@ -12,14 +12,14 @@ This is **not yet an enabled live connector**. No broker account has been connec
 2. The official xChief announcement dated 1 May 2024 lists `xChief-MT5` as the MT5 server name for its MT5 account types. The app must still let the user confirm the exact server from their own MT5 account screen; never silently assume the demo and live server strings are interchangeable.
 3. MetaQuotes' Python integration connects to a running MT5 terminal executable, not to the MT5 Android app.
 4. MetaApi documents cloud MT4/MT5 account provisioning, connection status, account information, positions, market data, trading and position close operations. It describes support for accounts at MetaTrader brokers generally; xChief server compatibility must be proved by connecting the user's actual demo account.
-5. MetaApi supports a credential configuration link: the app creates a draft account without the login/password, then the owner enters the credentials in MetaApi's hosted configuration page. Credentials must never pass through the Road to Cash browser, GitHub, logs, chat or app database.
+5. MetaApi supports a credential configuration link: the app creates a draft account without the login/password, then the owner enters the credentials in MetaApi's hosted configuration page. Credentials must never pass through the ROAD browser, GitHub, logs, chat or app database.
 6. MetaApi is a paid cloud service. Its current pricing page lists a Regular subscription of USD 30/month, a 7-day trial, one free MT account, and additional API usage charges. Risk Management API features are separately charged per account/hour. Prices and quotas can change.
 7. Android can host a user-visible foreground service, but OS versions impose background-start, service-type and quota restrictions. A native app can reduce background suspension; it cannot promise that Android will never kill the service or that a phone with no connectivity can trade.
 
 ## Selected topology
 
 - Android native app: user interface, account selector (Demo/Real), start/stop control, notifications, secure local session storage.
-- Road to Cash backend: authentication, account ownership mapping, policy/risk enforcement, audit log and broker-bridge calls. MetaApi access token is stored only as a server secret.
+- ROAD backend: authentication, account ownership mapping, policy/risk enforcement, audit log and broker-bridge calls. MetaApi access token is stored only as a server secret.
 - MetaApi managed cloud terminal: persistent MT5 connection to the selected xChief account.
 - xChief MT5 server: actual XAUUSD quote and order execution.
 
@@ -97,7 +97,7 @@ The server name `xChief-MT5` is published by xChief for MT5 accounts, and MetaAp
 
 ## Out of scope until verified
 
-- No trading password entry in the Road to Cash app.
+- No trading password entry in the ROAD app.
 - No real order endpoint or live toggle in the current PWA.
 - No automatic leverage mutation.
 - No guarantee of a 3% profit, 85–90% win rate or positive returns.
