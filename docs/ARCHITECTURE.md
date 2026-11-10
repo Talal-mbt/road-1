@@ -15,7 +15,7 @@ ROAD is a static, phone-first Progressive Web App. There is no backend service, 
 
 ## Application identity and local data
 
-The product-facing name is ROAD. The repository slug is `road-1`. On first load after the brand refresh, the app copies known `road-to-cash.*` localStorage values to their `road.*` equivalents and removes the previous key only after a successful copy. This preserves existing virtual balances, market snapshots, language preference and saved MT5 profile metadata on the same browser origin.
+The product-facing name is ROAD. The repository slug is `road-1`. On first load after the brand refresh, the app migrates known values from its previous internal localStorage namespace to the current `road.*` equivalents, removing the prior key only after a successful copy. This preserves existing virtual balances, market snapshots, language preference and saved MT5 profile metadata on the same browser origin.
 
 ## Gold data flow
 
