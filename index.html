@@ -1,5 +1,10 @@
 <!doctype html>
-<html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="strict-origin-when-cross-origin"><meta http-equiv="Content-Security-Policy" content="default-src &apos;self&apos;; script-src &apos;self&apos; &apos;unsafe-inline&apos;; style-src &apos;self&apos; &apos;unsafe-inline&apos;; connect-src &apos;self&apos; https://api.dexscreener.com https://xaus.com; img-src &apos;self&apos; data:; object-src &apos;none&apos;; base-uri &apos;self&apos;; form-action &apos;none&apos;"><meta name="theme-color" content="#080d13"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="assets/app-icon.svg" type="image/svg+xml"><title>ROAD — منصة تحليل الأسواق</title>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="strict-origin-when-cross-origin"><meta http-equiv="Content-Security-Policy" content="default-src &apos;self&apos;; script-src &apos;self&apos; &apos;unsafe-inline&apos;; style-src &apos;self&apos; &apos;unsafe-inline&apos;; connect-src &apos;self&apos; https://api.dexscreener.com https://xaus.com; img-src &apos;self&apos; data:; object-src &apos;none&apos;; base-uri &apos;self&apos;; form-action &apos;none&apos;"><meta name="theme-color" content="#061321"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="assets/app-icon.svg" type="image/svg+xml"><title>ROAD — Gold &amp; Market Intelligence</title>
+<meta name="description" content="ROAD is a mobile-first market intelligence workspace for XAUUSD gold analysis, market discovery, risk monitoring and local paper trading.">
+<meta name="application-name" content="ROAD">
+<meta property="og:title" content="ROAD — Market Intelligence">
+<meta property="og:description" content="Gold and market analysis, risk tools and paper trading in one mobile workspace.">
+<meta property="og:type" content="website">
 <style>
 :root{--bg:#080d13;--panel:#0e1721;--panel2:#121e2a;--line:#203141;--muted:#7d91a5;--text:#dce7f1;--cyan:#5ed9e9;--green:#55d6a3;--red:#ff6f7d;--amber:#f4bd62;--mono:"SFMono-Regular",Consolas,monospace}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 70% 0,#122333 0,transparent 45%),var(--bg);color:var(--text);font:13px Inter,system-ui,sans-serif}button,input,select{font:inherit}button{cursor:pointer;color:inherit;background:#162534;border:1px solid var(--line);border-radius:7px;padding:9px 12px}button:hover{border-color:var(--cyan)}button.primary{background:#10323a;border-color:#20515b;color:var(--cyan)}button.danger{color:var(--red)}.shell{display:grid;grid-template-columns:218px 1fr;min-height:100vh}.sidebar{border-right:1px solid var(--line);background:#0a1119;padding:20px 13px;display:flex;flex-direction:column;gap:18px}.brand{display:flex;gap:10px;align-items:center;padding:0 6px}.mark{display:flex;gap:2px;align-items:end;height:26px}.mark i{width:5px;background:var(--cyan);border-radius:2px}.mark i:nth-child(1){height:12px}.mark i:nth-child(2){height:20px}.mark i:nth-child(3){height:26px}.brand strong{letter-spacing:2px;font-size:14px}.brand strong span{color:var(--cyan)}.brand small{display:block;color:var(--muted);font:9px var(--mono);letter-spacing:1px;margin-top:4px}.workspace{border:1px solid var(--line);background:var(--panel);padding:10px;border-radius:8px;display:flex;gap:10px;align-items:center}.avatar{background:#183743;color:var(--cyan);padding:9px;border-radius:6px}.workspace small,.muted{color:var(--muted)}.navlabel{color:#53697e;font:10px var(--mono);letter-spacing:1.5px;padding:0 9px}.nav{display:grid;gap:4px}.nav button{border:0;background:transparent;text-align:left;color:#8fa3b7;padding:10px;display:flex;gap:10px;align-items:center}.nav button.active{background:#142531;color:var(--cyan);border-left:2px solid var(--cyan)}.nav button span:last-child{margin-left:auto;color:#506579;font:10px var(--mono)}.sidebottom{margin-top:auto;border:1px solid #25463e;background:#10221f;border-radius:8px;padding:12px}.sidebottom strong{color:var(--green);font:11px var(--mono)}.sidebottom small{display:block;color:var(--muted);margin-top:8px}.main{min-width:0}.top{height:58px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 25px;background:#0b121a}.top .crumb{font:11px var(--mono);color:var(--muted);letter-spacing:1px}.top .crumb b{color:#395063;margin:0 10px}.status{display:flex;gap:10px;align-items:center;font:10px var(--mono);letter-spacing:1px}.led{height:7px;width:7px;border-radius:50%;background:var(--green);box-shadow:0 0 10px #55d6a355}.pill{border:1px solid #285348;background:#10251f;color:var(--green);padding:6px 9px;border-radius:20px}.content{padding:25px;max-width:1600px;margin:auto}.heading{display:flex;justify-content:space-between;gap:20px;align-items:start;margin-bottom:20px}.eyebrow{color:var(--cyan);font:10px var(--mono);letter-spacing:2px}.heading h1{font-size:27px;letter-spacing:-.8px;margin:9px 0}.heading p{color:var(--muted);margin:0}.actions{display:flex;gap:8px;flex-wrap:wrap}.warning{color:var(--amber);font:10px var(--mono);border:1px solid #4b3b25;background:#251e14;padding:7px 9px;border-radius:5px}.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.card{background:linear-gradient(145deg,#111c27,#0d151e);border:1px solid var(--line);border-radius:10px;padding:15px;min-width:0}.metriclabel{color:var(--muted);font:10px var(--mono);letter-spacing:1px}.metric{font:24px var(--mono);margin:12px 0 7px;letter-spacing:-1px}.green{color:var(--green)}.red{color:var(--red)}.cyan{color:var(--cyan)}.sub{font-size:11px;color:var(--muted)}.grid2{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(270px,1fr);gap:12px;margin-top:12px}.cardhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}.cardhead strong{font-size:12px;letter-spacing:.3px}.cardhead small{color:var(--muted);font:10px var(--mono)}.chart{height:190px;position:relative}.chart svg{width:100%;height:100%}.units{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.unit{background:#0b131c;border:1px solid #20303e;border-radius:7px;padding:12px}.unithead{display:flex;justify-content:space-between;align-items:center;font:10px var(--mono);letter-spacing:.7px}.unit .dot{width:6px;height:6px;background:var(--green);border-radius:50%}.unit p{font-size:11px;color:var(--muted);margin:9px 0 0}.tablewrap{overflow:auto}.table{width:100%;border-collapse:collapse;white-space:nowrap}.table th{text-align:left;color:#71869a;font:10px var(--mono);letter-spacing:.8px;padding:10px;border-bottom:1px solid var(--line)}.table td{padding:12px 10px;border-bottom:1px solid #172430;font:12px var(--mono)}.table tbody tr:hover{background:#13212c}.token{font-family:system-ui;font-weight:600}.symbol{display:block;color:var(--muted);font:10px var(--mono);margin-top:3px}.tag{display:inline-block;padding:4px 6px;border-radius:4px;font:9px var(--mono);background:#172a24;color:var(--green)}.tag.warn{background:#2a2419;color:var(--amber)}.tag.bad{background:#2b1b22;color:var(--red)}.log{display:grid;gap:0}.logrow{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid #172430;font:10px var(--mono)}.logrow time{color:#607589;min-width:68px}.logrow .msg{color:#aabac9}.logrow .msg b{color:var(--cyan);font-weight:500}.riskgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.riskbox{background:#0a121a;border:1px solid var(--line);padding:12px;border-radius:7px}.riskbox label{display:block;color:var(--muted);font:10px var(--mono);margin-bottom:9px}.riskbox strong{font:18px var(--mono)}.footer{display:flex;justify-content:space-between;color:#52677b;font:9px var(--mono);padding:18px 0}.hide{display:none!important}.toast{position:fixed;bottom:20px;right:20px;background:#142632;border:1px solid #2c5662;color:var(--cyan);padding:12px 16px;border-radius:8px;z-index:10}.smallbtn{padding:6px 8px;font-size:10px}.page{display:none}.page.active{display:block}
 @media(max-width:1050px){.shell{grid-template-columns:68px 1fr}.sidebar{padding:16px 8px}.brand-copy,.workspace-copy,.workspace .chevron,.navlabel,.nav button .label,.nav button span:last-child,.sidebottom{display:none}.workspace{justify-content:center}.nav button{justify-content:center}.metrics{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr}.units{grid-template-columns:repeat(2,1fr)}}
@@ -398,7 +403,7 @@ html[lang="ar"] body,html[lang="ar"] button,html[lang="ar"] input,html[lang="ar"
 </style></head>
 <body><div class="shell">
 <aside class="sidebar" id="sidebar" aria-label="القائمة الرئيسية">
- <div class="brand"><div class="brand-symbol"><span>R</span><i></i></div><div class="brand-copy"><strong>ROAD <span>TO</span> CASH</strong><small>MARKET INTELLIGENCE</small></div><button id="closeMenu" class="drawer-close" aria-label="إغلاق القائمة">×</button></div>
+ <div class="brand"><div class="brand-symbol"><span>R</span><i></i></div><div class="brand-copy"><strong>ROAD</strong><small>MARKET INTELLIGENCE</small></div><button id="closeMenu" class="drawer-close" aria-label="إغلاق القائمة">×</button></div>
  <div class="workspace"><div class="avatar">RT</div><div class="workspace-copy"><b>مساحة التداول</b><small style="display:block;font-size:10px">محاكاة محلية · بدون تنفيذ حقيقي</small></div></div>
  <div class="navlabel">الرئيسية</div>
  <nav class="nav" aria-label="أقسام التطبيق">
@@ -423,7 +428,7 @@ html[lang="ar"] body,html[lang="ar"] button,html[lang="ar"] input,html[lang="ar"
 <main class="main"><header class="top" dir="rtl">
  <span id="crumb" class="hide">الرئيسية</span><div class="top-brand">
   <button id="menu" class="menu-button" aria-label="فتح القائمة">☰</button>
-  <div class="brand-mini"><span class="brand-mini-icon">R</span><div><b>ROAD TO <em>CASH</em></b><small>منصة تحليل الأسواق</small></div></div>
+  <div class="brand-mini"><span class="brand-mini-icon">R</span><div><b>ROAD</b><small>منصة تحليل الأسواق</small></div></div>
  </div>
  <div class="top-actions">
   <span class="connection-pill" id="networkPill"><i class="led"></i><span id="networkStatus">متصل</span></span><span class="connection-pill provider-pill"><span id="provider">DEMO SNAPSHOT</span></span>
@@ -617,14 +622,14 @@ html[lang="ar"] body,html[lang="ar"] button,html[lang="ar"] input,html[lang="ar"
  <button data-page="accounts"><span class="navicon">▣</span><span class="bottom-label">الحساب</span></button>
  <button data-page="health"><span class="navicon">⚙</span><span class="bottom-label">المزيد</span></button>
 </nav>
-<footer class="footer"><span>ROAD · الإصدار 0.2</span><span>NOT FINANCIAL ADVICE · محاكاة فقط</span><span>جلسة محلية</span></footer></div></main></div><div id="toast" class="toast hide"></div>
+<footer class="footer"><span>ROAD · MARKET INTELLIGENCE</span><span>NOT FINANCIAL ADVICE · محاكاة فقط</span><span>جلسة محلية</span></footer></div></main></div><div id="toast" class="toast hide"></div>
 <script src="js/paper-engine.js"></script><script src="js/gold-engine.js"></script><script>
 "use strict";
 const $ = id => document.getElementById(id);
 const esc = value => String(value == null ? "" : value).replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
 const money = n => "$" + Number(n || 0).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
 const fmt = n => Number.isFinite(Number(n)) && Number(n)>0 ? "$"+Number(n).toPrecision(5) : "—";
-const STORAGE_KEY="road-to-cash.paper.v1", MARKET_KEY="road-to-cash.market.v1";
+const STORAGE_KEY="road.paper.v1", MARKET_KEY="road.market.v1";
 const Engine=window.PaperEngine;
 if(!Engine)throw new Error("Paper engine failed to load");
 const DEMO=[
@@ -632,7 +637,20 @@ const DEMO=[
 {name:"Nova Demo",symbol:"NOVA",price:.00081,liq:21600,vol:74000,score:64},
 {name:"Mint Demo",symbol:"MINT",price:.0126,liq:83500,vol:290000,score:81},
 {name:"Orbit Demo",symbol:"ORBT",price:.00014,liq:9200,vol:32000,score:48}];
+function migrateLegacyStorage(){
+ const legacyPrefix="road-to-cash.",newPrefix="road.";
+ try{
+  const keys=[];
+  for(let i=0;i<localStorage.length;i++){const key=localStorage.key(i);if(key&&key.startsWith(legacyPrefix))keys.push(key);}
+  keys.forEach(oldKey=>{
+   const newKey=newPrefix+oldKey.slice(legacyPrefix.length);
+   if(localStorage.getItem(newKey)===null)localStorage.setItem(newKey,localStorage.getItem(oldKey));
+   localStorage.removeItem(oldKey);
+  });
+ }catch(_){/* Preserve legacy values when browser storage is unavailable or full. */}
+}
 function readJson(key){try{const raw=localStorage.getItem(key);return raw?JSON.parse(raw):null;}catch(_){return null;}}
+migrateLegacyStorage();
 let state=Engine.normalizeState(readJson(STORAGE_KEY));
 const marketCache=readJson(MARKET_KEY);
 let assets=Array.isArray(marketCache&&marketCache.assets)&&marketCache.assets.length
@@ -772,9 +790,9 @@ assets=assets.map(a=>({...a,price:Number(a.price)*(1+(Math.random()-.5)*.02)}));
 lastRefresh=new Date().toISOString();saveMarket();log("تم تحديث البيانات الاصطناعية؛ ليست أسعار سوق مباشرة","DEMO");render();toast("تم تحديث البيانات التجريبية");
 }
 
-const MT5_PROFILES_KEY="road-to-cash.mt5.profiles.v1";
-const MT5_ACTIVE_KEY="road-to-cash.mt5.active.v1";
-const LANG_KEY="road-to-cash.language.v1";
+const MT5_PROFILES_KEY="road.mt5.profiles.v1";
+const MT5_ACTIVE_KEY="road.mt5.active.v1";
+const LANG_KEY="road.language.v1";
 let appLanguage=localStorage.getItem(LANG_KEY)==="en"?"en":"ar";
 let dexController=null,goldController=null;
 let lastDexSignature="";
@@ -1066,7 +1084,7 @@ document.addEventListener("click",event=>{
 });
 
 
-const GOLD_PAPER_KEY="road-to-cash.gold-paper.v1";
+const GOLD_PAPER_KEY="road.gold-paper.v1";
 let goldPaperState=GoldEngine.normalizePaperState(readJson(GOLD_PAPER_KEY));
 let goldMonitoring=false,goldTimer=null,goldFetchBusy=false,goldCurrentQuote=null,goldQuoteTime=null,goldSeries=[],goldAnalysis=null,goldFeedUsable=false,goldLastFetchedAt=null,goldDeferredInstall=null;
 const goldMoney=n=>"$"+Number(n||0).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
