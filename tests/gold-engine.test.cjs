@@ -33,14 +33,15 @@ test("feed validator rejects stale intraday samples",()=>{
 test("Gold paper allows favorable pyramiding but blocks averaging down and caps risk",()=>{
  Gold.configure({...Policy.DEFAULTS,initialCapital:1000,stopLossPct:2,maxConcurrentRiskPct:2,maxPositions:3});
  const now=new Date(),s=Gold.createPaperState(now);
- for(const price of [4000,4100,4200])assert.equal(Gold.openPaperTrade(s,"BUY",price,now).ok,true);
- assert.deepEqual(Gold.openPaperTrade(s,"BUY",4150,now),{ok:false,reason:"AVERAGING_DOWN_BLOCKED"});
+ for(const price of [4000,4100])assert.equal(Gold.openPaperTrade(s,"BUY",price,now).ok,true);
+ assert.deepEqual(Gold.openPaperTrade(s,"BUY",4050,now),{ok:false,reason:"AVERAGING_DOWN_BLOCKED"});
+ assert.equal(Gold.openPaperTrade(s,"BUY",4200,now).ok,true);
  assert.deepEqual(Gold.openPaperTrade(s,"BUY",4300,now),{ok:false,reason:"MAX_POSITIONS"});
  assert.ok(s.positions.reduce((sum,p)=>sum+p.riskAmount,0)<=Gold.equity(s,4200)*.02+1e-7);
 });
 test("paper trade uses explicit simulated stop and target",()=>{
  const now=new Date(),s=Gold.createPaperState(now),r=Gold.openPaperTrade(s,"BUY",4000,now);
- assert.equal(r.ok,true);assert.ok(r.position.stop<r.position.entry);assert.ok(r.position.target>r.position.entry);
+ assert.equal(r.ok,true,r.reason||"Gold paper trade rejected");assert.ok(r.position.stop<r.position.entry);assert.ok(r.position.target>r.position.entry);
  const result=Gold.checkStops(s,r.position.target,now);
  assert.equal(result.length,1);assert.equal(result[0].reason,"SIMULATED_TARGET");assert.equal(s.positions.length,0);
 });
