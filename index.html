@@ -743,6 +743,214 @@ if(sourceMode==="PUBLIC")return loadDexScreener();
 assets=assets.map(a=>({...a,price:Number(a.price)*(1+(Math.random()-.5)*.02)}));
 lastRefresh=new Date().toISOString();saveMarket();log("تم تحديث البيانات الاصطناعية؛ ليست أسعار سوق مباشرة","DEMO");render();toast("تم تحديث البيانات التجريبية");
 }
+
+const MT5_PROFILES_KEY="road-to-cash.mt5.profiles.v1";
+const MT5_ACTIVE_KEY="road-to-cash.mt5.active.v1";
+const LANG_KEY="road-to-cash.language.v1";
+let appLanguage=localStorage.getItem(LANG_KEY)==="en"?"en":"ar";
+let dexController=null,goldController=null;
+let lastDexSignature="";
+let networkIsOnline=navigator.onLine!==false;
+
+function setDrawer(open){
+ $("sidebar").classList.toggle("open",open);
+ $("drawerScrim").classList.toggle("active",open);
+ $("menu").setAttribute("aria-expanded",open?"true":"false");
+ document.body.classList.toggle("drawer-open",open);
+}
+function titlesCrumb(page){
+ const ar={overview:"الرئيسية",gold:"الذهب",goldTrades:"الصفقات",accounts:"الحساب",scout:"الأسواق",filter:"الأمان",analyst:"التحليل",executor:"المحاكاة",risk:"المخاطر",logger:"السجل",health:"الإعدادات"};
+ const en={overview:"Home",gold:"Gold",goldTrades:"Trades",accounts:"Account",scout:"Markets",filter:"Safety",analyst:"Analysis",executor:"Paper trading",risk:"Risk",logger:"Activity",health:"Settings"};
+ return (appLanguage==="ar"?ar:en)[page]||page;
+}
+function applyMarketSearch(){
+ const input=$("marketSearch");if(!input)return;
+ const q=input.value.trim().toLowerCase();
+ ["tokens","scouttable"].forEach(id=>{
+  const body=$(id);if(!body)return;
+  body.querySelectorAll("tr").forEach(row=>{row.hidden=q!==""&&!row.textContent.toLowerCase().includes(q);});
+ });
+}
+const SVG_ICONS={
+ overview:'<path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/>',
+ gold:'<path d="M3 18 8 12l4 3 8-10"/><path d="M15 5h5v5"/><path d="M4 21h16"/>',
+ goldTrades:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/>',
+ accounts:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h4"/>',
+ scout:'<circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/>',
+ filter:'<path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11z"/><path d="m9 12 2 2 4-4"/>',
+ analyst:'<path d="M4 19V5M4 19h17"/><path d="m7 15 4-5 3 2 5-7"/>',
+ executor:'<path d="M7 17 17 7M7 7h10v10"/>',
+ risk:'<path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11z"/><path d="M12 7v6M12 17h.01"/>',
+ logger:'<path d="M8 4h11v17H5V4h3"/><path d="M8 8h7M8 12h7M8 16h5"/><path d="M8 2h7v4H8z"/>',
+ health:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-1.8 1.8-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1.03 1.56V20h-2.55v-.1a1.7 1.7 0 0 0-1.03-1.56 1.7 1.7 0 0 0-1.88.34l-.06.06-1.8-1.8.06-.06A1.7 1.7 0 0 0 8.1 15a1.7 1.7 0 0 0-1.56-1.03H6v-2.55h.1A1.7 1.7 0 0 0 7.66 10a1.7 1.7 0 0 0-.34-1.88l-.06-.06 1.8-1.8.06.06A1.7 1.7 0 0 0 11 6.66 1.7 1.7 0 0 0 12.03 5.1V5h2.55v.1a1.7 1.7 0 0 0 1.03 1.56 1.7 1.7 0 0 0 1.88-.34l.06-.06 1.8 1.8-.06.06A1.7 1.7 0 0 0 18.95 10a1.7 1.7 0 0 0 1.56 1.03h.1v2.55h-.1A1.7 1.7 0 0 0 19.4 15z"/>'
+};
+function decorateNavigationIcons(){
+ document.querySelectorAll(".nav button[data-page],.mobile-bottom button[data-page]").forEach(button=>{
+  const key=button.dataset.page,slot=button.querySelector(".navicon");
+  if(!slot)return;
+  const path=SVG_ICONS[key]||SVG_ICONS.overview;
+  slot.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">'+path+'</svg>';
+ });
+}
+const I18N={
+ ".brand-copy small":["MARKET INTELLIGENCE","تحليل الأسواق"],
+ ".brand-mini small":["MARKET INTELLIGENCE","منصة تحليل الأسواق"],
+ ".workspace-copy b":["Trading workspace","مساحة التداول"],
+ ".workspace-copy small":["Local analysis · Paper only","تحليل محلي · محاكاة فقط"],
+ ".sidebar .navlabel:nth-of-type(1)":["MAIN MENU","القائمة الرئيسية"],
+ ".sidebar .navlabel:nth-of-type(2)":["TOOLS","الأدوات المتقدمة"],
+ ".sidebottom strong":["● SAFE MODE","● وضع آمن"],
+ ".sidebottom small":["Analysis and simulation only\nNo broker account connected","تحليل ومحاكاة فقط\nلا يوجد اتصال بحساب وسيط"],
+ ".top-actions .pill":["PAPER MODE","وضع تجريبي"],
+ "#installApp":["Install app","تثبيت التطبيق"],
+ "#refresh":["↻ Refresh market","↻ تحديث السوق"],
+ "#pause":["Ⅱ Pause simulation","Ⅱ إيقاف المحاكاة"],
+ ".hero-chip":["Personal market workspace","مساحة متابعة شخصية"],
+ ".hero-copy h2":["Monitor the market.<br><span>Understand your opportunities.</span>","راقب السوق.<br><span>وافهم فرصك.</span>"],
+ ".hero-copy p":["Gold and market analysis in one clear workspace, with simple tools for monitoring and risk control.","تحليل الذهب والأسواق في واجهة واضحة، مع أدوات بسيطة للمراقبة وإدارة المخاطر."],
+ ".hero-primary":["Analyze gold ←","ابدأ بتحليل الذهب ←"],
+ ".hero-secondary":["View trades","عرض الصفقات"],
+ ".hero-note":["System status: local paper simulation only · no live orders","حالة النظام: محاكاة محلية فقط · لا توجد أوامر حقيقية"],
+ ".section-heading:nth-of-type(1) h2":["Portfolio overview","ملخص المحفظة"],
+ ".section-heading:nth-of-type(2) h2":["Quick access","تنقّل سريع"],
+ ".metriclabel:nth-child(1)":["Virtual equity","القيمة الافتراضية"],
+ ".metriclabel:nth-child(2)":["Realized P/L","الربح المحقق"],
+ ".metriclabel:nth-child(3)":["Floating P/L","الربح العائم"],
+ ".metriclabel:nth-child(4)":["Open positions","المراكز المفتوحة"],
+ "#goldMonitorToggle":["▶ Start gold monitoring","▶ تفعيل مراقبة الذهب"],
+ "#goldPaperBuy":["Paper buy","شراء تجريبي"],
+ "#goldPaperSell":["Paper sell","بيع تجريبي"],
+ "#saveMt5Profile":["Save profile locally","حفظ الملف محلياً"],
+ "#mt5ProfileMessage":["Saving a profile does not connect to MT5. This build has no broker bridge and does not collect passwords.","حفظ الملف لا ينشئ اتصالاً بـ MT5. هذه النسخة لا تحتوي على موصل وسيط ولا تجمع كلمات المرور."],
+ "#mt5ConnectionState":["Not connected","غير متصل"]
+};
+function setTextOrHtml(node,value){
+ if(!node)return;
+ if(value.includes("<br>")||value.includes("<span>"))node.innerHTML=value;
+ else node.textContent=value;
+}
+function applyLanguage(){
+ document.documentElement.lang=appLanguage;
+ document.documentElement.dir=appLanguage==="ar"?"rtl":"ltr";
+ document.querySelectorAll("[data-page] .label").forEach(el=>{
+  const page=el.closest("[data-page]")?.dataset.page;
+  const ar={overview:"الرئيسية",gold:"تحليل الذهب XAUUSD",goldTrades:"صفقات الذهب",accounts:"حسابات MT5",scout:"استكشاف الأسواق",filter:"فلتر الأمان",analyst:"التحليل والمؤشرات",executor:"مركز المحاكاة",risk:"إدارة المخاطر",logger:"سجل النشاط",health:"الإعدادات وحالة النظام"};
+  const en={overview:"Home",gold:"Gold analysis XAUUSD",goldTrades:"Gold trades",accounts:"MT5 accounts",scout:"Market discovery",filter:"Safety filter",analyst:"Analysis & indicators",executor:"Paper trading desk",risk:"Risk management",logger:"Activity log",health:"Settings & system"};
+  el.textContent=(appLanguage==="ar"?ar:en)[page]||page;
+ });
+ document.querySelectorAll(".mobile-bottom .bottom-label").forEach(el=>{
+  const page=el.closest("[data-page]")?.dataset.page;
+  const ar={overview:"الرئيسية",gold:"الذهب",goldTrades:"الصفقات",accounts:"الحساب",health:"المزيد"};
+  const en={overview:"Home",gold:"Gold",goldTrades:"Trades",accounts:"Account",health:"More"};
+  el.textContent=(appLanguage==="ar"?ar:en)[page]||page;
+ });
+ document.querySelectorAll(".navlabel").forEach((el,i)=>el.textContent=appLanguage==="ar"?(i===0?"القائمة الرئيسية":"الأدوات المتقدمة"):(i===0?"MAIN MENU":"TOOLS"));
+ document.querySelectorAll(".nav button").forEach(el=>el.setAttribute("aria-label",el.querySelector(".label")?.textContent||""));
+ Object.entries(I18N).forEach(([selector,values])=>{
+  document.querySelectorAll(selector).forEach(el=>setTextOrHtml(el,values[appLanguage==="ar"?1:0]));
+ });
+ $("languageToggle").textContent=appLanguage==="ar"?"EN":"عربي";
+ $("languageToggle").setAttribute("aria-label",appLanguage==="ar"?"Switch to English":"التبديل إلى العربية");
+ $("menu").setAttribute("aria-label",appLanguage==="ar"?"فتح القائمة":"Open navigation");
+ $("closeMenu").setAttribute("aria-label",appLanguage==="ar"?"إغلاق القائمة":"Close navigation");
+ const page=document.querySelector(".page.active")?.id||"overview";
+ const titleMap={
+  ar:{overview:"لوحة التحكم",gold:"تحليل الذهب · XAUUSD",goldTrades:"صفقات الذهب",accounts:"حسابات MT5",scout:"استكشاف الأسواق",filter:"فلتر الأمان",analyst:"التحليل والمؤشرات",executor:"مركز المحاكاة",risk:"إدارة المخاطر",logger:"سجل النشاط",health:"الإعدادات وحالة النظام"},
+  en:{overview:"Dashboard",gold:"Gold analysis · XAUUSD",goldTrades:"Gold trades",accounts:"MT5 accounts",scout:"Market discovery",filter:"Asset safety filter",analyst:"Analysis & indicators",executor:"Paper trading desk",risk:"Risk management",logger:"Activity log",health:"Settings & system"}
+ };
+ const subMap={
+  ar:{overview:"تابع الذهب والأسواق وإدارة المحاكاة من واجهة واحدة.",gold:"بيانات مرجعية ومؤشرات فنية للذهب مع توضيح حالة المصدر.",goldTrades:"متابعة المراكز الافتراضية والنتائج وسجل الصفقات.",accounts:"إدارة ملفات حسابات MT5. الحفظ المحلي لا يعني أن الحساب متصل.",scout:"استكشف بيانات السوق العامة مع إبقاء معلومات الأمان غير المؤكدة واضحة.",filter:"مراجعة حقائق الأمان قبل اعتبار أي أصل قابلاً للتداول.",analyst:"مؤشرات قابلة للتفسير وليست توقعاً مضموناً للربح.",executor:"أدوات تنفيذ افتراضي فقط؛ لا تتصل بحساب وسيط.",risk:"حدود المحاكاة وقواطع إيقاف فتح المراكز.",logger:"سجل محلي لأحداث التحليل والمحاكاة.",health:"معلومات التطبيق والبيانات وحدود التشغيل."},
+  en:{overview:"Follow gold, markets and your paper portfolio from one place.",gold:"Indicative XAUUSD data and technical indicators with source status.",goldTrades:"Review simulated positions, results and trade history.",accounts:"Manage MT5 account profiles. Saving a profile does not connect it.",scout:"Explore public market data; unknown safety facts remain unverified.",filter:"Review asset safety facts before considering a trade.",analyst:"Explainable indicators, not guaranteed profit predictions.",executor:"Paper execution only; no broker account is connected.",risk:"Simulation limits and controls that block new entries.",logger:"Local record of analysis and simulation events.",health:"Application information, data status and operating limits."}
+ };
+ setTextOrHtml($("title"),titleMap[appLanguage][page]+"<span class='cyan'>.</span>");
+ $("subtitle").textContent=subMap[appLanguage][page];
+ $("crumb").textContent=titlesCrumb(page);
+ document.querySelectorAll(".page").forEach(el=>el.setAttribute("lang",appLanguage));
+ renderGold();
+ renderMt5Profiles();
+}
+function localized(ar,en){return appLanguage==="ar"?ar:en;}
+function localizeGoldText(value){
+ const map={
+  "المراقبة تعمل":"Monitoring","يتم جلب السعر المرجعي وسلسلة العينات الآن…":"Fetching the reference quote and price series…",
+  "متوقف":"Stopped","تم إيقاف الفحص الدوري. لا توجد مراقبة حالية.":"Polling is stopped.",
+  "جارٍ الاتصال":"Connecting","البيانات مرفوضة":"Data rejected",
+  "تعذر تحديث البيانات":"Data refresh failed","استؤنفت المراقبة":"Monitoring resumed",
+  "التطبيق في الواجهة؛ جارٍ تحديث البيانات.":"App is visible; refreshing data.",
+  "معلّق بالخلفية":"Paused in background",
+  "قد يوقف Android تحديثات الصفحة في الخلفية. افتح التطبيق لاستئناف المراقبة.":"Android may suspend background updates. Return to the app to resume.",
+  "بيانات حديثة":"Fresh data","بيانات قديمة / غير متاحة":"Stale / unavailable data","غير متصل":"Offline",
+  "لا توجد إشارة":"No signal","ميل صعودي":"Bullish bias","ميل هبوطي":"Bearish bias","انتظار":"Wait",
+  "لا توجد بيانات بعد":"No data yet","البيانات التاريخية غير كافية حالياً.":"Not enough historical data yet.",
+  "أوقفنا إصدار الإشارات لأن البيانات غير متاحة أو قديمة.":"Signals are disabled because data is unavailable or stale.",
+  "درجة توافق المؤشرات وليست احتمال ربح أو نسبة نجاح.":"Indicator alignment score, not a probability of profit or win rate."
+ };
+ return appLanguage==="en"?(map[value]||value):value;
+}
+function setNetworkState(){
+ const online=navigator.onLine!==false;
+ networkIsOnline=online;
+ $("networkStatus").textContent=online?localized("متصل","Online"):localized("غير متصل","Offline");
+ $("networkPill").classList.toggle("offline",!online);
+ $("networkBanner").hidden=online;
+ $("networkBanner").textContent=localized(
+  "انقطع اتصال الإنترنت. سيبقى التطبيق مفتوحاً، لكن تحديث الأسعار والبيانات سيتوقف حتى عودة الشبكة.",
+  "Internet connection lost. The app remains open; market updates pause until connectivity returns."
+ );
+ $("refresh").disabled=!online;
+ $("livefetch").disabled=!online||fetchInProgress;
+ $("networkStatus").setAttribute("aria-label",online?"Online":"Offline");
+}
+function loadMt5Profiles(){
+ try{
+  const value=JSON.parse(localStorage.getItem(MT5_PROFILES_KEY)||"[]");
+  return Array.isArray(value)?value.filter(p=>p&&typeof p.id==="string"&&/^\d{4,20}$/.test(String(p.login))&&typeof p.server==="string"&&["DEMO","REAL"].includes(p.type)).slice(0,20):[];
+ }catch(_){return [];}
+}
+function renderMt5Profiles(){
+ const profiles=loadMt5Profiles(),active=localStorage.getItem(MT5_ACTIVE_KEY)||"";
+ if(!profiles.length){$("mt5ProfilesList").textContent=localized("لا توجد ملفات حساب محفوظة.","No account profiles saved.");return;}
+ $("mt5ProfilesList").innerHTML=profiles.map(p=>{
+  const selected=p.id===active;
+  return '<div class="mt5-profile-row"><div><b>'+esc(p.type==="DEMO"?"Demo":"Real")+' · '+esc(p.login)+'</b><small>'+esc(p.server)+' · '+esc(selected?localized("الحساب المحدد محلياً — غير متصل","Selected locally — not connected"):localized("ملف محفوظ فقط","Saved profile only"))+'</small></div><div class="mt5-profile-actions"><button type="button" data-mt5-select="'+esc(p.id)+'">'+(selected?localized("محدد","Selected"):localized("اختيار","Select"))+'</button><button type="button" class="danger" data-mt5-delete="'+esc(p.id)+'">'+localized("حذف","Delete")+'</button></div></div>';
+ }).join("");
+}
+function saveMt5Profile(){
+ const type=$("mt5AccountType").value,login=$("mt5Login").value.trim(),server=$("mt5Server").value.trim();
+ if(!/^\d{4,20}$/.test(login)||server.length<2||server.length>80){
+  $("mt5ProfileMessage").textContent=localized("أدخل رقم حساب صحيحاً واسم الخادم كما يظهر تماماً في MT5.","Enter a valid account number and the exact server name shown in MT5.");
+  return;
+ }
+ const profiles=loadMt5Profiles();
+ const existing=profiles.find(p=>p.type===type&&p.login===login&&p.server.toLowerCase()===server.toLowerCase());
+ const profile=existing||{id:"mt5-"+Date.now()+"-"+Math.random().toString(36).slice(2,7),type,login,server,savedAt:new Date().toISOString()};
+ if(!existing)profiles.unshift(profile);
+ try{
+  localStorage.setItem(MT5_PROFILES_KEY,JSON.stringify(profiles.slice(0,20)));
+  localStorage.setItem(MT5_ACTIVE_KEY,profile.id);
+  $("mt5ConnectionState").textContent=localized("ملف محفوظ · غير متصل","Profile saved · not connected");
+  $("mt5ConnectionState").className="tag warn";
+  $("mt5ProfileMessage").textContent=localized("حُفظ رقم الحساب والخادم محلياً فقط. لا يوجد اتصال حقيقي ولا تُحفظ كلمة مرور.","Login and server saved locally only. No live connection exists and no password was stored.");
+  renderMt5Profiles();
+ }catch(_){
+  $("mt5ProfileMessage").textContent=localized("تعذر الحفظ في تخزين المتصفح على هذا الجهاز.","Could not save to this device's browser storage.");
+ }
+}
+function deleteMt5Profile(id){
+ const profiles=loadMt5Profiles().filter(p=>p.id!==id);
+ localStorage.setItem(MT5_PROFILES_KEY,JSON.stringify(profiles));
+ if(localStorage.getItem(MT5_ACTIVE_KEY)===id)localStorage.removeItem(MT5_ACTIVE_KEY);
+ renderMt5Profiles();
+}
+function selectMt5Profile(id){
+ const p=loadMt5Profiles().find(x=>x.id===id);if(!p)return;
+ localStorage.setItem(MT5_ACTIVE_KEY,id);
+ $("mt5AccountType").value=p.type;$("mt5Login").value=p.login;$("mt5Server").value=p.server;
+ $("mt5ConnectionState").textContent=localized("ملف محدد · غير متصل","Selected profile · not connected");
+ $("mt5ProfileMessage").textContent=localized("تم تحديد الملف محلياً فقط. لم يتم فتح اتصال بوسيط MT5.","Profile selected locally only. No MT5 broker connection was opened.");
+ renderMt5Profiles();
+}
+
 document.querySelectorAll("[data-page]").forEach(button=>button.addEventListener("click",()=>navigate(button.dataset.page)));
 $("menu").addEventListener("click",()=>setDrawer(!$("sidebar").classList.contains("open")));
 $("closeMenu").addEventListener("click",()=>setDrawer(false));
@@ -767,6 +975,18 @@ const buyButton=event.target.closest("[data-buy]");if(buyButton)buy(buyButton.ge
 const sellButton=event.target.closest("[data-sell]");if(sellButton)sell(sellButton.getAttribute("data-sell"));
 });
 window.addEventListener("storage",event=>{if(event.key===STORAGE_KEY){state=Engine.normalizeState(readJson(STORAGE_KEY));render();}});
+
+$("languageToggle").addEventListener("click",()=>{
+ appLanguage=appLanguage==="ar"?"en":"ar";
+ try{localStorage.setItem(LANG_KEY,appLanguage);}catch(_){}
+ applyLanguage();
+});
+$("saveMt5Profile").addEventListener("click",saveMt5Profile);
+document.addEventListener("click",event=>{
+ const select=event.target.closest("[data-mt5-select]");if(select)selectMt5Profile(select.getAttribute("data-mt5-select"));
+ const del=event.target.closest("[data-mt5-delete]");if(del)deleteMt5Profile(del.getAttribute("data-mt5-delete"));
+});
+
 
 const GOLD_PAPER_KEY="road-to-cash.gold-paper.v1";
 let goldPaperState=GoldEngine.normalizePaperState(readJson(GOLD_PAPER_KEY));
