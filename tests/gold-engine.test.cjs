@@ -12,7 +12,7 @@ test("requires sufficient recent indicative data before analysis",()=>{
  assert.deepEqual(Gold.analyze(series(20)),{ok:false,reason:"INSUFFICIENT_HISTORY",samples:20});
 });
 test("identifies bullish alignment without calling it a win probability",()=>{
- const result=Gold.analyze(series(120,4000,.2));
+ const result=Gold.analyze(series(120,4000,.1));
  assert.equal(result.ok,true);assert.equal(result.signal,"BUY_BIAS");assert.ok(result.alignmentScore<=100);
  assert.equal(Object.hasOwn(result,"winProbability"),false);
 });
