@@ -69,15 +69,13 @@
     const recent=values.slice(-20);
     const high=Math.max(...recent),low=Math.min(...recent);
     const rangePct=(high-low)/last*100;
-    const bullish=ema20!==null&&ema50!==null&&last>ema20&&ema20>ema50&&rsi14>=50&&rsi14<=70&&momentumPct>0;
-    const bearish=ema20!==null&&ema50!==null&&last<ema20&&ema20<ema50&&rsi14<=50&&rsi14>=30&&momentumPct<0;
-    let alignment=0;
-    if(last>ema20)alignment+=25;else if(last<ema20)alignment+=25;
-    if(ema20>ema50)alignment+=25;else if(ema20<ema50)alignment+=25;
-    if(rsi14>50&&rsi14<70||rsi14<50&&rsi14>30)alignment+=25;
-    if(Math.abs(momentumPct)>0.01)alignment+=25;
+    const bullishVotes=[last>ema20,ema20>ema50,rsi14>=50&&rsi14<=70,momentumPct>0].filter(Boolean).length;
+    const bearishVotes=[last<ema20,ema20<ema50,rsi14>=30&&rsi14<=50,momentumPct<0].filter(Boolean).length;
+    const bullish=bullishVotes===4;
+    const bearish=bearishVotes===4;
+    const alignmentScore=Math.max(bullishVotes,bearishVotes)*25;
     const signal=bullish?"BUY_BIAS":bearish?"SELL_BIAS":"WAIT";
-    return {ok:true,signal,alignmentScore:alignment,latest:last,ema20,ema50,rsi14,momentumPct,rangePct,
+    return {ok:true,signal,alignmentScore,latest:last,ema20,ema50,rsi14,momentumPct,rangePct,
       high20:high,low20:low,samples:clean.length,latestTime:clean[clean.length-1].time,
       interpretation:signal==="BUY_BIAS"?"اتجاه مرجعي صاعد متوافق — ليس أمراً للشراء":
         signal==="SELL_BIAS"?"اتجاه مرجعي هابط متوافق — ليس أمراً للبيع":"لا يوجد توافق كافٍ؛ الانتظار أفضل"};
