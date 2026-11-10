@@ -1,4 +1,4 @@
-name: Deploy Road to Cash to GitHub Pages
+name: Deploy ROAD to GitHub Pages
 on:
   push:
     branches: [main]
@@ -21,7 +21,7 @@ jobs:
       - uses: actions/configure-pages@v5
         with:
           enablement: true
-      - name: Assemble static site
+      - name: Assemble ROAD app
         run: |
           mkdir -p site
           cp index.html manifest.webmanifest service-worker.js site/
