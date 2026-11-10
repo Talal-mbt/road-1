@@ -59,6 +59,10 @@ Market-data fetch requires internet. The XAUS service documents freshness metada
 3. After deployment, open the Pages URL in Chrome on the phone and choose **Install app** or **Add to Home screen**.
 4. If the private repository's plan/settings do not permit Pages, host the same static files on another HTTPS static host. No secrets are required.
 
+## MT5 / xChief integration plan
+
+A phone-controlled cloud MT5 connector has been technically evaluated. The secure account-onboarding flow, managed-cloud option, 3% activation-session target, broker-side leverage policy, Android runtime caveats and mandatory live-safety gates are documented in [docs/MT5-CLOUD-INTEGRATION.md](docs/MT5-CLOUD-INTEGRATION.md). This is a design/verification document only; no xChief account is connected and no live trade endpoint is enabled.
+
 ## Not implemented
 
 - No xChief broker API or MT5 account connection.
