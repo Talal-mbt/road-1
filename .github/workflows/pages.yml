@@ -1,4 +1,4 @@
-name: Deploy Road to Cash to GitHub Pages
+name: Deploy ROAD to GitHub Pages
 on:
   push:
     branches: [main]
