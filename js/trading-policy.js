@@ -40,7 +40,7 @@
     cyclesPerDay:{min:1,max:100,step:1,group:"capital"},
     tradingDaysPerMonth:{min:1,max:31,step:1,group:"capital"},
     riskPerTradePct:{min:0.05,max:1,step:0.05,group:"risk"},
-    maxRiskPerTradePct:{min:0.1,max:2,step:0.1,group:"risk"},
+    maxRiskPerTradePct:{min:0.1,max:1,step:0.1,group:"risk"},
     maxConcurrentRiskPct:{min:0.1,max:5,step:0.1,group:"risk"},
     dailyLossLimitPct:{min:0.1,max:10,step:0.1,group:"risk"},
     weeklyLossLimitPct:{min:0.5,max:20,step:0.5,group:"risk"},
@@ -56,7 +56,20 @@
     commissionPctPerSide:{min:0,max:2,step:0.01,group:"execution"},
     slippagePctPerSide:{min:0,max:2,step:0.01,group:"execution"}
   });
+  const SCALE=100000000n;
   const round8=n=>Math.round((Number(n)+Number.EPSILON)*1e8)/1e8;
+  function scaled(value){
+    const s=Number(value).toFixed(8),negative=s.startsWith("-"),body=negative?s.slice(1):s;
+    const [whole,fraction=""]=body.split(".");
+    const out=BigInt(whole||"0")*SCALE+BigInt((fraction+"00000000").slice(0,8));
+    return negative?-out:out;
+  }
+  function fromScaled(value){return Number(value)/Number(SCALE);}
+  function compoundFixed(initialCapital,ratePct,cycles){
+    let amount=scaled(initialCapital),factor=SCALE+scaled(Number(ratePct)/100),n=BigInt(cycles);
+    for(let i=0n;i<n;i++)amount=(amount*factor+SCALE/2n)/SCALE;
+    return fromScaled(amount);
+  }
   function normalize(input){
     const source=input&&typeof input==="object"?input:{};
     const out={...DEFAULTS};
@@ -85,12 +98,12 @@
     const value=Number(initialCapital);
     if(!Number.isFinite(value)||value<0)return null;
     // Projection only. This must never be used as live/actual equity.
-    return round8(value*Math.pow(1+p.targetCycleGrowthPct/100,n));
+    return round8(compoundFixed(value,p.targetCycleGrowthPct,n));
   }
   function cycleTargetAmount(baseCapital,settings){
     const p=normalize(settings||DEFAULTS),base=Number(baseCapital);
     if(!Number.isFinite(base)||base<0)return null;
-    return round8(base*p.targetCycleGrowthPct/100);
+    return round8(fromScaled((scaled(base)*scaled(p.targetCycleGrowthPct))/100n));
   }
   function positionSizing({equity,availableCash,entryPrice,stopPrice,riskPct,maxExposurePct,feePct,slippagePct}={}){
     const eq=Number(equity),cash=Number(availableCash),entry=Number(entryPrice),stop=Number(stopPrice);
