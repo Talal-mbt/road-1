@@ -1,8 +1,8 @@
 const test=require("node:test");
 const assert=require("node:assert/strict");
 const Gold=require("../js/gold-engine.js");
-function series(n=120,base=4000,step=.15){
- const now=Date.now();return Array.from({length:n},(_,i)=>({t:now-(n-i)*120000,p:base+i*step}));
+function series(n=120,base=4000,step=.1){
+ const now=Date.now();return Array.from({length:n},(_,i)=>({t:now-(n-i)*120000,p:base+i*step+1.5*Math.sin(i*.7)}));
 }
 test("normalizes epoch timestamps and removes duplicate timestamps",()=>{
  const now=Date.now(),p=Gold.normalizePoints([{t:Math.floor(now/1000),p:4000},{t:Math.floor(now/1000),p:4001},{t:Math.floor(now/1000)-120,p:3999}]);
