@@ -1,0 +1,18 @@
+{
+  "id": "./",
+  "name": "ROAD TO CASH — Gold & Market Analysis",
+  "short_name": "Road to Cash",
+  "description": "Phone-first market analysis and local paper-trading simulator.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#080d13",
+  "theme_color": "#080d13",
+  "lang": "ar",
+  "dir": "rtl",
+  "categories": ["finance", "productivity"],
+  "icons": [
+    { "src": "assets/app-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

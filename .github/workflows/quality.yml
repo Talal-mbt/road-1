@@ -15,6 +15,6 @@ jobs:
         with:
           node-version: "22"
       - name: Run paper engine unit tests
-        run: node --test tests/paper-engine.test.cjs
+        run: node --test tests/*.test.cjs
       - name: Run static app smoke checks
         run: node scripts/smoke-check.cjs

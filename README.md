@@ -1,73 +1,78 @@
-# ROAD TO CASH — Solana Market Intelligence Terminal
+# ROAD TO CASH — Mobile Market Intelligence Terminal
 
-A responsive, signal-first research dashboard for Solana token discovery, explainable market context, candidate review, and **local paper-only portfolio simulation**.
+A phone-first market research dashboard for Solana token discovery and XAU/USD (gold) reference analysis, with local paper-trading simulations. It is designed as an installable Progressive Web App (PWA) for a personal phone.
 
-## Safety boundary
+## Gold / XAUUSD module
 
-- No wallet adapter, private-key storage, seed phrase handling, signing, or live transaction route exists.
-- The executor is a local paper simulator only. UI buttons cannot place real orders.
-- Synthetic starter assets and their scores are illustrative fixtures, not real tokens or backtest results.
-- Optional DexScreener integration retrieves public pair metrics; those metrics do not prove token safety, ownership quality, or sellability.
-- Unknown security facts remain **UNKNOWN** and must never be interpreted as safe.
-- Nothing in this repository is investment advice or a promise of returns.
+- Optional local monitoring toggle: one button starts periodic reference-data checks and the same button stops them.
+- Public XAUS spot and intraday reference feed, polled once per minute while the app is visible.
+- 2-minute sampled reference series (up to 24 hours), analyzed with EMA 20, EMA 50, RSI 14, recent range and momentum.
+- BUY BIAS / SELL BIAS / WAIT are directional indicator alignments, not trade orders, win probabilities or profit forecasts.
+- Data-state validation rejects unavailable, stale, incomplete or insufficient data.
+- Local paper Gold trades with a virtual balance, assumed entry/exit fee, simulated stop and target, and simple local daily-loss/drawdown locks.
+- Positions and history are stored in this browser's local storage on this device.
+- PWA manifest, app icon and service worker cache the app shell for home-screen installation and offline loading.
 
-## Current capabilities
+### Critical distinction: spot reference is not a broker quote
 
-- Responsive command dashboard with clearly marked sample/public market data.
+The Gold feed is an independent indicative XAU/USD mid-market reference price. It is not the xChief MT5 XAUUSD Bid/Ask quote, not an executable CFD price, and not settlement-grade. The 2-minute samples do not provide MT5 ticks or full OHLC candles. Therefore the Gold module is for reference analysis and local paper simulation only. Paper stops are checked at each fetched sample; they are not guaranteed broker stop orders or exact fills.
+
+## Phone-only behavior
+
+- No VPS, desktop terminal, API server or database is required for this local reference-analysis mode.
+- Install the PWA from a secure HTTPS host such as GitHub Pages, then add it to the Android home screen.
+- Monitoring runs only while the page is in the foreground. When Android backgrounds or suspends the app, polling is paused and resumes when the app becomes visible. A service worker caches the app shell only; it does not run a continuous trading loop.
+- Paper state is local to this browser/device and can be cleared by browser storage settings or the in-app reset.
+- This is a PWA, not a signed Android APK.
+
+## Solana module
+
 - SCOUT discovery from synthetic fixtures or optional public DexScreener pair snapshots.
-- FILTER surface that treats contract/holder/sellability evidence as unverified.
-- ANALYST factor placeholders; demo scores are not a trained AI model or win probability.
-- EXECUTOR paper buy/close with modeled entry/exit slippage and fees.
-- Separate paper portfolio engine in `js/paper-engine.js`.
-- Configurable-by-code paper limits: 1% of virtual equity as position **notional** per entry, 3 concurrent positions, 2% daily loss circuit breaker, and 5% high-water drawdown circuit breaker.
-- Manual entry pause, sticky risk lock, session event log, and best-effort browser-local persistence.
-- Public snapshots are marked stale after five minutes and new paper entries are blocked until refreshed.
-- Node unit tests and static application smoke checks run through GitHub Actions.
-
-## Important interpretation of the paper controls
-
-The 1% setting is a simulated notional allocation, **not** a 1% maximum-loss guarantee. This MVP has no stop-loss order model, no real order-book fills, no sandwich/MEV simulation, no authoritative risk service, and no audited ledger. Circuit breakers block new paper entries; they do not automatically liquidate existing positions. Browser local storage is editable and can be cleared by the user, so it is not a durable or tamper-proof accounting system.
+- FILTER surface treats contract/holder/sellability evidence as unverified.
+- ANALYST score placeholders are not a trained AI model.
+- EXECUTOR supports local paper buy/close only.
+- No wallet adapter, key storage, transaction signing or live Solana orders.
 
 ## Run locally
 
-Requires Node.js 22 for tests and any modern browser for the app.
-
-Start a local static server from the repository root:
+Requires Node.js 22 for tests and a modern browser.
 
 ```bash
 python3 -m http.server 4173
 ```
 
-Open `http://localhost:4173`.
+Open `http://localhost:4173`. Service-worker installation requires HTTPS or localhost.
 
-Run checks:
+Run quality checks:
 
 ```bash
-node --test tests/paper-engine.test.cjs
+node --test tests/*.test.cjs
 node scripts/smoke-check.cjs
 ```
 
-DexScreener fetch requires internet access and may be limited by provider availability, rate limits, or browser CORS policy. A failed request keeps the last snapshot and records an error.
+Market-data fetch requires internet. The XAUS service documents freshness metadata, attribution, and its price as indicative rather than tradable.
 
-## Deploy to GitHub Pages
+## Deploy / install
 
-1. Open **Settings → Pages** and choose **GitHub Actions** as the source.
-2. Push to `main` after review, or run the Pages workflow manually.
-3. The workflow packages `index.html` and the required `js/` directory.
-4. Find the deployment URL in the workflow summary and Settings → Pages.
+1. In GitHub, open **Settings → Pages** and choose **GitHub Actions** as the build source.
+2. The Pages workflow packages `index.html`, `manifest.webmanifest`, `service-worker.js`, `js/`, and `assets/`.
+3. After deployment, open the Pages URL in Chrome on the phone and choose **Install app** or **Add to Home screen**.
+4. If the private repository's plan/settings do not permit Pages, host the same static files on another HTTPS static host. No secrets are required.
 
-The quality workflow runs on branch pushes and pull requests. Pages deployment remains separate from test execution.
+## Not implemented
 
-## Production roadmap — not implemented
+- No xChief broker API or MT5 account connection.
+- No real order placement, live stop-loss/TP, automatic broker trade management, or copy trading.
+- No continuous background worker while Android has suspended the PWA.
+- No tick-level/MT5 OHLC data, independent strategy backtest, trained predictive model or verified profitability.
+- No native Android APK.
 
-1. A backend API with authentication/authorization and server-side policy enforcement.
-2. Durable relational storage and append-only audit events.
-3. Independent on-chain providers for mint/freeze authority, token extensions, holder concentration, pool ownership/lock evidence, and sellability simulation.
-4. Provider adapters with timestamps, rate limits, retry/backoff, circuit breakers, stale-data gates, and quality metrics.
-5. A replayable market-data store and deterministic historical evaluation.
-6. A formal threat model, dependency/security review, and independent penetration test.
-7. Any future live signing/execution module must be a separate service, separately authorized, disabled by default, and protected by independent policy approval.
+Any future broker execution requires a separately reviewed official broker integration, native Android foreground-service design, explicit authorization, independent risk controls and demo testing. Never put trading passwords, API secrets, private keys or seed phrases in this repository or browser storage.
 
-## Repository
+## Sources
+
+- Gold reference data: https://xaus.com/api/
+- MetaTrader 5 Android does not run Expert Advisors; see https://www.metatrader5.com/en/terminal/help/algotrading/trade_robots_indicators
+- Android background execution limits: https://developer.android.com/about/versions/oreo/background
 
 Private repository: https://github.com/Talal-mbt/road-to-cash

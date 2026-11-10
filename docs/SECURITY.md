@@ -2,35 +2,33 @@
 
 ## Current release boundary
 
-This is a static browser research dashboard and paper-trading demo. It has no wallet adapter, private-key or seed-phrase handling, transaction signer, live order route, privileged API token, backend service, or database. No real trade can be submitted through this repository.
+ROAD TO CASH is a static browser/PWA research dashboard and paper simulator. It has no wallet adapter, private-key or seed-phrase handling, transaction signer, xChief credentials, MT5 account session, broker API, live order route, backend service or database. No real trade can be submitted through this repository.
 
 ## Implemented controls
 
-- Content Security Policy restricts scripts/styles to the page and same-origin resources (inline scripts/styles are retained for the current single-page UI); network connections are limited to the named public market data provider.
-- Provider names, symbols, identifiers and event strings are escaped before rendering as HTML.
-- Provider data is checked for expected Solana chain, mint address format, matching base-token address, and positive finite price.
-- Public market data older than five minutes blocks new paper entries.
-- Paper state is schema-checked and bounded when restored from browser storage.
-- Paper entry, fee/slippage assumptions, position count, daily loss and high-water drawdown are enforced in an isolated engine with automated tests.
-- No UI control can bypass a risk lock; a reset starts a new virtual account and clears local simulation history.
+- Content Security Policy limits outbound connections to the named public providers.
+- External provider fields and event strings are escaped before HTML rendering.
+- Gold feed validation requires fresh-state metadata, timestamped spot price, sufficient 2-minute samples and a recent final sample.
+- Old/unavailable quote data disables new Gold paper entries.
+- PWA service worker caches only same-origin app-shell files and deliberately does not cache external market data.
+- Gold paper state is schema-checked on restore, capped at three open positions, and has local 2% daily-loss / 5% high-water drawdown circuit breakers.
+- Gold monitoring is user-started and uses the same button to stop. Polling pauses while the page is hidden and resumes only after it returns to foreground.
+- Paper trade state and history remain local to this device/browser.
 
-## Limits and residual risks
+## Market-data caveats
 
-- Browser storage and browser JavaScript are controlled by the user and are not a trusted financial ledger.
-- A static front end cannot enforce shared account permissions or provide server-side policy controls.
-- DexScreener market data is untrusted, may be stale or incomplete, and does not prove a token is legitimate or sellable.
-- Current security facts are placeholders/UNKNOWN. Do not treat liquidity, volume, or demo score as a token audit.
-- Daily and drawdown locks block new simulated entries but do not close positions.
-- The 1% configuration is notional sizing, not a maximum-loss cap.
-- This MVP has no validated predictive model, no actual trading strategy backtest and no performance guarantee.
+XAUS provides an indicative XAU/USD spot reference price. It is not xChief's executable CFD quote, not bid/ask, and should not be used for broker order placement. The provider's intraday series is sampled every two minutes; it is not a tick feed or a full MT5 OHLC history. A stale or incomplete feed is rejected. No score indicates the probability of profit.
 
-## Before any production or live use
+## Android / background caveats
 
-- Complete a threat model and independent security review.
-- Add independent on-chain evidence for mint/freeze authorities, token extensions, holder concentration, pool control/lock evidence and sellability.
-- Add authenticated backend APIs, authorization, rate limits, monitoring, append-only audit logs and secure secret management.
-- Use a separate isolated signer service only if strictly necessary; require independent policy authorization, transaction simulation and explicit user confirmation.
-- Add provider freshness checks, retries/backoff, circuit breakers and data reconciliation.
-- Test with fixtures and devnet/testnet, then perform independent audits. Never put private keys, seed phrases or API secrets in this repository, browser storage, issues, or logs.
+The PWA does not run a continuous worker while Android has suspended the app. The service worker serves static app files offline, not continuous market monitoring. The browser may suspend timers when backgrounded, and polling deliberately pauses when the page is hidden. This is not a native Android APK or an MT5 Expert Advisor.
 
-Report suspected vulnerabilities privately to the repository owner rather than publishing exploit details.
+## Before any future live use
+
+- Obtain documented permission and a verified official broker API/bridge; do not use undocumented third-party credential bridges.
+- Keep credentials out of source control and browser local storage. Prefer hardware-backed secure storage and a reviewed native service.
+- Implement authenticated server-side risk authorization or a carefully audited native foreground execution model.
+- Add tick-level broker data, Bid/Ask spread, slippage, commission, margin checks and execution reconciliation.
+- Complete threat modeling, dependency review, independent security audit and extensive demo testing before any live-mode discussion.
+
+Never paste trading passwords, API secrets, private keys or seed phrases into this repository, issues, screenshots or logs.

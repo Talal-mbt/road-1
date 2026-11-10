@@ -20,13 +20,14 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
         with:
-          enablement: true
+          enablement: false
       - name: Assemble static site
         run: |
           mkdir -p site
-          cp index.html site/
-          mkdir -p site/js
+          cp index.html manifest.webmanifest service-worker.js site/
+          mkdir -p site/js site/assets
           cp -R js/. site/js/
+          cp -R assets/. site/assets/
           touch site/.nojekyll
       - uses: actions/upload-pages-artifact@v3
         with:
