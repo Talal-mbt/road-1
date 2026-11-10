@@ -78,7 +78,8 @@ test("three consecutive losses pause entries and five lock the strategy",()=>{
  for(let i=0;i<3;i++){const day=fixedDate(i+1),symbol="LOSS"+i;const e=Engine.openPosition(s,symbol,100,{[symbol]:100},day);assert.equal(e.ok,true);assert.equal(Engine.closePosition(s,e.position.id,99,day).ok,true);}
  assert.equal(s.currentConsecutiveLosses,3); assert.equal(Engine.openPosition(s,"BLOCKED",100,{BLOCKED:100},fixedDate(4)).ok,false);
  assert.equal(Engine.validateRecovery(s,{},fixedDate(4),true).ok,true);
- for(let i=3;i<5;i++){const day=fixedDate(i+1),symbol="LOSS"+i;if(s.consecutiveLossPause)assert.equal(Engine.validateRecovery(s,{},day,true).ok,true);const e=Engine.openPosition(s,symbol,100,{[symbol]:100},day);assert.equal(e.ok,true);Engine.closePosition(s,e.position.id,99,day);}
+ for(let i=3;i<5;i++){const day=fixedDate(i+1),symbol="LOSS"+i;if(s.consecutiveLossPause){const recovery=Engine.validateRecovery(s,{},day,true);assert.equal(recovery.ok,true,"recovery blocked at loss "+s.currentConsecutiveLosses+": "+recovery.reason);}
+  const e=Engine.openPosition(s,symbol,100,{[symbol]:100},day);assert.equal(e.ok,true,"entry blocked at loss "+s.currentConsecutiveLosses+": "+e.reason);Engine.closePosition(s,e.position.id,99,day);}
  assert.equal(s.strategyLocked,true); assert.equal(Engine.openPosition(s,"LOCKED",100,{LOCKED:100},fixedDate(6)).ok,false);
 });
 test("normalization resets unknown schemas to configured starting capital",()=>{
