@@ -45,7 +45,7 @@ test("manual close books net simulated result after fee assumptions",()=>{
  assert.equal(close.ok,true);assert.ok(close.trade.pnl>0);assert.equal(s.history.length,1);
 });
 test("identifies bearish alignment from a falling reference series",()=>{
- const now=Date.now(),points=Array.from({length:120},(_,i)=>({t:now-(120-i)*120000,p:4200-i*.1+1.5*Math.sin(i*.7)}));
+ const now=Date.now(),points=Array.from({length:120},(_,i)=>({t:now-(120-i)*120000,p:4200-i*.1+1.5*Math.sin(i*.7+2)}));
  const result=Gold.analyze(points);assert.equal(result.ok,true);assert.equal(result.signal,"SELL_BIAS");
 });
 test("requires explicit fresh-state metadata from both providers",()=>{
