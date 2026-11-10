@@ -796,8 +796,8 @@ const SVG_ICONS={
  health:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-1.8 1.8-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1.03 1.56V20h-2.55v-.1a1.7 1.7 0 0 0-1.03-1.56 1.7 1.7 0 0 0-1.88.34l-.06.06-1.8-1.8.06-.06A1.7 1.7 0 0 0 8.1 15a1.7 1.7 0 0 0-1.56-1.03H6v-2.55h.1A1.7 1.7 0 0 0 7.66 10a1.7 1.7 0 0 0-.34-1.88l-.06-.06 1.8-1.8.06.06A1.7 1.7 0 0 0 11 6.66 1.7 1.7 0 0 0 12.03 5.1V5h2.55v.1a1.7 1.7 0 0 0 1.03 1.56 1.7 1.7 0 0 0 1.88-.34l.06-.06 1.8 1.8-.06.06A1.7 1.7 0 0 0 18.95 10a1.7 1.7 0 0 0 1.56 1.03h.1v2.55h-.1A1.7 1.7 0 0 0 19.4 15z"/>'
 };
 function decorateNavigationIcons(){
- document.querySelectorAll(".nav button[data-page],.mobile-bottom button[data-page]").forEach(button=>{
-  const key=button.dataset.page,slot=button.querySelector(".navicon");
+ document.querySelectorAll(".nav button[data-page],.mobile-bottom button[data-page],.feature-card[data-page]").forEach(button=>{
+  const key=button.dataset.page,slot=button.querySelector(".navicon,.feature-symbol");
   if(!slot)return;
   const path=SVG_ICONS[key]||SVG_ICONS.overview;
   slot.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">'+path+'</svg>';
@@ -860,6 +860,56 @@ function applyLanguage(){
  Object.entries(I18N).forEach(([selector,values])=>{
   document.querySelectorAll(selector).forEach(el=>setTextOrHtml(el,values[appLanguage==="ar"?1:0]));
  });
+
+ const setNode=(selector,ar,en)=>{
+  document.querySelectorAll(selector).forEach(node=>setTextOrHtml(node,appLanguage==="ar"?ar:en));
+ };
+ // Gold module.
+ setNode("#gold .gold-head h2","تحليل الذهب","Gold analysis");
+ setNode("#gold .gold-head .gold-ref","سعر مرجعي بالدولار للأونصة الترويسية · مصدر البيانات XAUS · ليس سعر xChief القابل للتنفيذ","Indicative USD per troy ounce · XAUS reference feed · not an executable xChief quote");
+ setNode("#gold .gold-toolbar .gold-ref","سلسلة مرجعية بعينات كل دقيقتين · آخر 24 ساعة","Reference samples every two minutes · last 24 hours");
+ setNode("#gold .gold-signal .eyebrow","إشارة مرجعية · ليست أمراً","REFERENCE SIGNAL · NOT AN ORDER");
+ setNode("#gold .cardhead strong","تجربة الصفقات على الذهب","Gold paper trading");
+ setNode("#gold .gold-muted","المحاكاة تستخدم سعر الذهب المرجعي مع رسوم ووقف وهدف افتراضيين. لا تعكس أسعار xChief أو تكاليف CFD الفعلية.","Paper trades use an indicative spot quote with assumed fees, stop and target. They do not represent xChief prices or actual CFD costs.");
+ setNode("#gold .gold-disclaimer","وضع الهاتف المحلي: التحليل يعمل أثناء بقاء التطبيق مفتوحاً وفي الواجهة. قد يوقف Android التحديثات في الخلفية؛ يعود الفحص عند فتح التطبيق. لا يشغّل هذا الوضع Expert Advisor في MT5 ولا يرسل أوامر حقيقية.","Phone-only mode: analysis runs while the app is visible. Android may suspend background updates; polling resumes when the app returns to the foreground. This does not run an MT5 Expert Advisor or send real orders.");
+ const goldLabelsAr=["EMA 20 · 2M","EMA 50 · 2M","RSI 14","الزخم","نطاق 20 عينة","عدد العينات","حداثة البيانات","درجة توافق المؤشرات"];
+ const goldLabelsEn=["EMA 20 · 2M","EMA 50 · 2M","RSI 14","Momentum","20-sample range","Samples","Data freshness","Indicator alignment"];
+ document.querySelectorAll("#gold .gold-grid .gold-kpi label").forEach((node,i)=>node.textContent=(appLanguage==="ar"?goldLabelsAr:goldLabelsEn)[i]||node.textContent);
+ const paperLabelsAr=["قيمة المحفظة الافتراضية","الربح المحقق","المراكز المفتوحة","حالة المخاطر"];
+ const paperLabelsEn=["Virtual equity","Realized P/L","Open positions","Risk state"];
+ document.querySelectorAll("#gold .card .gold-grid .gold-kpi label").forEach((node,i)=>node.textContent=(appLanguage==="ar"?paperLabelsAr:paperLabelsEn)[i]||node.textContent);
+ // Gold trades.
+ setNode("#goldTrades .cardhead strong","صفقات الذهب التجريبية","Gold paper trades");
+ setNode("#goldTrades .gold-disclaimer","كل الأرقام افتراضية ومخزنة محلياً على هذا الجهاز. مسح بيانات الموقع أو إعادة ضبط المحاكاة يحذف هذا السجل المحلي.","All figures are simulated and stored locally on this device. Clearing site data or resetting the simulator deletes this local history.");
+ const tradeHeadsAr=["الاتجاه","الدخول","وقف افتراضي","هدف افتراضي","النتيجة الحالية",""];
+ const tradeHeadsEn=["Side","Entry","Simulated stop","Simulated target","Current P/L",""];
+ document.querySelectorAll("#goldTrades .gold-table thead th").forEach((node,i)=>node.textContent=(appLanguage==="ar"?tradeHeadsAr:tradeHeadsEn)[i]||"");
+ // MT5 account profiles. These are local identifiers only, not a broker session.
+ setNode("#accounts .card:nth-child(1) .cardhead strong","حسابات التداول","Trading accounts");
+ setNode("#accounts .card:nth-child(2) .cardhead strong","ملفات الحساب المحفوظة على هذا الجهاز","Account profiles saved on this device");
+ setNode("#accounts .card:nth-child(3) .cardhead strong","متطلبات الاتصال الحقيقي","Requirements for a live connection");
+ setNode("#accounts .card:nth-child(2) .cardhead small","ملفات محلية · بلا كلمة مرور","LOCAL PROFILES · NO PASSWORD");
+ setNode("#accounts .card:nth-child(3) .cardhead small","قائمة تحقق أمنية","SECURITY CHECKLIST");
+ const accountLabels=document.querySelectorAll(".mt5-account-grid label");
+ const accountLabelAr=["نوع الحساب","رقم حساب MT5 (Login)","اسم خادم الوسيط (Server)"];
+ const accountLabelEn=["Account type","MT5 account number (Login)","Broker server name"];
+ accountLabels.forEach((node,i)=>{if(node.firstChild&&node.firstChild.nodeType===3)node.firstChild.textContent=(appLanguage==="ar"?accountLabelAr:accountLabelEn)[i]||"";});
+ const accountType=$("mt5AccountType");
+ accountType.options[0].text=appLanguage==="ar"?"Demo تجريبي":"Demo account";
+ accountType.options[1].text=appLanguage==="ar"?"Real حقيقي":"Real account";
+ $("mt5Login").placeholder=appLanguage==="ar"?"مثال: 12345678":"e.g. 12345678";
+ $("mt5Server").placeholder=appLanguage==="ar"?"اكتب الاسم كما يظهر في MT5":"Enter the exact MT5 server name";
+ setNode("#accounts .card:nth-child(1) .gold-disclaimer","رقم الحساب وحده لا يكفي للاتصال. يلزم Login وكلمة مرور الحساب واسم الخادم. لا تضع كلمة مرور MT5 هنا؛ لا يوجد خادم آمن للربط في النسخة المنشورة.","An account number alone cannot connect. MT5 requires the login, account password and exact server. Do not enter an MT5 password here; this build has no secure broker connector.");
+ setNode("#accounts .card:nth-child(3) .system-list + p","وفق MetaQuotes، تسجيل الدخول يتطلب Login وPassword وServer. كلمة مرور المستثمر تسمح بالمشاهدة فقط ولا تمنح صلاحية تنفيذ التداول.","MetaTrader login requires a login, password and server. An investor password is read-only and cannot execute trades.");
+ setNode("#accounts .text-link","تعليمات MetaTrader الرسمية لربط الحساب ←","Official MetaTrader account connection guide →");
+ setNode("#risk .cardhead strong","إدارة المخاطر والحماية","Risk management and safeguards");
+ setNode("#risk .cardhead small","إعدادات المحاكاة","Simulation settings");
+ setNode("#filter .cardhead strong","فلتر أمان الأصول","Asset safety filter");
+ setNode("#analyst .cardhead strong","التحليل · العوامل التوضيحية","Analysis · illustrative factors");
+ setNode("#executor .cardhead strong","مركز المحاكاة","Paper trading desk");
+ setNode("#logger .cardhead strong","سجل النشاط","Activity log");
+ setNode("#health .cardhead strong","حالة النظام","System status");
+
  $("languageToggle").textContent=appLanguage==="ar"?"EN":"عربي";
  $("languageToggle").setAttribute("aria-label",appLanguage==="ar"?"Switch to English":"التبديل إلى العربية");
  $("menu").setAttribute("aria-label",appLanguage==="ar"?"فتح القائمة":"Open navigation");
