@@ -48,4 +48,23 @@ assert.match(goldEngine, /INTRADAY_STALE/, "gold stale feed check missing");
 assert.match(manifest.display, /standalone/, "PWA must support standalone display");
 assert.match(sw, /if\(url\.origin!==self\.location\.origin\)return/, "service worker must not cache external market data");
 assert.doesNotMatch(paperEngine + goldEngine, /sendTransaction|signTransaction|wallet\.adapter|OrderSend/i, "live transaction capability must not be added");
+
+assert.match(html, /id="languageToggle"/, "Arabic/English toggle is missing");
+assert.match(html, /function applyLanguage\(\)/, "language controller is missing");
+assert.match(html, /function setDrawer\(open\)/, "drawer controller is missing");
+assert.match(html, /function decorateNavigationIcons\(\)/, "SVG navigation icon decorator is missing");
+assert.match(html, /id="networkStatus"/, "online/offline status indicator is missing");
+assert.match(html, /addEventListener\("offline"/, "offline event handler is missing");
+assert.match(html, /addEventListener\("online"/, "online event handler is missing");
+assert.match(html, /id="networkBanner"/, "offline banner is missing");
+assert.match(html, /Times New Roman/, "English font fallback must use Times New Roman");
+assert.match(html, /Noto Sans Arabic/, "Arabic font fallback must use a readable Arabic sans font");
+assert.match(html, /id="mt5ProfilesList"/, "local MT5 profile list is missing");
+assert.match(html, /function saveMt5Profile\(\)/, "local MT5 profile save handler is missing");
+assert.match(html, /road-to-cash\.mt5\.profiles\.v1/, "MT5 profile storage key is missing");
+assert.doesNotMatch(html, /location\.reload\s*\(/, "ordinary updates must never reload the whole page");
+assert.doesNotMatch(html, /setInterval\([^;]*render\(\)[^;]*,\s*5000\)/, "full app rendering must not run on a short polling timer");
+assert.match(html, /if\(!navigator\.onLine\)/, "market data requests must fail closed while offline");
+assert.match(html, /abort\(\)/, "in-flight market requests must be cancellable");
+
 console.log("Static smoke checks passed for Solana + Gold phone app.");
