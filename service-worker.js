@@ -1,5 +1,5 @@
 "use strict";
-const CACHE="road-to-cash-shell-v2";
+const CACHE="road-to-cash-shell-v3";
 const SHELL=["./","./index.html","./manifest.webmanifest","./js/paper-engine.js","./js/gold-engine.js","./assets/app-icon.svg"];
 self.addEventListener("install",event=>{
   event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(SHELL)).then(()=>self.skipWaiting()));

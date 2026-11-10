@@ -2,6 +2,10 @@
 
 A phone-first market research dashboard for Solana token discovery and XAU/USD (gold) reference analysis, with local paper-trading simulations. It is designed as an installable Progressive Web App (PWA) for a personal phone.
 
+## Mobile-first interface
+
+The Arabic-first layout uses a navy/cyan visual system, RTL navigation, a home hero panel, compact portfolio cards, quick-access module cards, a five-item mobile bottom bar, and an off-canvas drawer with a backdrop. Desktop retains a persistent section navigation rail. The mobile drawer overlays the page rather than shrinking or pushing the content.
+
 ## Gold / XAUUSD module
 
 - Optional local monitoring toggle: one button starts periodic reference-data checks and the same button stops them.
