@@ -327,6 +327,57 @@ html[dir="ltr"] .drawer-scrim{direction:ltr}
  .mt5-account-grid button{grid-column:auto}
 }
 
+
+/* v3 navigation and rendering stability fixes */
+@media(max-width:1080px){
+ .menu-button{display:inline-flex!important;align-items:center;justify-content:center}
+ .sidebar{position:fixed!important;top:0!important;right:0!important;left:auto!important;bottom:0!important;
+  width:min(84vw,340px)!important;height:100dvh!important;max-height:100dvh!important;overflow-y:auto!important;
+  z-index:61!important;transform:translateX(110%)!important;transition:transform .22s ease!important;
+  display:flex!important;padding:18px 15px calc(24px + env(safe-area-inset-bottom))!important;
+  background:linear-gradient(180deg,#091a2b,#071522)!important}
+ .sidebar.open{transform:translateX(0)!important}
+ .sidebar.open .brand-copy,.sidebar.open .workspace-copy,.sidebar.open .navlabel,.sidebar.open .sidebottom{display:block!important;visibility:visible!important}
+ .sidebar.open .nav button{display:flex!important;justify-content:flex-start!important;align-items:center!important;min-height:48px!important;
+  padding:10px 12px!important;gap:12px!important;text-align:right!important}
+ .sidebar.open .nav button .label{display:inline!important;visibility:visible!important;opacity:1!important;
+  width:auto!important;max-width:none!important;flex:1 1 auto!important;white-space:normal!important;
+  overflow:visible!important;clip:auto!important;font-size:13px!important;line-height:1.5!important;color:#c4d6e4!important}
+ .sidebar.open .nav button .navicon{display:inline-flex!important;visibility:visible!important;opacity:1!important;flex:0 0 28px!important}
+ .sidebar.open .navlabel{display:block!important;font-size:11px!important;color:#78a3b9!important;margin:11px 0 2px!important}
+ .sidebar.open .sidebottom{display:block!important}
+ .drawer-scrim{display:block!important;position:fixed!important;inset:0!important;z-index:60!important;
+  background:rgba(1,9,16,.62)!important;backdrop-filter:blur(3px);opacity:0;visibility:hidden;transition:opacity .2s}
+ .drawer-scrim.active{opacity:1!important;visibility:visible!important}
+}
+.navicon{display:inline-flex;align-items:center;justify-content:center;flex:0 0 28px;width:28px;height:28px}
+.navicon svg{width:22px;height:22px;display:block;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.mobile-bottom .navicon svg{width:22px;height:22px}
+.mobile-bottom{grid-template-columns:repeat(5,minmax(0,1fr))!important}
+html[lang="ar"] body{font-family:"Noto Sans Arabic","Tahoma","Arial",sans-serif!important}
+html[lang="ar"] input,html[lang="ar"] select,html[lang="ar"] button{font-family:"Noto Sans Arabic","Tahoma","Arial",sans-serif}
+html[lang="en"] body,html[lang="en"] button,html[lang="en"] input,html[lang="en"] select{font-family:"Times New Roman",Times,serif!important}
+html[lang="en"] .main,html[lang="en"] .content,html[lang="en"] .page{direction:ltr;text-align:left}
+html[lang="en"] .heading,html[lang="en"] .home-hero,html[lang="en"] .feature-card,html[lang="en"] .cardhead{direction:ltr;text-align:left}
+html[lang="en"] .nav button,html[lang="en"] .mobile-bottom{text-align:left}
+html[dir="ltr"] .sidebar{right:auto!important;left:0!important;transform:translateX(-110%)!important}
+html[dir="ltr"] .sidebar.open{transform:translateX(0)!important}
+html[dir="ltr"] .sidebar.open .nav button{text-align:left!important}
+html[dir="ltr"] .drawer-close{margin-left:auto;margin-right:0}
+.language-toggle{min-width:44px;min-height:38px;padding:6px 10px;border-radius:11px;background:#14384d;border:1px solid #35748b;color:#9ceaf0;font-weight:800;font-family:"Times New Roman",Times,serif}
+.network-banner{position:sticky;top:63px;z-index:19;padding:10px 15px;background:#3b2229;border-bottom:1px solid #8a4556;color:#ffd4da;font-size:12px;text-align:center}
+.network-banner[hidden]{display:none!important}
+.connection-pill.offline{border-color:#814653!important;background:#341d2a!important;color:#ff9aa6!important}
+.connection-pill.offline .led{background:#ff6f7d!important;box-shadow:0 0 9px #ff6f7d66!important}
+.network-disabled{opacity:.5!important;pointer-events:none!important}
+.mt5-account-grid{grid-template-columns:1fr!important}
+@media(max-width:390px){
+ .brand-mini small{display:none}
+ .top-actions{gap:4px}
+ .connection-pill.provider-pill{display:none}
+ .language-toggle{min-width:39px}
+}
+
 </style></head>
 <body><div class="shell">
 <aside class="sidebar" id="sidebar" aria-label="القائمة الرئيسية">
@@ -358,14 +409,14 @@ html[dir="ltr"] .drawer-scrim{direction:ltr}
   <div class="brand-mini"><span class="brand-mini-icon">R</span><div><b>ROAD TO <em>CASH</em></b><small>منصة تحليل الأسواق</small></div></div>
  </div>
  <div class="top-actions">
-  <span class="connection-pill"><i class="led"></i><span id="networkStatus">متصل</span></span><span class="connection-pill provider-pill"><span id="provider">DEMO SNAPSHOT</span></span>
+  <span class="connection-pill" id="networkPill"><i class="led"></i><span id="networkStatus">متصل</span></span><span class="connection-pill provider-pill"><span id="provider">DEMO SNAPSHOT</span></span>
   <span class="pill">وضع تجريبي</span><button id="languageToggle" class="language-toggle" type="button" aria-label="Switch language">EN</button>
   <button id="installApp" class="install-button">تثبيت التطبيق</button>
   <span id="clock" class="clock">--:-- UTC</span>
  </div>
 </header>
 <div id="networkBanner" class="network-banner" role="status" aria-live="polite" hidden>انقطع اتصال الإنترنت. سيبقى التطبيق مفتوحاً، لكن تحديث الأسعار والبيانات سيتوقف حتى عودة الشبكة.</div>
-<div class="content><div class="heading" dir="rtl">
+<div class="content"><div class="heading" dir="rtl">
  <div class="heading-copy"><div class="eyebrow">مركز متابعة الأسواق · MARKET INTELLIGENCE</div><h1 id="title">لوحة التحكم<span class="cyan">.</span></h1><p id="subtitle">كل ما تحتاجه لمتابعة الذهب والأسواق وإدارة المحاكاة من مكان واحد.</p></div>
  <div class="heading-actions"><span class="warning" id="data-label">بيانات تجريبية · ليست مباشرة</span><button id="refresh" class="secondary-button">↻ تحديث السوق</button><button class="primary" id="pause">Ⅱ إيقاف المحاكاة</button></div>
 </div>
@@ -547,7 +598,6 @@ html[dir="ltr"] .drawer-scrim{direction:ltr}
  <button data-page="gold"><span class="navicon">◆</span><span class="bottom-label">الذهب</span></button>
  <button data-page="goldTrades"><span class="navicon">▤</span><span class="bottom-label">الصفقات</span></button>
  <button data-page="accounts"><span class="navicon">▣</span><span class="bottom-label">الحساب</span></button>
- <button data-page="scout"><span class="navicon">⌕</span><span class="bottom-label">الأسواق</span></button>
  <button data-page="health"><span class="navicon">⚙</span><span class="bottom-label">المزيد</span></button>
 </nav>
 <footer class="footer"><span>ROAD TO CASH · الإصدار 0.2</span><span>NOT FINANCIAL ADVICE · محاكاة فقط</span><span>جلسة محلية</span></footer></div></main></div><div id="toast" class="toast hide"></div>
@@ -638,7 +688,7 @@ function setDrawer(open){
  $("menu").setAttribute("aria-expanded",open?"true":"false");
 }
 function titlesCrumb(page){
- const names={overview:"الرئيسية",gold:"الذهب",goldTrades:"الصفقات",scout:"الأسواق",filter:"الأمان",analyst:"التحليل",executor:"المحاكاة",risk:"المخاطر",logger:"السجل",health:"الإعدادات"};
+ const names={overview:"الرئيسية",gold:"الذهب",goldTrades:"الصفقات",accounts:"الحساب",scout:"الأسواق",filter:"الأمان",analyst:"التحليل",executor:"المحاكاة",risk:"المخاطر",logger:"السجل",health:"الإعدادات"};
  return names[page]||"المنصة";
 }
 function applyMarketSearch(){
@@ -653,12 +703,11 @@ function navigate(page){
  document.querySelectorAll("[data-page]").forEach(x=>x.classList.toggle("active",x.dataset.page===page));
  document.querySelectorAll(".page").forEach(x=>x.classList.toggle("active",x.id===page));
  $("crumb").textContent=titlesCrumb(page);
- const titles={overview:"لوحة التحكم",gold:"تحليل الذهب · XAUUSD",goldTrades:"صفقات الذهب",scout:"استكشاف الأسواق",filter:"فلتر الأمان",analyst:"التحليل والمؤشرات",executor:"مركز المحاكاة",risk:"إدارة المخاطر",logger:"سجل النشاط",health:"الإعدادات وحالة النظام"};
+ const titles={overview:"لوحة التحكم",gold:"تحليل الذهب · XAUUSD",goldTrades:"صفقات الذهب",accounts:"حسابات MT5",scout:"استكشاف الأسواق",filter:"فلتر الأمان",analyst:"التحليل والمؤشرات",executor:"مركز المحاكاة",risk:"إدارة المخاطر",logger:"سجل النشاط",health:"الإعدادات وحالة النظام"};
  const subtitles={overview:"تابع الذهب والأسواق وإدارة المحاكاة من واجهة واحدة.",gold:"بيانات مرجعية ومؤشرات فنية للذهب مع توضيح حالة المصدر.",goldTrades:"متابعة المراكز الافتراضية والنتائج وسجل الصفقات.",scout:"استكشف بيانات السوق العامة مع إبقاء معلومات الأمان غير المؤكدة واضحة.",filter:"مراجعة حقائق الأمان قبل اعتبار أي أصل قابلاً للتداول.",analyst:"مؤشرات قابلة للتفسير وليست توقعاً مضموناً للربح.",executor:"أدوات تنفيذ افتراضي فقط؛ لا تتصل بحساب وسيط.",risk:"حدود المحاكاة وقواطع إيقاف فتح المراكز.",logger:"سجل محلي لأحداث التحليل والمحاكاة.",health:"معلومات التطبيق والبيانات وحدود التشغيل."};
  $("title").innerHTML=esc(titles[page]||"مساحة العمل")+"<span class='cyan'>.</span>";
  $("subtitle").textContent=subtitles[page]||"إدارة ومتابعة المنصة.";
  setDrawer(false);
- window.scrollTo({top:0,behavior:"smooth"});
 }
 async function loadDexScreener(){
 if(fetchInProgress)return;fetchInProgress=true;$("livefetch").disabled=true;$("refresh").disabled=true;toast("جارٍ جلب بيانات السوق العامة…");
