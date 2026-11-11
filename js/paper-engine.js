@@ -13,7 +13,7 @@
     riskPerTradePct:.5,maxRiskPerTradePct:1,maxConcurrentRiskPct:2,dailyLossLimitPct:2,
     weeklyLossLimitPct:5,maxAccountDrawdownPct:10,drawdownReduceRiskAtPct:5,reducedRiskPerTradePct:.25,
     maxPositions:3,maxPositionExposurePct:100,stopLossPct:.5,minimumRiskReward:2,
-    maxConsecutiveLossesPause:3,maxConsecutiveLossesLock:5,commissionPctPerSide:.1,slippagePctPerSide:.05,
+    maxConsecutiveLossesPause:3,commissionPctPerSide:.1,slippagePctPerSide:.05,
     martingaleEnabled:false,lossRecoveryEnabled:false,averagingDownEnabled:false,automaticEmergencyStop:true
   };
   let POLICY=Policy?Policy.normalize(DEFAULTS):Object.freeze({...DEFAULTS});
@@ -118,7 +118,7 @@
     const final=getRiskSnapshot(state,prices);
     state.riskLocked=state.dailyLocked||state.weeklyRiskLocked||state.hardDrawdownLocked||state.strategyLocked;
     state.riskLockReason=state.hardDrawdownLocked?"MAX_DRAWDOWN":state.weeklyRiskLocked?"WEEKLY_LOSS_LIMIT":
-      state.strategyLocked?"CONSECUTIVE_LOSS_STRATEGY_LOCK":state.dailyLocked?"DAILY_LOSS_LIMIT":"";
+      state.dailyLocked?"DAILY_LOSS_LIMIT":"";
     state.updatedAt=now.toISOString();
     return {...final,paused:final.paused||state.riskLocked,riskLocked:state.riskLocked,riskLockReason:state.riskLockReason};
   }
@@ -131,12 +131,10 @@
     const safe=snap.dailyLossPct<POLICY.dailyLossLimitPct&&snap.weeklyLossPct<POLICY.weeklyLossLimitPct&&
       snap.drawdownPct<POLICY.maxAccountDrawdownPct&&(state.currentConsecutiveLosses<POLICY.maxConsecutiveLossesPause||strategyValidated===true);
     if(!safe)return {ok:false,reason:"RISK_CONDITIONS_NOT_RECOVERED"};
-    if((state.weeklyRiskLocked||state.hardDrawdownLocked||state.strategyLocked||state.consecutiveLossPause)&&strategyValidated!==true)
+    if((state.weeklyRiskLocked||state.hardDrawdownLocked||state.consecutiveLossPause)&&strategyValidated!==true)
       return {ok:false,reason:"EXPLICIT_STRATEGY_VALIDATION_REQUIRED"};
-    const hadStrategyLock=state.strategyLocked===true;
     state.dailyLocked=false;state.weeklyRiskLocked=false;state.hardDrawdownLocked=false;state.strategyLocked=false;
     state.consecutiveLossPause=false;
-    if(hadStrategyLock&&strategyValidated===true)state.currentConsecutiveLosses=0;
     state.riskLocked=false;state.riskLockReason="";
     return {ok:true};
   }
@@ -180,7 +178,7 @@
       targetPrice:p.targetPrice,riskAmount:p.riskAmount,riskPct:p.riskPct};
     state.closedTrades.unshift(trade);state.closedTrades=state.closedTrades.slice(0,MAX_CLOSED);
     if(pnl<0){state.currentConsecutiveLosses++;if(state.currentConsecutiveLosses>=POLICY.maxConsecutiveLossesPause)state.consecutiveLossPause=true;
-      if(state.currentConsecutiveLosses>=POLICY.maxConsecutiveLossesLock)state.strategyLocked=true;
+      
     }else if(pnl>0){state.currentConsecutiveLosses=0;state.consecutiveLossPause=false;state.completedCycles++;}
     state.updatedAt=now.toISOString();refreshRisk(state,{},now);
     return {ok:true,trade};
