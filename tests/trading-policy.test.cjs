@@ -9,7 +9,7 @@ test("uploaded defaults match the capital and risk specification",()=>{
  assert.equal(s.maxConcurrentRiskPct,2); assert.equal(s.dailyLossLimitPct,2);
  assert.equal(s.weeklyLossLimitPct,5); assert.equal(s.drawdownReduceRiskAtPct,5);
  assert.equal(s.reducedRiskPerTradePct,.25); assert.equal(s.maxAccountDrawdownPct,10);
- assert.equal(s.maxConsecutiveLossesPause,3); assert.equal(s.maxConsecutiveLossesLock,5);
+ assert.equal(s.maxConsecutiveLossesPause,3); assert.equal("maxConsecutiveLossesLock" in s,false);
  assert.equal(s.minimumRiskReward,2);
  assert.equal(s.martingaleEnabled,false); assert.equal(s.lossRecoveryEnabled,false); assert.equal(s.averagingDownEnabled,false);
 });
