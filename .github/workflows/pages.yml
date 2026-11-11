@@ -1,7 +1,6 @@
 name: Deploy ROAD to GitHub Pages
 on:
-  push:
-    branches: [main]
+  # Automatic public deployments are frozen until server-side access control is configured.
   workflow_dispatch:
 permissions:
   contents: read
