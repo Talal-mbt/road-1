@@ -79,7 +79,7 @@ test("three consecutive losses pause entries; explicit review resets the streak 
  assert.equal(s.currentConsecutiveLosses,3);
  assert.equal(Engine.openPosition(s,"BLOCKED",100,{BLOCKED:100},fixedDate(4)).ok,false);
  assert.equal(Engine.validateRecovery(s,{},fixedDate(4),true).ok,true);
- assert.equal(s.currentConsecutiveLosses,0);
+ assert.equal(s.currentConsecutiveLosses,3,"review clears pause but preserves loss history");
  const locked=Engine.createState(fixedDate(10));locked.currentConsecutiveLosses=4;
  const e=Engine.openPosition(locked,"FIFTH",100,{FIFTH:100},fixedDate(10));assert.equal(e.ok,true);
  Engine.closePosition(locked,e.position.id,99,fixedDate(10));
