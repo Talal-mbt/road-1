@@ -72,19 +72,16 @@ test("10% account drawdown activates a hard circuit breaker",()=>{
  assert.equal(s.hardDrawdownLocked,true); assert.equal(risk.pauseReason,"MAX_DRAWDOWN");
  assert.deepEqual(Engine.openPosition(s,"A",10,{A:10},fixedDate()),{ok:false,reason:"MAX_DRAWDOWN"});
 });
-test("three consecutive losses pause entries; explicit review resets the streak and five losses lock",()=>{
- Engine.configure({...Policy.DEFAULTS,initialCapital:1000,stopLossPct:5,commissionPctPerSide:0,slippagePctPerSide:0,dailyLossLimitPct:10,weeklyLossLimitPct:20,maxAccountDrawdownPct:30,maxConsecutiveLossesPause:3,maxConsecutiveLossesLock:5});
+test("three consecutive losses pause entries until explicit review",()=>{
+ Engine.configure({...Policy.DEFAULTS,initialCapital:1000,stopLossPct:5,commissionPctPerSide:0,slippagePctPerSide:0,dailyLossLimitPct:10,weeklyLossLimitPct:20,maxAccountDrawdownPct:30,maxConsecutiveLossesPause:3});
  const s=Engine.createState(fixedDate(1));
  for(let i=0;i<3;i++){const day=fixedDate(i+1),symbol="LOSS"+i;const e=Engine.openPosition(s,symbol,100,{[symbol]:100},day);assert.equal(e.ok,true);assert.equal(Engine.closePosition(s,e.position.id,99,day).ok,true);}
  assert.equal(s.currentConsecutiveLosses,3);
+ assert.equal(s.consecutiveLossPause,true);
  assert.equal(Engine.openPosition(s,"BLOCKED",100,{BLOCKED:100},fixedDate(4)).ok,false);
  assert.equal(Engine.validateRecovery(s,{},fixedDate(4),true).ok,true);
- assert.equal(s.currentConsecutiveLosses,3,"review clears pause but preserves loss history");
- const locked=Engine.createState(fixedDate(10));locked.currentConsecutiveLosses=4;
- const e=Engine.openPosition(locked,"FIFTH",100,{FIFTH:100},fixedDate(10));assert.equal(e.ok,true);
- Engine.closePosition(locked,e.position.id,99,fixedDate(10));
- assert.equal(locked.strategyLocked,true);
- assert.equal(Engine.openPosition(locked,"LOCKED",100,{LOCKED:100},fixedDate(10)).ok,false);
+ assert.equal(s.currentConsecutiveLosses,3,"review preserves loss history");
+ assert.equal(Engine.openPosition(s,"RESUMED",100,{RESUMED:100},fixedDate(4)).ok,true);
 });
 test("normalization resets unknown schemas to configured starting capital",()=>{
  Engine.configure({...Policy.DEFAULTS,initialCapital:3}); const now=fixedDate();
