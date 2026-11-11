@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="strict-origin-when-cross-origin"><meta http-equiv="Content-Security-Policy" content="default-src &apos;self&apos;; script-src &apos;self&apos; &apos;unsafe-inline&apos;; style-src &apos;self&apos; &apos;unsafe-inline&apos;; connect-src &apos;self&apos; https://api.dexscreener.com https://xaus.com; img-src &apos;self&apos; data:; object-src &apos;none&apos;; base-uri &apos;self&apos;; form-action &apos;none&apos;"><meta name="theme-color" content="#061321"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="assets/app-icon.svg" type="image/svg+xml"><title>ROAD — Gold &amp; Market Intelligence</title>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="strict-origin-when-cross-origin"><meta http-equiv="Content-Security-Policy" content="default-src &apos;self&apos;; script-src &apos;self&apos; &apos;unsafe-inline&apos; https://js.hcaptcha.com https://hcaptcha.com https://*.hcaptcha.com; style-src &apos;self&apos; &apos;unsafe-inline&apos;; connect-src &apos;self&apos; https://api.dexscreener.com https://xaus.com https://oinojqdxzyxurvrskhgs.supabase.co https://hcaptcha.com https://*.hcaptcha.com; frame-src https://hcaptcha.com https://*.hcaptcha.com; img-src &apos;self&apos; data:; object-src &apos;none&apos;; base-uri &apos;self&apos;; form-action &apos;none&apos;"><meta name="theme-color" content="#061321"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="assets/app-icon.svg" type="image/svg+xml"><title>ROAD — Gold &amp; Market Intelligence</title>
 <meta name="description" content="ROAD is a mobile-first market intelligence workspace for XAUUSD gold analysis, market discovery, risk monitoring and local paper trading.">
 <meta name="application-name" content="ROAD">
 <meta property="og:title" content="ROAD — Market Intelligence">
@@ -433,8 +433,42 @@ html[lang="ar"] body,html[lang="ar"] button,html[lang="ar"] input,html[lang="ar"
 .capital-note{font-size:10px;line-height:1.8;color:#e7c98c;background:#302718;border:1px solid #64502b;padding:12px 14px;border-radius:12px;margin:10px 0}
 @media(max-width:760px){.capital-current-grid{grid-template-columns:1fr}}
 
+
+/* ROAD authentication gate */
+body:not(.authenticated) .shell{visibility:hidden!important}
+#roadAuthGate{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:20px;background:radial-gradient(ellipse at 50% 0,rgba(22,112,139,.22),transparent 48%),#061321}
+#roadAuthGate[hidden]{display:none!important}
+.road-auth-card{width:min(100%,430px);padding:28px;border:1px solid #28536b;border-radius:22px;background:linear-gradient(145deg,#10283d,#091a2b);box-shadow:0 25px 90px #0009}
+.road-auth-brand{font-size:13px;letter-spacing:3px;color:#69dce7;font-weight:900}
+.road-auth-card h1{font-size:24px;margin:14px 0 6px}
+.road-auth-card p{font-size:12px;color:#9bb3c5;line-height:1.8;margin:0 0 18px}
+.road-auth-field{display:grid;gap:7px;margin:13px 0}
+.road-auth-field label{font-size:11px;color:#b8d0df}
+.road-auth-field input{width:100%;padding:12px 13px;border-radius:11px;border:1px solid #31536a;background:#071827;color:#eaf6fc;direction:ltr;text-align:left}
+#roadCaptcha{display:flex;justify-content:center;min-height:80px;margin:16px 0}
+#roadAuthSubmit{width:100%;min-height:46px}
+#roadAuthStatus{min-height:24px;margin-top:12px;color:#8fd9c5;font-size:11px;line-height:1.7}
+#roadAuthStatus.error{color:#ff9aa5}
+#roadAccountDock{position:fixed;z-index:40;left:12px;top:12px;display:flex;gap:7px;align-items:center;max-width:calc(100vw - 24px)}
+#roadAccountBadge{padding:7px 10px;border:1px solid #2a5968;background:#0b2433eF;border-radius:20px;color:#9ce4e9;font:10px var(--mono);max-width:55vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#roadAccountDock button{padding:7px 10px;font-size:10px;background:#2a1824;border-color:#653b4c;color:#ff9eaa}
+@media(max-width:650px){.road-auth-card{padding:22px 18px}#roadAccountDock{top:auto;bottom:calc(88px + env(safe-area-inset-bottom));left:10px}}
 </style></head>
-<body><div class="shell">
+<body>
+<div id="roadAuthGate" role="dialog" aria-modal="true" aria-labelledby="roadAuthTitle">
+ <form class="road-auth-card" id="roadAuthForm" autocomplete="on">
+  <div class="road-auth-brand">ROAD · SECURE ACCESS</div>
+  <h1 id="roadAuthTitle">تسجيل الدخول</h1>
+  <p>سجّل الدخول إلى مساحة ROAD باستخدام الحساب المعتمد. التسجيل العام غير متاح.</p>
+  <div class="road-auth-field"><label for="roadAuthEmail">البريد الإلكتروني</label><input id="roadAuthEmail" name="email" type="email" autocomplete="username" required></div>
+  <div class="road-auth-field"><label for="roadAuthPassword">كلمة المرور</label><input id="roadAuthPassword" name="password" type="password" autocomplete="current-password" required></div>
+  <div id="roadCaptcha" aria-label="hCaptcha verification"></div>
+  <button class="primary" id="roadAuthSubmit" type="submit">تسجيل الدخول</button>
+  <div id="roadAuthStatus" role="status" aria-live="polite">جارٍ تجهيز التحقق الآمن…</div>
+ </form>
+</div>
+<div id="roadAccountDock"><span id="roadAccountBadge" hidden></span><button id="roadSignOut" type="button" hidden>تسجيل الخروج</button></div>
+<div class="shell">
 <aside class="sidebar" id="sidebar" aria-label="القائمة الرئيسية">
  <div class="brand"><div class="brand-symbol"><span>R</span><i></i></div><div class="brand-copy"><strong>ROAD</strong><small>MARKET INTELLIGENCE</small></div><button id="closeMenu" class="drawer-close" aria-label="إغلاق القائمة">×</button></div>
  <div class="workspace"><div class="avatar">RT</div><div class="workspace-copy"><b>مساحة التداول</b><small style="display:block;font-size:10px">محاكاة محلية · بدون تنفيذ حقيقي</small></div></div>
@@ -1550,4 +1584,4 @@ setInterval(()=>{
  $("pause").disabled=state.riskLocked;$("kill").disabled=state.riskLocked;
 },30000);
 
-</script></body></html>
+</script><script src="js/road-auth.js"></script></body></html>
