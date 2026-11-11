@@ -26,7 +26,6 @@
     stopLossPct:0.5,
     minimumRiskReward:2,
     maxConsecutiveLossesPause:3,
-    maxConsecutiveLossesLock:5,
     commissionPctPerSide:0.1,
     slippagePctPerSide:0.05,
     martingaleEnabled:false,
@@ -52,7 +51,6 @@
     stopLossPct:{min:0.05,max:10,step:0.05,group:"execution"},
     minimumRiskReward:{min:1,max:10,step:0.25,group:"execution"},
     maxConsecutiveLossesPause:{min:1,max:10,step:1,group:"risk"},
-    maxConsecutiveLossesLock:{min:2,max:20,step:1,group:"risk"},
     commissionPctPerSide:{min:0,max:2,step:0.01,group:"execution"},
     slippagePctPerSide:{min:0,max:2,step:0.01,group:"execution"}
   });
@@ -88,7 +86,6 @@
     out.reducedRiskPerTradePct=Math.min(out.reducedRiskPerTradePct,out.riskPerTradePct);
     out.maxConcurrentRiskPct=Math.max(out.maxConcurrentRiskPct,out.riskPerTradePct);
     out.maxAccountDrawdownPct=Math.max(out.maxAccountDrawdownPct,out.drawdownReduceRiskAtPct+0.5);
-    out.maxConsecutiveLossesLock=Math.max(out.maxConsecutiveLossesLock,out.maxConsecutiveLossesPause+1);
     // Hard prohibitions in this version: no martingale, recovery sizing or averaging down.
     out.martingaleEnabled=false;
     out.lossRecoveryEnabled=false;
