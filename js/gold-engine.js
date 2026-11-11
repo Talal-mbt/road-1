@@ -128,9 +128,9 @@
     if(weekly>=POLICY.weeklyLossLimitPct)state.weeklyRiskLocked=true;
     if(drawdown>=POLICY.maxAccountDrawdownPct)state.hardDrawdownLocked=true;
     const reason=state.hardDrawdownLocked?"MAX_DRAWDOWN":state.weeklyRiskLocked?"WEEKLY_LOSS_LIMIT":
-      state.strategyLocked?"CONSECUTIVE_LOSS_STRATEGY_LOCK":state.dailyLocked?"DAILY_LOSS_LIMIT":
+      state.dailyLocked?"DAILY_LOSS_LIMIT":
       state.consecutiveLossPause?"CONSECUTIVE_LOSS_PAUSE":"";
-    state.riskLocked=!!(state.hardDrawdownLocked||state.weeklyRiskLocked||state.strategyLocked||state.dailyLocked);
+    state.riskLocked=!!(state.hardDrawdownLocked||state.weeklyRiskLocked||state.dailyLocked);
     state.riskLockReason=reason;
     const openRisk=state.positions.reduce((sum,p)=>sum+(positive(p.riskAmount)?p.riskAmount:p.qty*Math.abs(p.entry-p.stop)),0);
     return {equity:eq,dailyLossPct:daily,weeklyLossPct:weekly,drawdownPct:drawdown,locked:!!reason,reason,
@@ -177,7 +177,7 @@
     const trade={id:p.id,side:p.side,entry:p.entry,exit:exitPrice,notional:p.notional,stop:p.stop,target:p.target,
       riskAmount:p.riskAmount,riskPct:p.riskPct,pnl:net,reason,openedAt:p.openedAt,closedAt:new Date(now).toISOString()};
     state.history.unshift(trade);state.history=state.history.slice(0,CONFIG_BASE.maxHistory);
-    if(net<0){state.currentConsecutiveLosses++;if(state.currentConsecutiveLosses>=POLICY.maxConsecutiveLossesLock)state.strategyLocked=true;
+    if(net<0){state.currentConsecutiveLosses++;
       if(state.currentConsecutiveLosses>=POLICY.maxConsecutiveLossesPause)state.consecutiveLossPause=true;
     }else if(net>0){state.currentConsecutiveLosses=0;state.consecutiveLossPause=false;state.completedCycles++;}
     updateRisk(state,price,now);return {ok:true,trade};
@@ -197,12 +197,10 @@
     if(risk.dailyLossPct>=POLICY.dailyLossLimitPct||risk.weeklyLossPct>=POLICY.weeklyLossLimitPct||
        risk.drawdownPct>=POLICY.maxAccountDrawdownPct||(state.currentConsecutiveLosses>=POLICY.maxConsecutiveLossesPause&&strategyValidated!==true))
       return {ok:false,reason:"RISK_CONDITIONS_NOT_RECOVERED"};
-    if((state.weeklyRiskLocked||state.hardDrawdownLocked||state.strategyLocked||state.consecutiveLossPause)&&strategyValidated!==true)
+    if((state.weeklyRiskLocked||state.hardDrawdownLocked||state.consecutiveLossPause)&&strategyValidated!==true)
       return {ok:false,reason:"EXPLICIT_STRATEGY_VALIDATION_REQUIRED"};
-    const hadStrategyLock=state.strategyLocked===true;
     state.dailyLocked=false;state.weeklyRiskLocked=false;state.hardDrawdownLocked=false;state.strategyLocked=false;
     state.consecutiveLossPause=false;
-    if(hadStrategyLock&&strategyValidated===true)state.currentConsecutiveLosses=0;
     state.riskLocked=false;state.riskLockReason="";
     return {ok:true};
   }
