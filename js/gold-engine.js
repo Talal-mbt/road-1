@@ -127,8 +127,6 @@
     if(daily>=POLICY.dailyLossLimitPct)state.dailyLocked=true;
     if(weekly>=POLICY.weeklyLossLimitPct)state.weeklyRiskLocked=true;
     if(drawdown>=POLICY.maxAccountDrawdownPct)state.hardDrawdownLocked=true;
-    if(state.currentConsecutiveLosses>=POLICY.maxConsecutiveLossesLock)state.strategyLocked=true;
-    if(state.currentConsecutiveLosses>=POLICY.maxConsecutiveLossesPause)state.consecutiveLossPause=true;
     const reason=state.hardDrawdownLocked?"MAX_DRAWDOWN":state.weeklyRiskLocked?"WEEKLY_LOSS_LIMIT":
       state.strategyLocked?"CONSECUTIVE_LOSS_STRATEGY_LOCK":state.dailyLocked?"DAILY_LOSS_LIMIT":
       state.consecutiveLossPause?"CONSECUTIVE_LOSS_PAUSE":"";
@@ -201,8 +199,11 @@
       return {ok:false,reason:"RISK_CONDITIONS_NOT_RECOVERED"};
     if((state.weeklyRiskLocked||state.hardDrawdownLocked||state.strategyLocked||state.consecutiveLossPause)&&strategyValidated!==true)
       return {ok:false,reason:"EXPLICIT_STRATEGY_VALIDATION_REQUIRED"};
+    const hadStrategyLock=state.strategyLocked===true;
     state.dailyLocked=false;state.weeklyRiskLocked=false;state.hardDrawdownLocked=false;state.strategyLocked=false;
-    state.consecutiveLossPause=false;if(strategyValidated===true)state.currentConsecutiveLosses=0;state.riskLocked=false;state.riskLockReason="";
+    state.consecutiveLossPause=false;
+    if(hadStrategyLock&&strategyValidated===true)state.currentConsecutiveLosses=0;
+    state.riskLocked=false;state.riskLockReason="";
     return {ok:true};
   }
   function summary(state,price){
