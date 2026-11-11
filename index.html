@@ -592,10 +592,9 @@ html[lang="ar"] body,html[lang="ar"] button,html[lang="ar"] input,html[lang="ar"
    <label>أقصى خسارة أسبوعية (%)<input id="policyWeeklyLossLimitPct" type="number" min="0.5" max="20" step="0.5"></label>
    <label>الحد الأقصى لسحب الحساب (%)<input id="policyMaxAccountDrawdownPct" type="number" min="1" max="30" step="0.5"></label>
    <label>إيقاف مؤقت بعد خسائر متتالية<input id="policyMaxConsecutiveLossesPause" type="number" min="1" max="10" step="1"></label>
-   <label>قفل الاستراتيجية بعد خسائر<input id="policyMaxConsecutiveLossesLock" type="number" min="2" max="20" step="1"></label>
    <label class="policy-check"><input id="policyAutomaticEmergencyStop" type="checkbox"><span>تفعيل قاطع الطوارئ تلقائياً</span></label>
   </div>
-  <div class="gold-disclaimer">عند 3 خسائر متتالية يتوقف فتح المراكز لحين مراجعة الاستراتيجية. عند 5 خسائر يُفعّل قفل الاستراتيجية. خسارة اليوم تُقفل حتى يوم التداول التالي، والخسارة الأسبوعية أو التراجع الحرج تتطلب تحققاً يدوياً قبل الاستئناف.</div>
+  <div class="gold-disclaimer">بعد 3 صفقات خاسرة متتالية يتوقف البوت عن فتح صفقات جديدة حتى مراجعة الاستراتيجية وتأكيد الاستئناف. خسارة اليوم تُقفل حتى يوم التداول التالي، والخسارة الأسبوعية أو التراجع الحرج تتطلب تحققاً يدوياً قبل الاستئناف.</div>
  </div>
  <div class="card">
   <div class="cardhead"><div><span class="section-kicker">04 · STOPS & EXECUTION COSTS</span><strong>وقف الخسارة والهدف وتكاليف التنفيذ</strong></div></div>
@@ -1109,7 +1108,7 @@ function applyLanguage(){
  renderPolicyForm();
  const policyText={
   ar:{heading:["إدارة رأس المال والنمو المركب","إعدادات النمو المركب","حجم المركز وحدود المخاطرة","حدود الخسارة وقواطع الحماية","وقف الخسارة والهدف وتكاليف التنفيذ","سلوكيات ممنوعة","السياسة المطبقة حالياً"],
-      labels:["رأس المال الابتدائي ($)","هدف النمو لكل دورة (%)","الدورات المخططة يومياً","أيام التداول شهرياً","المخاطرة الأساسية لكل صفقة (%)","أقصى مخاطرة لكل صفقة (%)","مجموع المخاطر المفتوحة (%)","أقصى تعرض اسمي للمركز (% Equity)","الحد الأقصى للمراكز المتزامنة","خفض المخاطرة عند تراجع (%)","المخاطرة المخفضة بعد التراجع (%)","أقصى خسارة يومية (%)","أقصى خسارة أسبوعية (%)","الحد الأقصى لسحب الحساب (%)","إيقاف مؤقت بعد خسائر متتالية","قفل الاستراتيجية بعد خسائر","مسافة وقف الخسارة الافتراضية (%)","الحد الأدنى للعائد إلى المخاطرة (R:R)","عمولة تقديرية لكل جهة (%)","انزلاق تقديري لكل جهة (%)"],
+      labels:["رأس المال الابتدائي ($)","هدف النمو لكل دورة (%)","الدورات المخططة يومياً","أيام التداول شهرياً","المخاطرة الأساسية لكل صفقة (%)","أقصى مخاطرة لكل صفقة (%)","مجموع المخاطر المفتوحة (%)","أقصى تعرض اسمي للمركز (% Equity)","الحد الأقصى للمراكز المتزامنة","خفض المخاطرة عند تراجع (%)","المخاطرة المخفضة بعد التراجع (%)","أقصى خسارة يومية (%)","أقصى خسارة أسبوعية (%)","الحد الأقصى لسحب الحساب (%)","إيقاف بعد 3 صفقات خاسرة متتالية","مسافة وقف الخسارة الافتراضية (%)","الحد الأدنى للعائد إلى المخاطرة (R:R)","عمولة تقديرية لكل جهة (%)","انزلاق تقديري لكل جهة (%)"],
       checks:["إعادة استثمار الأرباح المحققة تلقائياً","تفعيل قاطع الطوارئ تلقائياً"],
       buttons:["حفظ وتطبيق الإعدادات","استعادة القيم الأصلية","إعادة ضبط حسابات المحاكاة إلى رأس المال الجديد","فحص شروط استئناف التداول التجريبي"],
       projection:"عدد الدورات الرابحة المفترضة",capital:"رأس المال الابتدائي للدورات الجديدة",target:"هدف الدورة النظري",risk:"المخاطرة الأساسية للصفقة",dd:"الحد الأقصى للسحب"},
@@ -1230,7 +1229,7 @@ const POLICY_FIELDS={
  maxPositions:"policyMaxPositions",drawdownReduceRiskAtPct:"policyDrawdownReduceRiskAtPct",
  reducedRiskPerTradePct:"policyReducedRiskPerTradePct",dailyLossLimitPct:"policyDailyLossLimitPct",
  weeklyLossLimitPct:"policyWeeklyLossLimitPct",maxAccountDrawdownPct:"policyMaxAccountDrawdownPct",
- maxConsecutiveLossesPause:"policyMaxConsecutiveLossesPause",maxConsecutiveLossesLock:"policyMaxConsecutiveLossesLock",
+ maxConsecutiveLossesPause:"policyMaxConsecutiveLossesPause",
  stopLossPct:"policyStopLossPct",minimumRiskReward:"policyMinimumRiskReward",
  commissionPctPerSide:"policyCommissionPctPerSide",slippagePctPerSide:"policySlippagePctPerSide"
 };
