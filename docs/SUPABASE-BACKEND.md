@@ -14,18 +14,25 @@ Project: `Road` (`oinojqdxzyxurvrskhgs`), region `eu-central-1`.
 
 ## Current limitations — do not claim production complete
 
-- The static GitHub Pages frontend is not yet wired to Supabase Auth or these tables.
+- Supabase Auth sign-in, session refresh, sign-out, and per-user role lookup are now wired into the PWA on the feature branch. The existing application is hidden until a valid session and role are confirmed.
 - Sign-up remains disabled in Supabase Auth; only existing invited/created accounts can sign in.
-- hCaptcha is enabled at the project level, but the frontend hCaptcha site key has not yet been added. Login integration must render hCaptcha and pass its token to Supabase Auth.
+- The supplied public hCaptcha site key is configured in the frontend; the widget token is submitted with password sign-in. Confirm the hCaptcha key's allowed hostnames include `talal-mbt.github.io` before testing on GitHub Pages.
 - GitHub Pages serves static source files publicly. Auth can gate app functionality and protect database rows through RLS, but cannot make the HTML/JS source private.
 - MT5 profiles are still metadata only. No broker bridge, cloud terminal, real orders, or persistent execution supervisor is deployed.
 - The audit Edge Function is deployed but has not been exercised with a real signed-in session in this work session.
 
-## Required next integration steps
+## Remaining integration and release gates
 
-1. Add the public hCaptcha site key to the frontend configuration (never the hCaptcha secret).
-2. Implement Supabase Auth sign-in/session refresh/sign-out and role resolution in the PWA.
-3. Migrate local preferences and paper trading data into per-user tables with safe reconciliation and rollback.
-4. Add admin UI backed by server-verified roles and RLS; never expose role mutation in the client.
-5. Add automated authenticated/RLS integration tests and exercise the Edge Function with a real session.
-6. Keep live trading disabled until an xChief Demo compatibility test, provider authorization, risk supervision, and independent review are complete.
+1. Verify the hCaptcha hostname allowlist and complete an interactive login test with the existing admin account; credentials are never requested in chat.
+2. Add authenticated integration tests for role lookup, RLS isolation, and the `road-audit-event` Edge Function.
+3. Migrate local preferences and paper-trading data into per-user tables with safe reconciliation, duplicate detection, and rollback. No local trading history is uploaded automatically yet.
+4. Build the admin UI backed by server-verified roles and RLS; never expose role mutation in the client.
+5. Keep live trading disabled until an xChief Demo compatibility test, provider authorization, risk supervision, and independent review are complete.
+
+## Frontend authentication implementation
+
+- `js/road-auth.js` uses the Supabase Auth REST endpoints and the project's publishable API key (safe for browser use; RLS remains the authorization boundary).
+- Password sign-in includes the hCaptcha `captcha_token`; signup is not exposed.
+- The frontend refreshes the session, verifies `/auth/v1/user`, then reads the signed-in user's own `user_roles` row before revealing the workspace.
+- The client stores only the Supabase session in browser storage. No service-role key, hCaptcha secret, or broker credential is present in the frontend.
+- This is an access gate, not source-code secrecy: GitHub Pages HTML/JS remains publicly downloadable. The code and DB protections still require review before merging/deployment.
