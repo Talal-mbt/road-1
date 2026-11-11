@@ -400,6 +400,39 @@ html[lang="en"] body,html[lang="en"] button,html[lang="en"] input,html[lang="en"
 html[lang="ar"] body,html[lang="ar"] button,html[lang="ar"] input,html[lang="ar"] select{font-family:"Noto Sans Arabic","Noto Naskh Arabic",Tahoma,Arial,sans-serif}
 #networkBanner{z-index:25}
 
+
+.policy-hero{background:radial-gradient(ellipse at 80% 0,rgba(55,181,194,.16),transparent 55%),linear-gradient(140deg,#102d43,#0a1d30)}
+.policy-summary-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin-top:14px}
+.policy-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.policy-grid label{display:grid;gap:7px;font-size:11px;color:#9ab2c4;min-width:0}
+.policy-grid input:not([type=checkbox]){width:100%;min-height:43px;background:#081b2c;border:1px solid #31546a;border-radius:11px;color:#e7f5fc;padding:9px 11px;font:14px "Times New Roman",serif;direction:ltr;text-align:left}
+.policy-grid .policy-check{display:flex;align-items:center;gap:10px;min-height:43px;border:1px solid #294c62;border-radius:11px;background:#0b2133;padding:9px 12px;color:#d6e5ee}
+.policy-check input{width:18px;height:18px;accent-color:#55d7e8}
+.projection-panel{margin-top:15px;border:1px solid #2d5e72;background:linear-gradient(135deg,#0b2438,#0c1e30);border-radius:14px;padding:14px;display:grid;gap:11px}
+.projection-head,.projection-result{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.projection-panel label{display:grid;gap:6px;color:#a1b8c8;font-size:11px;max-width:240px}
+.projection-panel input{min-height:40px;border:1px solid #31546a;border-radius:10px;padding:8px 10px;background:#081b2c;color:#eef7fb;direction:ltr}
+.projection-result{border-top:1px solid #24465d;padding-top:12px;color:#9cb5c7;font-size:11px}
+.projection-result strong{font:700 24px var(--mono);color:var(--green)}
+.policy-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.policy-actions button{font-size:11px;min-height:42px}
+.policy-prohibitions em{color:#7bdcc1}
+@media(max-width:760px){
+ .policy-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .policy-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ .policy-grid label{font-size:10px}
+ .projection-result strong{font-size:20px}
+ .policy-actions{display:grid;grid-template-columns:1fr}
+}
+@media(max-width:380px){.policy-grid{grid-template-columns:1fr}}
+
+
+.capital-current-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
+.capital-current-grid .riskbox strong{display:block;color:#74e0d1;font:700 20px var(--mono);direction:ltr;text-align:right;margin-top:5px}
+.capital-current-grid .riskbox small{display:block;margin-top:5px}
+.capital-note{font-size:10px;line-height:1.8;color:#e7c98c;background:#302718;border:1px solid #64502b;padding:12px 14px;border-radius:12px;margin:10px 0}
+@media(max-width:760px){.capital-current-grid{grid-template-columns:1fr}}
+
 </style></head>
 <body><div class="shell">
 <aside class="sidebar" id="sidebar" aria-label="القائمة الرئيسية">
@@ -508,7 +541,105 @@ html[lang="ar"] body,html[lang="ar"] button,html[lang="ar"] input,html[lang="ar"
 <section id="filter" class="page"><div class="card"><div class="cardhead"><strong>فلتر أمان الأصول</strong><small>سياسة المنع عند عدم التحقق</small></div><p>بيانات أمان الأصول غير مكتملة في هذه النسخة. أي معلومة مجهولة لا تجتاز بوابة الأمان.</p><div class="riskgrid"><div class="riskbox"><label>صلاحية الإصدار</label><strong class="red">UNKNOWN</strong></div><div class="riskbox"><label>صلاحية التجميد</label><strong class="red">UNKNOWN</strong></div><div class="riskbox"><label>تركيز الحائزين</label><strong class="red">UNKNOWN</strong></div><div class="riskbox"><label>خصائص الرمز</label><strong class="red">UNKNOWN</strong></div><div class="riskbox"><label>محاكاة البيع</label><strong class="amber">غير متحقق</strong></div><div class="riskbox"><label>GATE</label><strong class="red">BLOCKED</strong></div></div></div></section>
 <section id="analyst" class="page"><div class="card"><div class="cardhead"><strong>التحليل · العوامل التوضيحية</strong><small>قواعد إرشادية · ليست توقعاً للربح</small></div><p>الدرجات الحالية توضيحية وليست نموذج ذكاء اصطناعي مدرّباً أو احتمالاً للربح. لا تتجاوز أي درجة فلاتر الأمان والمخاطر.</p><div class="riskgrid"><div class="riskbox"><label>LIQUIDITY · 25%</label><strong>—</strong></div><div class="riskbox"><label>توزيع الحائزين · 15%</label><strong>UNKNOWN</strong></div><div class="riskbox"><label>أمان العقد · 15%</label><strong>UNKNOWN</strong></div><div class="riskbox"><label>جودة السيولة · 15%</label><strong>—</strong></div><div class="riskbox"><label>تدفق التداول · 15%</label><strong>—</strong></div><div class="riskbox"><label>MOMENTUM · 10%</label><strong>—</strong></div></div></div></section>
 <section id="executor" class="page"><div class="card"><div class="cardhead"><strong>مركز المحاكاة</strong><small>لا يوجد تنفيذ حقيقي</small></div><p>اختر أصلاً توضيحياً لفتح مركز افتراضي. الأصول غير المتحقق من أمانها لا تُسمح لها بتجاوز الفلتر.</p><div class="actions"><select id="assetselect"><option value="SOLX">SOLX Demo</option><option value="NOVA">NOVA Demo</option><option value="MINT">MINT Demo</option></select><button id="paperbuy" class="primary">شراء افتراضي</button><button id="sellall">إغلاق المراكز الافتراضية</button><button id="resetpaper" class="danger">إعادة ضبط المحاكاة</button></div><p class="sub">Paper notional only: 1% of equity per position · 3 concurrent positions maximum · simulated entry/exit fees and slippage. This is not a live trade or stop-loss-managed strategy.</p><p class="sub" id="pauseReason">Paper simulation only.</p></div></section>
-<section id="risk" class="page"><div class="card"><div class="cardhead"><strong>إدارة المخاطر والحماية</strong><small>إعدادات المحاكاة</small></div><div class="riskgrid"><div class="riskbox"><label>القيمة الاسمية للمركز</label><strong>1% قيمة المحفظة</strong></div><div class="riskbox"><label>أقصى المراكز المفتوحة</label><strong>3</strong></div><div class="riskbox"><label>DAILY LOSS / 2% LIMIT</label><strong id="dailyLossValue" class="amber">0.00% / 2.00%</strong></div><div class="riskbox"><label>DRAWDOWN / 5% LIMIT</label><strong id="drawdownValue" class="amber">0.00% / 5.00%</strong></div><div class="riskbox"><label>الأمان غير مؤكد</label><strong class="red">منع التداول الحقيقي</strong></div><div class="riskbox"><label>قاطع المخاطر</label><strong id="riskpause" class="green">OFF</strong></div><div class="riskbox"><label>حالة المخاطر</label><strong id="riskReason" class="green">NO CIRCUIT BREAKER</strong></div><div class="riskbox"><label>التخزين</label><strong id="storageStatus" class="green">LOCAL ONLY</strong></div></div><button class="danger" id="kill" style="margin-top:15px">تفعيل إيقاف الطوارئ</button><p class="sub">الحدود تمنع فتح مراكز افتراضية جديدة ولا تغلق المراكز تلقائياً. التخزين المحلي قابل للتعديل وليس سجلاً مالياً معتمداً.</p></div></section>
+<section id="risk" class="page" dir="rtl" lang="ar">
+ <div class="card policy-hero">
+  <div class="cardhead"><div><span class="section-kicker">ROAD CAPITAL & RISK CONTROL</span><strong>إدارة رأس المال والنمو المركب</strong></div><span class="safe-chip">LOCAL PAPER POLICY</span></div>
+  <p class="gold-muted">هذه القيم هي سياسة المحاكاة المحلية على هذا الجهاز. هدف 3% لكل دورة هدف رياضي وليس عائداً مضموناً، وعدد الدورات اليومية لا يجبر النظام على فتح صفقات.</p>
+  <div class="policy-summary-grid">
+   <div class="riskbox"><label>رأس المال الابتدائي للدورات الجديدة</label><strong id="policyCapitalSummary">$3.00</strong></div>
+   <div class="riskbox"><label>هدف الدورة النظري</label><strong id="policyCycleTargetSummary">$0.09</strong></div>
+   <div class="riskbox"><label>المخاطرة الأساسية للصفقة</label><strong id="policyRiskSummary">0.50%</strong></div>
+   <div class="riskbox"><label>الحد الأقصى للسحب</label><strong id="policyDrawdownSummary">10.00%</strong></div>
+  </div>
+ </div>
+ <div class="card">
+  <div class="cardhead"><div><span class="section-kicker">01 · COMPOUND GROWTH</span><strong>إعدادات النمو المركب</strong></div></div>
+  <div class="policy-grid">
+   <label>رأس المال الابتدائي للحساب الجديد أو عند إعادة الضبط ($)<input id="policyInitialCapital" type="number" min="0.01" max="100000000" step="0.01"></label>
+   <label>هدف النمو لكل دورة (%)<input id="policyTargetCycleGrowthPct" type="number" min="0.1" max="25" step="0.1"></label>
+   <label>الدورات المخططة يومياً<input id="policyCyclesPerDay" type="number" min="1" max="100" step="1"></label>
+   <label>أيام التداول شهرياً<input id="policyTradingDaysPerMonth" type="number" min="1" max="31" step="1"></label>
+   <label class="policy-check"><input id="policyAutoReinvest" type="checkbox"><span>إعادة استثمار الأرباح المحققة تلقائياً</span></label>
+  </div>
+  <div class="capital-current-grid">
+   <div class="riskbox"><label>Equity الحالي · حساب محاكاة السوق</label><strong id="currentPaperEquity">$3.00</strong><small id="currentPaperCash" class="sub">الرصيد المتاح: $3.00</small></div>
+   <div class="riskbox"><label>Equity الحالي · محاكاة الذهب</label><strong id="currentGoldEquity">$3.00</strong><small id="currentGoldCash" class="sub">الرصيد المتاح: $3.00</small></div>
+  </div>
+  <p class="capital-note">تعديل رأس المال الابتدائي يحفظ القيمة للحسابات الجديدة. لتطبيقه على حسابي المحاكاة الحاليين استخدم زر إعادة تأسيس الحسابين؛ سيؤدي ذلك إلى حذف المراكز وسجل الصفقات الافتراضي الحالي وإعادة الرصيدين إلى القيمة الجديدة. لا يؤثر هذا على حساب MT5.</p>
+  <div class="projection-panel">
+   <div class="projection-head"><strong>حاسبة النمو النظري</strong><span class="tag warn">THEORETICAL ONLY</span></div>
+   <label>عدد الدورات الرابحة المفترضة<input id="policyProjectionCycles" type="number" min="0" max="10000" step="1" value="10"></label>
+   <div class="projection-result"><span>القيمة النظرية بعد الدورات</span><strong id="policyProjectionResult">$4.03</strong></div>
+   <p class="sub">هذه حاسبة افتراضية باستخدام معدل 3%، وليست قيمة المحفظة الفعلية. الرصيد الحقيقي يتغير فقط وفق نتائج الصفقات المحققة والتكاليف.</p>
+  </div>
+ </div>
+ <div class="card">
+  <div class="cardhead"><div><span class="section-kicker">02 · POSITION SIZING</span><strong>حجم المركز وحدود المخاطرة</strong></div></div>
+  <div class="policy-grid">
+   <label>المخاطرة الأساسية لكل صفقة (%)<input id="policyRiskPerTradePct" type="number" min="0.05" max="1" step="0.05"></label>
+   <label>أقصى مخاطرة لكل صفقة (%)<input id="policyMaxRiskPerTradePct" type="number" min="0.1" max="2" step="0.1"></label>
+   <label>مجموع المخاطر المفتوحة (%)<input id="policyMaxConcurrentRiskPct" type="number" min="0.1" max="5" step="0.1"></label>
+   <label>أقصى تعرض اسمي للمركز (% Equity)<input id="policyMaxPositionExposurePct" type="number" min="10" max="100" step="5"></label>
+   <label>الحد الأقصى للمراكز المتزامنة<input id="policyMaxPositions" type="number" min="1" max="10" step="1"></label>
+   <label>خفض المخاطرة عند تراجع (%)<input id="policyDrawdownReduceRiskAtPct" type="number" min="0.5" max="15" step="0.5"></label>
+   <label>المخاطرة المخفضة بعد التراجع (%)<input id="policyReducedRiskPerTradePct" type="number" min="0.05" max="0.5" step="0.05"></label>
+  </div>
+ </div>
+ <div class="card">
+  <div class="cardhead"><div><span class="section-kicker">03 · CAPITAL PROTECTION</span><strong>حدود الخسارة وقواطع الحماية</strong></div></div>
+  <div class="policy-grid">
+   <label>أقصى خسارة يومية (%)<input id="policyDailyLossLimitPct" type="number" min="0.1" max="10" step="0.1"></label>
+   <label>أقصى خسارة أسبوعية (%)<input id="policyWeeklyLossLimitPct" type="number" min="0.5" max="20" step="0.5"></label>
+   <label>الحد الأقصى لسحب الحساب (%)<input id="policyMaxAccountDrawdownPct" type="number" min="1" max="30" step="0.5"></label>
+   <label>إيقاف مؤقت بعد خسائر متتالية<input id="policyMaxConsecutiveLossesPause" type="number" min="1" max="10" step="1"></label>
+   <label class="policy-check"><input id="policyAutomaticEmergencyStop" type="checkbox"><span>تفعيل قاطع الطوارئ تلقائياً</span></label>
+  </div>
+  <div class="gold-disclaimer">بعد 3 صفقات خاسرة متتالية يتوقف البوت عن فتح صفقات جديدة حتى مراجعة الاستراتيجية وتأكيد الاستئناف. خسارة اليوم تُقفل حتى يوم التداول التالي، والخسارة الأسبوعية أو التراجع الحرج تتطلب تحققاً يدوياً قبل الاستئناف.</div>
+ </div>
+ <div class="card">
+  <div class="cardhead"><div><span class="section-kicker">04 · STOPS & EXECUTION COSTS</span><strong>وقف الخسارة والهدف وتكاليف التنفيذ</strong></div></div>
+  <div class="policy-grid">
+   <label>مسافة وقف الخسارة الافتراضية (%)<input id="policyStopLossPct" type="number" min="0.05" max="10" step="0.05"></label>
+   <label>الحد الأدنى للعائد إلى المخاطرة (R:R)<input id="policyMinimumRiskReward" type="number" min="1" max="10" step="0.25"></label>
+   <label>عمولة تقديرية لكل جهة (%)<input id="policyCommissionPctPerSide" type="number" min="0" max="2" step="0.01"></label>
+   <label>انزلاق تقديري لكل جهة (%)<input id="policySlippagePctPerSide" type="number" min="0" max="2" step="0.01"></label>
+  </div>
+  <p class="sub">ملف الإعدادات لا يحدد نسبة رقمية لوقف الخسارة؛ قيمة 0.50% هنا افتراض ابتدائي للمحاكاة وقابل للتعديل. الهدف الافتراضي يُحسب بما يحقق على الأقل نسبة العائد إلى المخاطرة المحددة.</p>
+ </div>
+ <div class="card">
+  <div class="cardhead"><div><span class="section-kicker">05 · PROHIBITED RECOVERY</span><strong>سلوكيات ممنوعة</strong></div></div>
+  <div class="system-list policy-prohibitions">
+   <div><i class="status-dot"></i><span><b>Martingale</b><small>مضاعفة حجم الصفقة بعد الخسارة</small></span><em>معطل دائماً</em></div>
+   <div><i class="status-dot"></i><span><b>Loss Recovery</b><small>زيادة المخاطرة لاسترداد الخسائر</small></span><em>معطل دائماً</em></div>
+   <div><i class="status-dot"></i><span><b>Averaging Down</b><small>التعزيز غير المحدود في صفقة خاسرة</small></span><em>معطل دائماً</em></div>
+  </div>
+ </div>
+ <div class="card">
+  <div class="cardhead"><div><span class="section-kicker">06 · LIVE POLICY STATE</span><strong>السياسة المطبقة حالياً</strong></div><span class="tag warn">PAPER MODE ONLY</span></div>
+  <div class="riskgrid">
+   <div class="riskbox"><label>الخسارة اليومية / الحد</label><strong id="dailyLossValue" class="amber">0.00% / 2.00%</strong></div>
+   <div class="riskbox"><label>الخسارة الأسبوعية / الحد</label><strong id="weeklyLossValue" class="amber">0.00% / 5.00%</strong></div>
+   <div class="riskbox"><label>التراجع من أعلى قيمة / الحد</label><strong id="drawdownValue" class="amber">0.00% / 10.00%</strong></div>
+   <div class="riskbox"><label>المخاطر المفتوحة</label><strong id="openRiskValue">0.00% / 2.00%</strong></div>
+   <div class="riskbox"><label>الخسائر المتتالية</label><strong id="lossStreakValue">0</strong></div>
+   <div class="riskbox"><label>المخاطرة الفعالة للصفقة</label><strong id="effectiveRiskValue">0.50%</strong></div>
+   <div class="riskbox"><label>قاطع المخاطر</label><strong id="riskpause" class="green">OFF</strong></div>
+   <div class="riskbox"><label>سبب الإيقاف</label><strong id="riskReason" class="green">لا يوجد</strong></div>
+   <div class="riskbox"><label>التخزين</label><strong id="storageStatus" class="green">محلي على الجهاز</strong></div>
+  </div>
+  <div class="policy-actions">
+   <button class="primary" id="savePolicy">حفظ وتطبيق الإعدادات</button>
+   <button id="resetPolicyDefaults">استعادة القيم الأصلية</button>
+   <button class="danger" id="resetAllPaper">إعادة تأسيس حسابي المحاكاة برأس المال الجديد (مسح السجل)</button>
+   <button id="validateRiskRecovery" class="danger">فحص شروط استئناف التداول التجريبي</button>
+  </div>
+  <p class="sub">تُحفظ هذه السياسة في متصفح هذا الجهاز فقط. لا توجد لوحة إدارة مركزية أو قاعدة بيانات حالياً. تغيير هذه القيم لا يغيّر حساب MT5 ولا يرسل أوامر حقيقية.</p>
+ </div>
+ <div class="card"><div class="cardhead"><strong>إيقاف الطوارئ</strong><small>MANUAL PAUSE</small></div>
+  <button class="danger" id="kill">تفعيل إيقاف الطوارئ</button>
+  <p class="sub">يوقف فتح المراكز الافتراضية الجديدة. لا يحذف أوامر الحماية من حساب وسيط؛ فالنسخة الحالية غير متصلة بوسيط.</p>
+ </div>
+</section>
 <section id="logger" class="page"><div class="card"><div class="cardhead"><strong>سجل النشاط</strong><small>جلسة محلية</small><button id="clearlogs" class="smallbtn">مسح السجل</button></div><div class="log" id="alllogs"></div></div></section>
 <section id="health" class="page"><div class="card"><div class="cardhead"><strong>حالة النظام</strong><small>واجهة محلية</small></div><div class="riskgrid"><div class="riskbox"><label>APP</label><strong class="green">يعمل</strong></div><div class="riskbox"><label>DATA</label><strong class="amber">وضع تجريبي</strong></div><div class="riskbox"><label>EXECUTION</label><strong class="green">محاكاة فقط</strong></div><div class="riskbox"><label>الخادم</label><strong class="amber">غير متصل</strong></div><div class="riskbox"><label>أمان الشبكة</label><strong class="red">غير متصل</strong></div><div class="riskbox"><label>توقيع المحفظة</label><strong class="red">معطل</strong></div></div></div></section>
 <section id="gold" class="page" dir="rtl" lang="ar">
@@ -623,15 +754,18 @@ html[lang="ar"] body,html[lang="ar"] button,html[lang="ar"] input,html[lang="ar"
  <button data-page="health"><span class="navicon">⚙</span><span class="bottom-label">المزيد</span></button>
 </nav>
 <footer class="footer"><span>ROAD · MARKET INTELLIGENCE</span><span>NOT FINANCIAL ADVICE · محاكاة فقط</span><span>جلسة محلية</span></footer></div></main></div><div id="toast" class="toast hide"></div>
-<script src="js/paper-engine.js"></script><script src="js/gold-engine.js"></script><script>
+<script src="js/trading-policy.js"></script><script src="js/paper-engine.js"></script><script src="js/gold-engine.js"></script><script>
 "use strict";
 const $ = id => document.getElementById(id);
 const esc = value => String(value == null ? "" : value).replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
 const money = n => "$" + Number(n || 0).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
 const fmt = n => Number.isFinite(Number(n)) && Number(n)>0 ? "$"+Number(n).toPrecision(5) : "—";
-const STORAGE_KEY="road.paper.v1", MARKET_KEY="road.market.v1";
-const Engine=window.PaperEngine;
-if(!Engine)throw new Error("Paper engine failed to load");
+const STORAGE_KEY="road.paper.v1", MARKET_KEY="road.market.v1", POLICY_KEY="road.policy.v1";
+const Engine=window.PaperEngine, GoldEngine=window.GoldEngine, Policy=window.RoadTradingPolicy;
+if(!Engine||!GoldEngine||!Policy)throw new Error("Trading policy or paper engine failed to load");
+function readStoredPolicy(){try{const raw=localStorage.getItem(POLICY_KEY);return raw?JSON.parse(raw):Policy.DEFAULTS;}catch(_){return Policy.DEFAULTS;}}
+let tradingSettings=Policy.normalize(readStoredPolicy());
+Engine.configure(tradingSettings);GoldEngine.configure(tradingSettings);
 const DEMO=[
 {name:"Solstice Demo",symbol:"SOLX",price:.0042,liq:48200,vol:152000,score:72},
 {name:"Nova Demo",symbol:"NOVA",price:.00081,liq:21600,vol:74000,score:64},
@@ -679,16 +813,22 @@ const all=state.events.map(e=>'<div class="logrow"><time>'+esc(e.at?e.at.slice(1
 $("logs").innerHTML=rows||'<div class="sub">No events recorded.</div>';$("alllogs").innerHTML=all||'<div class="sub">No events recorded.</div>';
 }
 function render(){
-const risk=syncRiskLock(state.riskLocked),summary=Engine.getSummary(state,priceMap());
+ const stopped=Engine.checkStops(state,priceMap(),new Date());
+ if(stopped.length){stopped.forEach(t=>addEvent("Automatic paper exit "+t.symbol+" · "+t.reason+" · "+money(t.pnl),"PAPER STOP"));saveState();}
+ const risk=syncRiskLock(state.riskLocked),summary=Engine.getSummary(state,priceMap());
 $("equity").textContent=money(summary.equity);$("realized").textContent=money(summary.realizedPnl);
 $("unrealized").textContent=money(summary.unrealizedPnl);$("unrealized").className="metric "+(summary.unrealizedPnl>=0?"green":"red");
 $("positions").textContent=summary.openPositions+" / "+Engine.CONFIG.maxPositions;
-$("pause").textContent=state.riskLocked?"⛔ قفل المخاطر نشط":(state.manualPaused?"▶ استئناف المحاكاة":"Ⅱ إيقاف المحاكاة");
-$("pause").disabled=state.riskLocked;$("riskpause").textContent=state.riskLocked?"LOCKED":(state.manualPaused?"MANUAL":"OFF");
-$("riskpause").className=state.riskLocked||state.manualPaused?"red":"green";
+$("pause").textContent=summary.paused?"⛔ التداول متوقف":"Ⅱ إيقاف المحاكاة";
+$("pause").disabled=summary.paused;$("riskpause").textContent=summary.paused?"LOCKED":"ACTIVE";
+$("riskpause").className=summary.paused?"red":"green";
 $("kill").textContent=state.riskLocked?"قفل المخاطر نشط":(state.manualPaused?"المحاكاة متوقفة":"تفعيل إيقاف الطوارئ");$("kill").disabled=state.riskLocked;
 $("dailyLossValue").textContent=risk.dailyLossPct.toFixed(2)+"% / "+risk.dailyLimitPct.toFixed(2)+"%";
+$("weeklyLossValue").textContent=risk.weeklyLossPct.toFixed(2)+"% / "+risk.weeklyLimitPct.toFixed(2)+"%";
 $("drawdownValue").textContent=risk.drawdownPct.toFixed(2)+"% / "+risk.maxDrawdownPct.toFixed(2)+"%";
+$("openRiskValue").textContent=risk.openRiskPct.toFixed(2)+"% / "+tradingSettings.maxConcurrentRiskPct.toFixed(2)+"%";
+$("lossStreakValue").textContent=String(risk.consecutiveLosses);
+$("effectiveRiskValue").textContent=risk.effectiveRiskPct.toFixed(2)+"%";
 $("riskReason").textContent=risk.pauseReason?"مقفل: "+risk.pauseReason:"لا يوجد قفل مخاطر";$("riskReason").className=risk.paused?"red":"green";
 $("storageStatus").textContent=storageAvailable?"محلي على الجهاز":"جلسة مؤقتة";$("storageStatus").className=storageAvailable?"green":"amber";
 $("pauseReason").textContent=summary.paused?"تم إيقاف فتح المراكز الجديدة، ويمكن إغلاق المراكز الافتراضية يدوياً.":"محاكاة محلية فقط؛ لا يتم إرسال أوامر حقيقية إلى وسيط أو محفظة.";
@@ -964,6 +1104,39 @@ function applyLanguage(){
  document.querySelectorAll(".page").forEach(el=>el.setAttribute("lang",appLanguage));
  renderGold();
  renderMt5Profiles();
+
+ renderPolicyForm();
+ const policyText={
+  ar:{heading:["إدارة رأس المال والنمو المركب","إعدادات النمو المركب","حجم المركز وحدود المخاطرة","حدود الخسارة وقواطع الحماية","وقف الخسارة والهدف وتكاليف التنفيذ","سلوكيات ممنوعة","السياسة المطبقة حالياً"],
+      labels:["رأس المال الابتدائي ($)","هدف النمو لكل دورة (%)","الدورات المخططة يومياً","أيام التداول شهرياً","المخاطرة الأساسية لكل صفقة (%)","أقصى مخاطرة لكل صفقة (%)","مجموع المخاطر المفتوحة (%)","أقصى تعرض اسمي للمركز (% Equity)","الحد الأقصى للمراكز المتزامنة","خفض المخاطرة عند تراجع (%)","المخاطرة المخفضة بعد التراجع (%)","أقصى خسارة يومية (%)","أقصى خسارة أسبوعية (%)","الحد الأقصى لسحب الحساب (%)","إيقاف بعد 3 صفقات خاسرة متتالية","مسافة وقف الخسارة الافتراضية (%)","الحد الأدنى للعائد إلى المخاطرة (R:R)","عمولة تقديرية لكل جهة (%)","انزلاق تقديري لكل جهة (%)"],
+      checks:["إعادة استثمار الأرباح المحققة تلقائياً","تفعيل قاطع الطوارئ تلقائياً"],
+      buttons:["حفظ وتطبيق الإعدادات","استعادة القيم الأصلية","إعادة ضبط حسابات المحاكاة إلى رأس المال الجديد","فحص شروط استئناف التداول التجريبي"],
+      projection:"عدد الدورات الرابحة المفترضة",capital:"رأس المال الابتدائي للدورات الجديدة",target:"هدف الدورة النظري",risk:"المخاطرة الأساسية للصفقة",dd:"الحد الأقصى للسحب"},
+  en:{heading:["Capital management & compound growth","Compound growth settings","Position sizing & risk limits","Loss limits & circuit breakers","Stops, targets & execution costs","Prohibited behaviours","Active policy status"],
+      labels:["Initial capital ($)","Target growth per cycle (%)","Planned cycles per day","Trading days per month","Base risk per trade (%)","Maximum risk per trade (%)","Maximum concurrent risk (%)","Maximum position exposure (% equity)","Maximum concurrent positions","Reduce risk at drawdown (%)","Reduced risk after drawdown (%)","Maximum daily loss (%)","Maximum weekly loss (%)","Maximum account drawdown (%)","Pause after consecutive losses","Strategy lock after losses","Default stop distance (%)","Minimum risk-to-reward (R:R)","Estimated commission per side (%)","Estimated slippage per side (%)"],
+      checks:["Automatically reinvest realized profits","Enable automatic emergency stop"],
+      buttons:["Save and apply settings","Restore default values","Reset paper accounts to configured capital","Validate paper-trading recovery"],
+      projection:"Assumed winning cycles",capital:"Initial capital for new paper accounts",target:"Theoretical cycle target",risk:"Base risk per trade",dd:"Maximum drawdown"}
+ };
+ const pt=policyText[appLanguage];
+ const policyHeadIds=[".policy-hero .cardhead strong","#risk .card:nth-child(2) .cardhead strong","#risk .card:nth-child(3) .cardhead strong","#risk .card:nth-child(4) .cardhead strong","#risk .card:nth-child(5) .cardhead strong","#risk .card:nth-child(6) .cardhead strong","#risk .card:nth-child(7) .cardhead strong"];
+ policyHeadIds.forEach((sel,i)=>setNode(sel,policyText.ar.heading[i],policyText.en.heading[i]));
+ document.querySelectorAll(".policy-grid label").forEach((label,i)=>{
+  if(label.firstChild&&label.firstChild.nodeType===3)label.firstChild.textContent=(appLanguage==="ar"?policyText.ar.labels:policyText.en.labels)[i]||label.firstChild.textContent;
+ });
+ document.querySelectorAll(".policy-check span").forEach((node,i)=>node.textContent=(appLanguage==="ar"?policyText.ar.checks:policyText.en.checks)[i]||node.textContent);
+ ["savePolicy","resetPolicyDefaults","resetAllPaper","validateRiskRecovery"].forEach((id,i)=>$(id).textContent=(appLanguage==="ar"?policyText.ar.buttons:policyText.en.buttons)[i]);
+ const projectionLabel=$("policyProjectionCycles").previousElementSibling;
+ if(projectionLabel)projectionLabel.textContent=pt.projection;
+ const summaryLabels=document.querySelectorAll(".policy-summary-grid .riskbox label");
+ [pt.capital,pt.target,pt.risk,pt.dd].forEach((s,i)=>{if(summaryLabels[i])summaryLabels[i].textContent=s;});
+ setNode(".capital-note","تعديل رأس المال الابتدائي يحفظ القيمة للحسابات الجديدة. لتطبيقه على حسابي المحاكاة الحاليين استخدم زر إعادة تأسيس الحسابين؛ سيؤدي ذلك إلى حذف المراكز وسجل الصفقات الافتراضي وإعادة الرصيدين إلى القيمة الجديدة. لا يؤثر هذا على حساب MT5.",
+  "Changing initial capital saves it for new accounts. To apply it to the current paper accounts, use Reset paper accounts; this clears simulated positions and trade history and recreates both balances at the new amount. It does not affect MT5.");
+ setNode("#risk .projection-head strong","حاسبة النمو النظري","Theoretical compound calculator");
+ setNode(".projection-result span","القيمة النظرية بعد الدورات","Theoretical value after cycles");
+ setNode(".projection-panel .sub","هذه حاسبة افتراضية وليست قيمة المحفظة الفعلية. الرصيد الحقيقي يتغير فقط وفق نتائج الصفقات المحققة والتكاليف.","This is a projection, not actual account equity. Actual capital changes only with verified realized results and costs.");
+ setNode("#risk .policy-actions + p","تُحفظ هذه السياسة في متصفح هذا الجهاز فقط. لا توجد لوحة إدارة مركزية أو قاعدة بيانات حالياً. تغيير هذه القيم لا يغيّر حساب MT5 ولا يرسل أوامر حقيقية.","This policy is stored only in this device's browser. There is no central admin dashboard or database. These settings do not change an MT5 account or send real orders.");
+
 }
 function localized(ar,en){return appLanguage==="ar"?ar:en;}
 function localizeGoldText(value){
@@ -1047,6 +1220,93 @@ function selectMt5Profile(id){
  renderMt5Profiles();
 }
 
+
+const POLICY_FIELDS={
+ initialCapital:"policyInitialCapital",targetCycleGrowthPct:"policyTargetCycleGrowthPct",
+ cyclesPerDay:"policyCyclesPerDay",tradingDaysPerMonth:"policyTradingDaysPerMonth",
+ riskPerTradePct:"policyRiskPerTradePct",maxRiskPerTradePct:"policyMaxRiskPerTradePct",
+ maxConcurrentRiskPct:"policyMaxConcurrentRiskPct",maxPositionExposurePct:"policyMaxPositionExposurePct",
+ maxPositions:"policyMaxPositions",drawdownReduceRiskAtPct:"policyDrawdownReduceRiskAtPct",
+ reducedRiskPerTradePct:"policyReducedRiskPerTradePct",dailyLossLimitPct:"policyDailyLossLimitPct",
+ weeklyLossLimitPct:"policyWeeklyLossLimitPct",maxAccountDrawdownPct:"policyMaxAccountDrawdownPct",
+ maxConsecutiveLossesPause:"policyMaxConsecutiveLossesPause",
+ stopLossPct:"policyStopLossPct",minimumRiskReward:"policyMinimumRiskReward",
+ commissionPctPerSide:"policyCommissionPctPerSide",slippagePctPerSide:"policySlippagePctPerSide"
+};
+function updatePolicyProjection(){
+ const n=Math.max(0,Math.min(10000,Math.floor(Number($("policyProjectionCycles").value)||0)));
+ const result=Policy.theoreticalCompound(tradingSettings.initialCapital,n,tradingSettings);
+ $("policyProjectionResult").textContent=money(result);
+}
+function renderPolicyForm(){
+ for(const [key,id] of Object.entries(POLICY_FIELDS))$(id).value=tradingSettings[key];
+ $("policyAutoReinvest").checked=tradingSettings.autoReinvest;
+ $("policyAutomaticEmergencyStop").checked=tradingSettings.automaticEmergencyStop;
+ $("policyCapitalSummary").textContent=money(tradingSettings.initialCapital);
+ $("policyCycleTargetSummary").textContent=money(Policy.cycleTargetAmount(tradingSettings.initialCapital,tradingSettings));
+ $("policyRiskSummary").textContent=tradingSettings.riskPerTradePct.toFixed(2)+"%";
+ $("policyDrawdownSummary").textContent=tradingSettings.maxAccountDrawdownPct.toFixed(2)+"%";
+ const paper=Engine.getSummary(state,priceMap());
+ const gold=GoldEngine.summary(goldPaperState,goldCurrentQuote||undefined);
+ $("currentPaperEquity").textContent=money(paper.equity);
+ $("currentPaperCash").textContent=localized("الرصيد المتاح: ","Available cash: ")+money(paper.cash);
+ $("currentGoldEquity").textContent=money(gold.equity);
+ $("currentGoldCash").textContent=localized("الرصيد المتاح: ","Available cash: ")+money(gold.cash);
+ updatePolicyProjection();
+ const snap=Engine.getRiskSnapshot(state,priceMap());
+ $("weeklyLossValue").textContent=snap.weeklyLossPct.toFixed(2)+"% / "+tradingSettings.weeklyLossLimitPct.toFixed(2)+"%";
+ $("openRiskValue").textContent=snap.openRiskPct.toFixed(2)+"% / "+tradingSettings.maxConcurrentRiskPct.toFixed(2)+"%";
+ $("lossStreakValue").textContent=String(state.currentConsecutiveLosses||0);
+ $("effectiveRiskValue").textContent=snap.effectiveRiskPct.toFixed(2)+"%";
+}
+function readPolicyForm(){
+ const next={...tradingSettings};
+ for(const [key,id] of Object.entries(POLICY_FIELDS))next[key]=Number($(id).value);
+ next.autoReinvest=$("policyAutoReinvest").checked;
+ next.automaticEmergencyStop=$("policyAutomaticEmergencyStop").checked;
+ return Policy.normalize(next);
+}
+function savePolicy(){
+ const next=readPolicyForm();
+ const initialCapitalChanged=next.initialCapital!==tradingSettings.initialCapital;
+ if(next.riskPerTradePct>next.maxRiskPerTradePct||next.reducedRiskPerTradePct>next.riskPerTradePct)
+  return toast(localized("تأكد من ترتيب حدود المخاطرة قبل الحفظ.","Check the risk limits before saving."));
+ try{
+  localStorage.setItem(POLICY_KEY,JSON.stringify(next));
+  tradingSettings=next;Engine.configure(next);GoldEngine.configure(next);
+  saveState();saveGoldPaper();renderPolicyForm();render();renderGold();
+  log(localized("تم حفظ سياسة رأس المال والمخاطر وتطبيقها على المحاكاة المحلية.","Capital and risk policy saved and applied to local paper engines."),"POLICY");
+  toast(initialCapitalChanged
+   ?localized("حُفظ رأس المال للحسابات الجديدة. لتطبيقه الآن على المحاكاة اضغط إعادة تأسيس حسابي المحاكاة.",
+      "Initial capital saved for new accounts. To apply it to current paper accounts, use Reset paper accounts.")
+   :localized("تم حفظ الإعدادات وتطبيقها.","Settings saved and applied."));
+ }catch(error){toast(localized("تعذر حفظ الإعدادات على هذا الجهاز.","Could not save settings on this device."));}
+}
+function restorePolicyDefaults(){
+ if(!window.confirm(localized("استعادة إعدادات السياسة الافتراضية؟ لن يتم حذف الصفقات الحالية.","Restore default policy settings? Existing paper trades will not be deleted.")))return;
+ tradingSettings=Policy.normalize(Policy.DEFAULTS);
+ Engine.configure(tradingSettings);GoldEngine.configure(tradingSettings);
+ try{localStorage.setItem(POLICY_KEY,JSON.stringify(tradingSettings));}catch(_){}
+ renderPolicyForm();render();renderGold();log("Default ROAD paper policy restored","POLICY");
+}
+function resetAllPaperAccounts(){
+ if(!window.confirm(localized("سيتم حذف مراكز وسجل المحاكاة الحاليين وإعادة حسابي المحاكاة إلى رأس المال المحدد في السياسة. هل تتابع؟","This deletes current paper positions and trade history and resets both paper accounts to the configured initial capital. Continue?")))return;
+ state=Engine.createState();goldPaperState=GoldEngine.createPaperState();
+ saveState();saveGoldPaper();render();renderGold();renderPolicyForm();
+ log("Both local paper accounts reset to the configured initial capital","POLICY");
+ toast(localized("تمت إعادة ضبط حسابات المحاكاة.","Paper accounts reset."));
+}
+function validateRiskRecovery(){
+ if(!window.confirm(localized("تؤكد أنك راجعت الاستراتيجية وبيانات السوق وأن ظروف المخاطر عادت إلى الحدود؟","Confirm that you reviewed the strategy and market data and that risk conditions are back within limits?")))return;
+ const now=new Date(),paper=Engine.validateRecovery(state,priceMap(),now,true);
+ const gold=goldFeedUsable?GoldEngine.validateRecovery(goldPaperState,goldCurrentQuote,now,true):{ok:false,reason:"GOLD_FEED_NOT_FRESH"};
+ if(paper.ok)saveState();
+ if(gold.ok)saveGoldPaper();
+ render();renderGold();renderPolicyForm();
+ log("Risk recovery check — Solana paper: "+(paper.ok?"PASS":paper.reason)+" · Gold paper: "+(gold.ok?"PASS":gold.reason),"RISK");
+ toast(localized("تم فحص الاستئناف. راجع حالة كل محرك في لوحة المخاطر.","Recovery check completed. Review each engine status in the risk dashboard."));
+}
+
 document.querySelectorAll("[data-page]").forEach(button=>button.addEventListener("click",()=>navigate(button.dataset.page)));
 $("menu").addEventListener("click",()=>setDrawer(!$("sidebar").classList.contains("open")));
 $("closeMenu").addEventListener("click",()=>setDrawer(false));
@@ -1054,8 +1314,9 @@ $("drawerScrim").addEventListener("click",()=>setDrawer(false));
 $("marketSearch").addEventListener("input",applyMarketSearch);
 document.addEventListener("keydown",event=>{if(event.key==="Escape")setDrawer(false);});
 $("pause").addEventListener("click",()=>{
-if(state.riskLocked)return toast("Risk lock cannot be manually bypassed");
-Engine.setManualPause(state,!state.manualPaused,new Date());log(state.manualPaused?"Manual entry pause enabled":"Manual entry pause disabled","RISK");render();
+ const risk=Engine.getRiskSnapshot(state,priceMap());
+ if(risk.paused)return toast(localized("يجب فحص شروط الاستئناف من صفحة إدارة المخاطر أولاً.","Validate recovery from the risk management page before resuming."));
+ Engine.setManualPause(state,!state.manualPaused,new Date());log(state.manualPaused?"Manual entry pause enabled":"Manual entry pause disabled","RISK");render();
 });
 $("kill").addEventListener("click",()=>{
 if(state.riskLocked)return toast("Risk lock cannot be manually bypassed");
@@ -1077,6 +1338,12 @@ $("languageToggle").addEventListener("click",()=>{
  try{localStorage.setItem(LANG_KEY,appLanguage);}catch(_){}
  applyLanguage();
 });
+$("savePolicy").addEventListener("click",savePolicy);
+$("resetPolicyDefaults").addEventListener("click",restorePolicyDefaults);
+$("resetAllPaper").addEventListener("click",resetAllPaperAccounts);
+$("validateRiskRecovery").addEventListener("click",validateRiskRecovery);
+$("policyProjectionCycles").addEventListener("input",updatePolicyProjection);
+Object.values(POLICY_FIELDS).forEach(id=>$(id).addEventListener("input",updatePolicyProjection));
 $("saveMt5Profile").addEventListener("click",saveMt5Profile);
 document.addEventListener("click",event=>{
  const select=event.target.closest("[data-mt5-select]");if(select)selectMt5Profile(select.getAttribute("data-mt5-select"));
@@ -1266,6 +1533,7 @@ applyLanguage();
 render();
 renderGold();
 renderMt5Profiles();
+renderPolicyForm();
 setInterval(()=>$("clock").textContent=new Date().toISOString().slice(11,19)+" UTC",1000);
 setInterval(()=>{
  const previous=state.riskLocked;
